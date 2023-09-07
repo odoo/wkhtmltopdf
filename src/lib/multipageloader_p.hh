@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,11 +17,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __MULTIPAGELOADER_P_HH__
-#define __MULTIPAGELOADER_P_HH__
-
-#include "multipageloader.hh"
-#include "tempfile.hh"
 #include <QAtomicInt>
 #include <QAuthenticator>
 #include <QFile>
@@ -32,58 +26,64 @@
 #include <QNetworkReply>
 #include <QWebFrame>
 
-#include "dllbegin.inc"
+#include "multipageloader.hh"
+#include "tempfile.hh"
+
 namespace wkhtmltopdf {
 
-class DLL_LOCAL MyNetworkProxyFactory: public QObject, public QNetworkProxyFactory {
+class MyNetworkProxyFactory : public QObject, public QNetworkProxyFactory {
 	Q_OBJECT
-private:
+  private:
 	QList<QString> bypassHosts;
 	QList<QNetworkProxy> originalProxy, noProxy;
-public:
+
+  public:
 	MyNetworkProxyFactory(QNetworkProxy defaultProxy, QList<QString> bypassHosts);
-	QList<QNetworkProxy> queryProxy (const QNetworkProxyQuery & query);
+	QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery & query);
 };
 
-class DLL_LOCAL MyNetworkAccessManager: public QNetworkAccessManager {
+class MyNetworkAccessManager : public QNetworkAccessManager {
 	Q_OBJECT
-private:
+  private:
 	bool disposed;
 	QSet<QString> allowed;
 	const settings::LoadPage & settings;
-public:
+
+  public:
 	void dispose();
 	void allow(QString path);
 	MyNetworkAccessManager(const settings::LoadPage & s);
 	QNetworkReply * createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
-signals:
+  signals:
 	void debug(const QString & text);
 	void info(const QString & text);
 	void warning(const QString & text);
 	void error(const QString & text);
 };
 
-class DLL_LOCAL MultiPageLoaderPrivate;
-class DLL_LOCAL ResourceObject;
+class MultiPageLoaderPrivate;
+class ResourceObject;
 
-class DLL_LOCAL MyQWebPage: public QWebPage {
-	Q_OBJECT ;
-private:
+class MyQWebPage : public QWebPage {
+	Q_OBJECT;
+
+  private:
 	ResourceObject & resource;
-public:
+
+  public:
 	MyQWebPage(ResourceObject & res);
 	virtual void javaScriptAlert(QWebFrame * frame, const QString & msg);
 	virtual bool javaScriptConfirm(QWebFrame * frame, const QString & msg);
 	virtual bool javaScriptPrompt(QWebFrame * frame, const QString & msg, const QString & defaultValue, QString * result);
 	virtual void javaScriptConsoleMessage(const QString & message, int lineNumber, const QString & sourceID);
 	virtual QString overrideMediaType() const;
-public slots:
+  public slots:
 	bool shouldInterruptJavaScript();
 };
 
-class DLL_LOCAL ResourceObject: public QObject {
+class ResourceObject : public QObject {
 	Q_OBJECT
-private:
+  private:
 	MyNetworkAccessManager networkAccessManager;
 	QUrl url;
 	int loginTry;
@@ -92,13 +92,14 @@ private:
 	bool finished;
 	bool signalPrint;
 	MultiPageLoaderPrivate & multiPageLoader;
-public:
+
+  public:
 	ResourceObject(MultiPageLoaderPrivate & mpl, const QUrl & u, const settings::LoadPage & s);
 	MyQWebPage webPage;
 	LoaderObject lo;
 	int httpErrorCode;
 	const settings::LoadPage settings;
-public slots:
+  public slots:
 	void load();
 	void loadStarted();
 	void loadProgress(int progress);
@@ -106,19 +107,20 @@ public slots:
 	void waitWindowStatus();
 	void printRequested(QWebFrame * frame);
 	void loadDone();
-	void handleAuthenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator);
+	void handleAuthenticationRequired(QNetworkReply * reply, QAuthenticator * authenticator);
 	void debug(const QString & str);
 	void info(const QString & str);
 	void warning(const QString & str);
 	void error(const QString & str);
-	void sslErrors(QNetworkReply *reply, const QList<QSslError> &);
+	void sslErrors(QNetworkReply * reply, const QList<QSslError> &);
 	void amfinished(QNetworkReply * reply);
 };
 
-class DLL_LOCAL MyCookieJar: public QNetworkCookieJar {
-private:
+class MyCookieJar : public QNetworkCookieJar {
+  private:
 	QList<QNetworkCookie> extraCookies;
-public:
+
+  public:
 	void clearExtraCookies();
 	void useCookie(const QUrl & url, const QString & name, const QString & value);
 	QList<QNetworkCookie> cookiesForUrl(const QUrl & url) const;
@@ -126,9 +128,9 @@ public:
 	void saveToFile(const QString & path);
 };
 
-class DLL_LOCAL MultiPageLoaderPrivate: public QObject {
+class MultiPageLoaderPrivate : public QObject {
 	Q_OBJECT
-public:
+  public:
 	MyCookieJar * cookieJar;
 
 	MultiPageLoader & outer;
@@ -151,11 +153,9 @@ public:
 	void load();
 	void clearResources();
 	void cancel();
-public slots:
+  public slots:
 	void fail();
 	void loadDone();
 };
 
-}
-#include "dllend.inc"
-#endif //__MULTIPAGELOADER_P_HH__
+} // namespace wkhtmltopdf

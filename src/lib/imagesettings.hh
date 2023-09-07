@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,20 +17,16 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __IMAGESETTINGS_HH__
-#define __IMAGESETTINGS_HH__
-
 #include <QString>
-#include <logging.hh>
-#include <loadsettings.hh>
-#include <websettings.hh>
 
-#include <dllbegin.inc>
+#include "loadsettings.hh"
+#include "logging.hh"
+#include "websettings.hh"
+
 namespace wkhtmltopdf {
 namespace settings {
-
 /*! \brief Settings for cropping image */
-struct DLL_PUBLIC CropSettings {
+struct CropSettings {
 	CropSettings();
 	//! Cropping left/x coord
 	int left;
@@ -45,11 +40,11 @@ struct DLL_PUBLIC CropSettings {
 
 /*! \brief Class holding all user settings.
 
-    This class holds all the user settings, settings can be filled in by hand,
-    or with other methods.
-    \sa CommandLineParser::parse()
+	This class holds all the user settings, settings can be filled in by hand,
+	or with other methods.
+	\sa CommandLineParser::parse()
 */
-struct DLL_PUBLIC ImageGlobal {
+struct ImageGlobal {
 	ImageGlobal();
 
 	//! Crop related settings
@@ -90,7 +85,5 @@ struct DLL_PUBLIC ImageGlobal {
 	bool set(const char * name, const QString & value);
 };
 
-#include <dllend.inc>
-}
-}
-#endif //__IMAGESETTINGS_HH__
+} // namespace settings
+} // namespace wkhtmltopdf

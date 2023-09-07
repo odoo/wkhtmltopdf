@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,12 +17,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __LOGGING_HH__
-#define __LOGGING_HH__
-
 #include <QMap>
 #include <QString>
-#include <dllbegin.inc>
 namespace wkhtmltopdf {
 namespace settings {
 
@@ -35,10 +30,8 @@ enum LogLevel {
 	Debug
 };
 
-DLL_PUBLIC LogLevel strToLogLevel(const char * s, bool * ok=0);
-DLL_PUBLIC QString logLevelToStr(const LogLevel & l, bool * ok=0);
+LogLevel strToLogLevel(const char * s, bool * ok = 0);
+QString logLevelToStr(const LogLevel & l, bool * ok = 0);
 
-}
-}
-#include <dllend.inc>
-#endif //__LOGGING_HH__
+} // namespace settings
+} // namespace wkhtmltopdf

@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,22 +17,29 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __TEMPFILE_HH__
-#define __TEMPFILE_HH__
-
+#include <QDir>
+#include <QFile>
 #include <QStringList>
+#include <QUuid>
 
-#include "dllbegin.inc"
-
-class DLL_LOCAL TempFile {
-private:
+class TempFile {
+  private:
 	QStringList paths;
-public:
-	TempFile();
-	~TempFile();
-	QString create(const QString & ext);
-	void removeAll();
-};
 
-#include "dllend.inc"
-#endif //__TEMPFILE_HH__
+  public:
+	TempFile() {}
+	~TempFile() {
+		removeAll();
+	}
+
+	QString create(const QString & ext) {
+		QString path = QDir::tempPath() + "/wktemp-" + QUuid::createUuid().toString().mid(1, 36) + ext;
+		paths.append(path);
+		return path;
+	}
+	void removeAll() {
+		foreach (const QString & path, paths)
+			QFile::remove(path);
+		paths.clear();
+	}
+};

@@ -18,13 +18,12 @@
 DEFINES += BUILDING_DLL
 
 #Shared
-PUBLIC_HEADERS += ../lib/converter.hh ../lib/multipageloader.hh ../lib/dllbegin.inc
-PUBLIC_HEADERS += ../lib/dllend.inc ../lib/loadsettings.hh ../lib/websettings.hh
+PUBLIC_HEADERS += ../lib/converter.hh ../lib/multipageloader.hh
+PUBLIC_HEADERS += ../lib/loadsettings.hh ../lib/websettings.hh
 PUBLIC_HEADERS += ../lib/utilities.hh
 HEADERS += ../lib/multipageloader_p.hh  ../lib/converter_p.hh
 SOURCES += ../lib/loadsettings.cc ../lib/logging.cc ../lib/multipageloader.cc \
-	   ../lib/tempfile.cc ../lib/converter.cc ../lib/websettings.cc  \
-  	   ../lib/reflect.cc ../lib/utilities.cc
+		   ../lib/converter.cc ../lib/reflect.cc ../lib/utilities.cc
 
 #Pdf
 PUBLIC_HEADERS += ../lib/pdfconverter.hh ../lib/pdfsettings.hh
@@ -35,11 +34,5 @@ SOURCES += ../lib/pdfsettings.cc ../lib/pdfconverter.cc \
 PUBLIC_HEADERS += ../lib/imageconverter.hh ../lib/imagesettings.hh
 HEADERS += ../lib/imageconverter_p.hh
 SOURCES += ../lib/imagesettings.cc ../lib/imageconverter.cc
-
-#C-Bindings
-PUBLIC_HEADERS += ../lib/pdf.h ../lib/image.h
-HEADERS += ../lib/pdf_c_bindings_p.hh ../lib/image_c_bindings_p.hh
-SOURCES += ../lib/pdf_c_bindings.cc ../lib/image_c_bindings.cc
-
 
 HEADERS += $$PUBLIC_HEADERS

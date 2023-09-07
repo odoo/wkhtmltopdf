@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,29 +17,24 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __IMAGECONVERTER_HH__
-#define __IMAGECONVERTER_HH__
+#include "converter.hh"
+#include "imagesettings.hh"
 
-#include <converter.hh>
-#include <imagesettings.hh>
-
-#include <dllbegin.inc>
 namespace wkhtmltopdf {
 
-class DLL_LOCAL ImageConverterPrivate;
+class ImageConverterPrivate;
 
-class DLL_PUBLIC ImageConverter: public Converter {
+class ImageConverter : public Converter {
 	Q_OBJECT
-public:
-	ImageConverter(settings::ImageGlobal & settings, const QString * data=NULL);
+  public:
+	ImageConverter(settings::ImageGlobal & settings, const QString * data = NULL);
 	~ImageConverter();
 	const QByteArray & output();
-private:
+
+  private:
 	ImageConverterPrivate * d;
 	virtual ConverterPrivate & priv();
 	friend class ImageConverterPrivate;
 };
 
-#include <dllend.inc>
-}
-#endif //__IMAGECONVERTER_HH__
+} // namespace wkhtmltopdf

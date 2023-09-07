@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,48 +17,45 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __PDFSETTINGS_HH__
-#define __PDFSETTINGS_HH__
-
 #include <QNetworkProxy>
 #include <QPrinter>
 #include <QString>
-#include <logging.hh>
-#include <loadsettings.hh>
-#include <websettings.hh>
 
-#include <dllbegin.inc>
+#include "loadsettings.hh"
+#include "logging.hh"
+#include "websettings.hh"
+
 namespace wkhtmltopdf {
 namespace settings {
 
-typedef QPair<qreal, QPrinter::Unit> UnitReal;
+using UnitReal = QPair<qreal, QPrinter::Unit>;
 
 /*! \brief Settings considering margins */
-struct DLL_PUBLIC Margin {
+struct Margin {
 	Margin();
-	//!Margin applied to the top of the page
+	//! Margin applied to the top of the page
 	UnitReal top;
-	//!Margin applied to the right of the page
+	//! Margin applied to the right of the page
 	UnitReal right;
-	//!Margin applied to the bottom of the page
+	//! Margin applied to the bottom of the page
 	UnitReal bottom;
-	//!Margin applied to the leftp of the page
+	//! Margin applied to the leftp of the page
 	UnitReal left;
 };
 
 /*! \brief Settings considering page size */
-struct DLL_PUBLIC Size {
+struct Size {
 	Size();
 	//! What size paper should we use
 	QPrinter::PageSize pageSize;
-	//!Height of the page
+	//! Height of the page
 	UnitReal height;
-	//!Width of the page
+	//! Width of the page
 	UnitReal width;
 };
 
 /*! \brief Settings considering the table of content */
-struct DLL_PUBLIC TableOfContent {
+struct TableOfContent {
 	TableOfContent();
 	//! Should we print dots between the name and the page number?
 	bool useDottedLines;
@@ -76,11 +72,11 @@ struct DLL_PUBLIC TableOfContent {
 };
 
 /*! \brief Class holding all user setting.
-    This class holds all the user settings, settings can be filled in by hand,
-    or with other methods.
-    \sa CommandLineParser::parse()
+	This class holds all the user settings, settings can be filled in by hand,
+	or with other methods.
+	\sa CommandLineParser::parse()
 */
-struct DLL_PUBLIC PdfGlobal {
+struct PdfGlobal {
 	PdfGlobal();
 
 	//! Size related settings
@@ -147,7 +143,7 @@ struct DLL_PUBLIC PdfGlobal {
 };
 
 /*! \brief Settings considering headers and footers */
-struct DLL_PUBLIC HeaderFooter {
+struct HeaderFooter {
 	HeaderFooter();
 	//! Size of the font used to render the text
 	int fontSize;
@@ -167,7 +163,7 @@ struct DLL_PUBLIC HeaderFooter {
 	float spacing;
 };
 
-struct DLL_PUBLIC PdfObject {
+struct PdfObject {
 	PdfObject();
 	//! Settings regarding the TOC
 	TableOfContent toc;
@@ -187,7 +183,7 @@ struct DLL_PUBLIC PdfObject {
 	bool useLocalLinks;
 
 	//! Replacements
-	QList< QPair<QString, QString> > replacements;
+	QList<QPair<QString, QString>> replacements;
 
 	//! Convert forms on the pages into PDF forms
 	bool produceForms;
@@ -208,24 +204,22 @@ struct DLL_PUBLIC PdfObject {
 	bool set(const char * name, const QString & value);
 };
 
-DLL_PUBLIC QPrinter::PageSize strToPageSize(const char * s, bool * ok=0);
-DLL_PUBLIC QString pageSizeToStr(QPrinter::PageSize ps);
+QPrinter::PageSize strToPageSize(const char * s, bool * ok = 0);
+QString pageSizeToStr(QPrinter::PageSize ps);
 
-DLL_PUBLIC UnitReal strToUnitReal(const char * s, bool * ok=0);
-DLL_PUBLIC QString unitRealToStr(const UnitReal & ur, bool * ok);
+UnitReal strToUnitReal(const char * s, bool * ok = 0);
+QString unitRealToStr(const UnitReal & ur, bool * ok);
 
-DLL_PUBLIC QPrinter::Orientation strToOrientation(const char * s, bool * ok=0);
-DLL_PUBLIC QString orientationToStr(QPrinter::Orientation o);
+QPrinter::Orientation strToOrientation(const char * s, bool * ok = 0);
+QString orientationToStr(QPrinter::Orientation o);
 
-DLL_PUBLIC QPrinter::PrinterMode strToPrinterMode(const char * s, bool * ok=0);
-DLL_PUBLIC QString printerModeToStr(QPrinter::PrinterMode o);
+QPrinter::PrinterMode strToPrinterMode(const char * s, bool * ok = 0);
+QString printerModeToStr(QPrinter::PrinterMode o);
 
-DLL_PUBLIC QPrinter::ColorMode strToColorMode(const char * s, bool * ok=0);
-DLL_PUBLIC QString colorModeToStr(QPrinter::ColorMode o);
+QPrinter::ColorMode strToColorMode(const char * s, bool * ok = 0);
+QString colorModeToStr(QPrinter::ColorMode o);
 
-}
+void dumpDefaultTOCStyleSheet(QTextStream & stream, settings::TableOfContent & s);
 
-DLL_PUBLIC void dumpDefaultTOCStyleSheet(QTextStream & stream, settings::TableOfContent & s);
-}
-#include <dllend.inc>
-#endif //__PDFSETTINGS_HH__
+} // namespace settings
+} // namespace wkhtmltopdf

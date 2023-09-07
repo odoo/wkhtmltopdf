@@ -1,6 +1,3 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -21,9 +18,7 @@
 #include "logging.hh"
 #include <QMap>
 #include <QString>
-#include <dllbegin.inc>
-namespace wkhtmltopdf {
-namespace settings {
+namespace wkhtmltopdf::settings {
 
 // Centralized name-to-enum value mapping
 QMap<QString, LogLevel> logLevelMap() {
@@ -58,6 +53,4 @@ QString logLevelToStr(const LogLevel & l, bool * ok) {
 	return QString();
 }
 
-}
-}
-#include <dllend.inc>
+} // namespace wkhtmltopdf::settings

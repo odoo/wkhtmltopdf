@@ -1,6 +1,3 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,15 +15,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-
-#include "imageconverter_p.hh"
-#include "imagesettings.hh"
 #include <QBuffer>
 #include <QDebug>
 #include <QEventLoop>
 #include <QFileInfo>
 #include <QImage>
-#include <QObject>
 #include <QObject>
 #include <QPainter>
 #include <QSvgGenerator>
@@ -36,17 +29,14 @@
 #include <QWebPage>
 #include <qapplication.h>
 
-#ifdef Q_OS_WIN32
-#include <fcntl.h>
-#include <io.h>
-#endif
+#include "imageconverter_p.hh"
+#include "imagesettings.hh"
 
 namespace wkhtmltopdf {
 
-ImageConverterPrivate::ImageConverterPrivate(ImageConverter & o, wkhtmltopdf::settings::ImageGlobal & s, const QString * data):
-	settings(s),
-	loader(s.loadGlobal, 96, true),
-	out(o) {
+ImageConverterPrivate::ImageConverterPrivate(ImageConverter & o, wkhtmltopdf::settings::ImageGlobal & s, const QString * data) : settings(s),
+																																 loader(s.loadGlobal, 96, true),
+																																 out(o) {
 	out.emitCheckboxSvgs(s.loadPage);
 	if (data) inputData = *data;
 
@@ -69,12 +59,11 @@ void ImageConverterPrivate::beginConvert() {
 	progressString = "0%";
 	loaderObject = loader.addResource(settings.in, settings.loadPage, &inputData);
 	updateWebSettings(loaderObject->page.settings(), settings.web);
-	currentPhase=0;
-	emit out. phaseChanged();
+	currentPhase = 0;
+	emit out.phaseChanged();
 	loadProgress(0);
 	loader.load();
 }
-
 
 void ImageConverterPrivate::clearResources() {
 	loader.clearResources();
@@ -87,7 +76,7 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 		return;
 	}
 	// if fmt is empty try to get it from file extension in out
-	if (settings.fmt=="") {
+	if (settings.fmt == "") {
 		if (settings.out == "-")
 			settings.fmt = "jpg";
 		else {
@@ -97,17 +86,17 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 	}
 
 	// check whether image format is supported (for writing)
-//	QImageWriter test;
-//	test.setFormat(settings.fmt);
-//	if (!test.canWrite()) {
-//		if (!settings.quiet)printf("error: file format not supported\n");
-//		httpErrorCode=DEFAULT;
-//		return false;
-//	}
+	//	QImageWriter test;
+	//	test.setFormat(settings.fmt);
+	//	if (!test.canWrite()) {
+	//		if (!settings.quiet)printf("error: file format not supported\n");
+	//		httpErrorCode=DEFAULT;
+	//		return false;
+	//	}
 	// create webkit frame and load website
 
-	currentPhase=1;
-	emit out. phaseChanged();
+	currentPhase = 1;
+	emit out.phaseChanged();
 	loadProgress(0);
 
 	QWebFrame * frame = loaderObject->page.mainFrame();
@@ -115,18 +104,18 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 
 	loadProgress(25);
 	// Calculate a good width for the image
-	int highWidth=settings.screenWidth;
+	int highWidth = settings.screenWidth;
 	loaderObject->page.setViewportSize(QSize(highWidth, 10));
 	if (settings.smartWidth && frame->scrollBarMaximum(Qt::Horizontal) > 0) {
-		if (highWidth < 10) highWidth=10;
-		int lowWidth=highWidth;
+		if (highWidth < 10) highWidth = 10;
+		int lowWidth = highWidth;
 		while (frame->scrollBarMaximum(Qt::Horizontal) > 0 && highWidth < 32000) {
 			lowWidth = highWidth;
 			highWidth *= 2;
 			loaderObject->page.setViewportSize(QSize(highWidth, 10));
 		}
 		while (highWidth - lowWidth > 10) {
-			int t = lowWidth + (highWidth - lowWidth)/2;
+			int t = lowWidth + (highWidth - lowWidth) / 2;
 			loaderObject->page.setViewportSize(QSize(t, 10));
 			if (frame->scrollBarMaximum(Qt::Horizontal) > 0)
 				lowWidth = t;
@@ -136,7 +125,7 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 		loaderObject->page.setViewportSize(QSize(highWidth, 10));
 	}
 	loaderObject->page.mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
-	//Set the right height
+	// Set the right height
 	if (settings.screenHeight > 0)
 		loaderObject->page.setViewportSize(QSize(highWidth, settings.screenHeight));
 	else
@@ -149,19 +138,16 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 	QBuffer buffer(&outputData);
 	QIODevice * dev = &file;
 
-	bool openOk=true;
+	bool openOk = true;
 	// output image
 	if (settings.out.isEmpty())
-		dev =  &buffer;
-	else if (settings.out != "-" ) {
+		dev = &buffer;
+	else if (settings.out != "-") {
 		file.setFileName(settings.out);
 		openOk = file.open(QIODevice::WriteOnly);
 	} else {
-#ifdef Q_OS_WIN32
-		_setmode(_fileno(stdout), _O_BINARY);
-#endif
 		openOk = file.open(stdout, QIODevice::WriteOnly);
-    }
+	}
 
 	if (!openOk) {
 		emit out.error("Could not write to output file");
@@ -172,8 +158,7 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 	if (settings.crop.top < 0) settings.crop.top = 0;
 	if (settings.crop.width < 0) settings.crop.width = 1000000;
 	if (settings.crop.height < 0) settings.crop.height = 1000000;
-	QRect rect = QRect(QPoint(0,0), loaderObject->page.viewportSize()).intersected(
-		QRect(settings.crop.left,settings.crop.top,settings.crop.width,settings.crop.height));
+	QRect rect = QRect(QPoint(0, 0), loaderObject->page.viewportSize()).intersected(QRect(settings.crop.left, settings.crop.top, settings.crop.width, settings.crop.height));
 	if (rect.width() == 0 || rect.height() == 0) {
 		emit out.error("Will not output an empty image");
 		fail();
@@ -185,7 +170,7 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 	} else {
 		generator.setOutputDevice(dev);
 		generator.setSize(rect.size());
-		generator.setViewBox(QRect(QPoint(0,0),rect.size()));
+		generator.setViewBox(QRect(QPoint(0, 0), rect.size()));
 #ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 		generator.setViewBoxClip(true);
 #endif
@@ -200,26 +185,15 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 		pal.setBrush(QPalette::Base, Qt::transparent);
 		loaderObject->page.setPalette(pal);
 	} else {
-		painter.fillRect(QRect(QPoint(0,0),loaderObject->page.viewportSize()), Qt::white);
+		painter.fillRect(QRect(QPoint(0, 0), loaderObject->page.viewportSize()), Qt::white);
 	}
 	painter.translate(-rect.left(), -rect.top());
 	frame->render(&painter);
 	painter.end();
 
-	//loadProgress(30);
-	// perform filter(s)
-	//if (settings.crop.width > 0 && settings.crop.height > 0)
-	//	image=image.copy(settings.crop.left,settings.crop.top,settings.crop.width,settings.crop.height);
-	//loadProgress(50);
-	//if (settings.scale.width > 0 && settings.scale.height > 0) {
-		// todo: perhaps get more user options to change aspect ration and scaling mode?
-	//	image=image.scaled(settings.scale.width,settings.scale.height,Qt::IgnoreAspectRatio,Qt::SmoothTransformation);
-	//}
-	//loadProgress(80);
-
 	if (settings.fmt != "svg") {
-		QByteArray fmt=settings.fmt.toLatin1();
-		if (!image.save(dev,fmt.data(), settings.quality)) {
+		QByteArray fmt = settings.fmt.toLatin1();
+		if (!image.save(dev, fmt.data(), settings.quality)) {
 			emit out.error("Could not save image");
 			fail();
 		}
@@ -247,7 +221,6 @@ ConverterPrivate & ImageConverter::priv() {
 	return *d;
 }
 
-
 ImageConverter::ImageConverter(wkhtmltopdf::settings::ImageGlobal & s, const QString * data) {
 	d = new ImageConverterPrivate(*this, s, data);
 }
@@ -256,4 +229,4 @@ const QByteArray & ImageConverter::output() {
 	return d->outputData;
 }
 
-}
+} // namespace wkhtmltopdf

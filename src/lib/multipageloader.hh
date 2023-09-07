@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,9 +17,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __MULTIPAGELOADER_HH__
-#define __MULTIPAGELOADER_HH__
-
 #include <QFile>
 #include <QObject>
 #include <QUrl>
@@ -29,37 +25,36 @@
 #else
 #include <QWebPage>
 #endif
-#include <loadsettings.hh>
+#include "loadsettings.hh"
 
-#include <dllbegin.inc>
 namespace wkhtmltopdf {
 
-class DLL_LOCAL MyQWebPage;
+class MyQWebPage;
 
-class DLL_LOCAL LoaderObject {
-public:
+class LoaderObject {
+  public:
 	QWebPage & page;
 	bool skip;
 
 	LoaderObject(QWebPage & page);
 };
 
-class DLL_LOCAL MultiPageLoaderPrivate;
-class DLL_LOCAL MultiPageLoader: public QObject {
+class MultiPageLoaderPrivate;
+class MultiPageLoader : public QObject {
 	Q_OBJECT
-public:
+  public:
 	MultiPageLoader(settings::LoadGlobal & s, int dpi, bool mainLoader = false);
 	~MultiPageLoader();
-	LoaderObject * addResource(const QString & url, const settings::LoadPage & settings, const QString * data=NULL);
+	LoaderObject * addResource(const QString & url, const settings::LoadPage & settings, const QString * data = NULL);
 	LoaderObject * addResource(const QUrl & url, const settings::LoadPage & settings);
-	static QUrl guessUrlFromString(const QString &string);
+	static QUrl guessUrlFromString(const QString & string);
 	int httpErrorCode();
 	static bool copyFile(QFile & src, QFile & dst);
-public slots:
+  public slots:
 	void load();
 	void clearResources();
 	void cancel();
-signals:
+  signals:
 	void loadFinished(bool ok);
 	void loadProgress(int progress);
 	void loadStarted();
@@ -67,13 +62,12 @@ signals:
 	void info(QString text);
 	void warning(QString text);
 	void error(QString text);
-private:
+
+  private:
 	MultiPageLoaderPrivate * d;
 	friend class MultiPageLoaderPrivate;
 	friend class MyQWebPage;
 	friend class ResourceObject;
 };
 
-}
-#include <dllend.inc>
-#endif //__MULTIPAGELOADER_HH__
+} // namespace wkhtmltopdf

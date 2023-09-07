@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,16 +17,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __OUTLINE_P_HH__
-#define __OUTLINE_P_HH__
-
 #include "outline.hh"
+
 #ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-#include "dllbegin.inc"
+
 namespace wkhtmltopdf {
 
-class DLL_LOCAL OutlineItem {
-public:
+class OutlineItem {
+  public:
 	QList<OutlineItem *> children;
 	OutlineItem * parent;
 	uint page;
@@ -41,15 +38,15 @@ public:
 	bool backLinks;
 	void fillAnchors(const OutlineItem * other,
 					 int & anchorCounter,
-					 QVector<QPair<QWebElement, QString> > & local,
+					 QVector<QPair<QWebElement, QString>> & local,
 					 QHash<QString, QWebElement> & anchors);
 	bool differentFrom(const OutlineItem * other) const;
 	OutlineItem();
 	~OutlineItem();
 };
 
-class DLL_LOCAL OutlinePrivate {
-public:
+class OutlinePrivate {
+  public:
 	const settings::PdfGlobal & settings;
 	QList<OutlineItem *> documentOutlines;
 	QList<int> documentPages;
@@ -57,7 +54,7 @@ public:
 	int pageCount;
 	int anchorCounter;
 
-	QList< QList< OutlineItem *> > hfCache;
+	QList<QList<OutlineItem *>> hfCache;
 
 	OutlinePrivate(const settings::PdfGlobal & settings);
 	~OutlinePrivate();
@@ -68,7 +65,5 @@ public:
 	void dumpChildren(QTextStream & stream, const QList<OutlineItem *> & items, int level) const;
 };
 
-#include "dllend.inc"
-}
+} // namespace wkhtmltopdf
 #endif //__EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-#endif //__OUTLINE_P_HH__

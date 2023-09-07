@@ -18,11 +18,11 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-
-#include "outline_p.hh"
 #include <fstream>
 #include <iostream>
-using namespace std;
+
+#include "outline_p.hh"
+
 #ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 
 namespace wkhtmltopdf {
@@ -36,8 +36,7 @@ namespace wkhtmltopdf {
   \brief Class describing an item in the outline
 */
 
-OutlineItem::OutlineItem():
-	parent(NULL), page(-1), display(true), forwardLinks(false), backLinks(false) {}
+OutlineItem::OutlineItem() : parent(NULL), page(-1), display(true), forwardLinks(false), backLinks(false) {}
 
 /*!
   \brief Recursivily delete the subtree
@@ -49,29 +48,29 @@ OutlineItem::~OutlineItem() {
 
 void OutlineItem::fillAnchors(const OutlineItem * other,
 							  int & anchorCounter,
-							  QVector<QPair<QWebElement, QString> > & local,
+							  QVector<QPair<QWebElement, QString>> & local,
 							  QHash<QString, QWebElement> & anchors) {
 	if (!other ||
 		other->children.size() != children.size() ||
 		other->document != document ||
 		other->value != value ||
-		other->display != display) other=0;
+		other->display != display) other = 0;
 
 	if (other) {
 		anchor = other->anchor;
 		tocAnchor = other->anchor;
 	} else {
-		anchor = QString("__WKANCHOR_")+QString::number(anchorCounter++,36);
-		tocAnchor = QString("__WKANCHOR_")+QString::number(anchorCounter++,36);
+		anchor = QString("__WKANCHOR_") + QString::number(anchorCounter++, 36);
+		tocAnchor = QString("__WKANCHOR_") + QString::number(anchorCounter++, 36);
 	}
 
 	if (forwardLinks)
 		anchors[anchor] = element;
 	if (backLinks)
-		local.push_back( QPair<QWebElement, QString>(element, tocAnchor) );
+		local.push_back(QPair<QWebElement, QString>(element, tocAnchor));
 
-	for (int i=0; i < children.size(); ++i)
-		children[i]->fillAnchors(other?other->children[i]:0, anchorCounter, local, anchors);
+	for (int i = 0; i < children.size(); ++i)
+		children[i]->fillAnchors(other ? other->children[i] : 0, anchorCounter, local, anchors);
 }
 
 bool OutlineItem::differentFrom(const OutlineItem * other) const {
@@ -81,20 +80,18 @@ bool OutlineItem::differentFrom(const OutlineItem * other) const {
 		other->value != value ||
 		other->display != display) return true;
 
-	for (int i=0; i < children.size(); ++i)
+	for (int i = 0; i < children.size(); ++i)
 		if (children[i]->differentFrom(other->children[i]))
 			return true;
 	return false;
 }
-
 
 /*!
   \class OutlinePrivate
   \brief Class providing implementation details of Outline
 */
 
-OutlinePrivate::OutlinePrivate(const settings::PdfGlobal & s):
-	settings(s), pageCount(0), anchorCounter(0) {
+OutlinePrivate::OutlinePrivate(const settings::PdfGlobal & s) : settings(s), pageCount(0), anchorCounter(0) {
 }
 
 OutlinePrivate::~OutlinePrivate() {
@@ -114,29 +111,29 @@ void OutlinePrivate::outlineChildren(OutlineItem * item, QPrinter * printer, int
 	if (level + 1 > settings.outlineDepth) return;
 	foreach (OutlineItem * i, item->children) {
 		printer->beginSectionOutline(i->value, i->anchor);
-		outlineChildren(i, printer, level+1);
+		outlineChildren(i, printer, level + 1);
 		printer->endSectionOutline();
 	}
 }
 
 QString escape(QString str) {
-	return str.replace('&',"&amp;")
-		.replace('<',"&lt;")
-		.replace('>',"&gt;")
-		.replace('"',"&quot;")
-		.replace('\'',"&apos;");
+	return str.replace('&', "&amp;")
+		.replace('<', "&lt;")
+		.replace('>', "&gt;")
+		.replace('"', "&quot;")
+		.replace('\'', "&apos;");
 }
 
 void OutlinePrivate::dumpChildren(QTextStream & stream, const QList<OutlineItem *> & items, int level) const {
 	foreach (OutlineItem * item, items) {
-		for (int i=0; i < level; ++i) stream << "  ";
-		stream << "<item title=\"" << escape(item->value) << "\" page=\"" << (item->page + prefixSum[item->document]+ settings.pageOffset) << "\" link=\"" << escape(item->anchor) << "\" backLink=\"" << escape(item->tocAnchor) << "\"";
+		for (int i = 0; i < level; ++i) stream << "  ";
+		stream << "<item title=\"" << escape(item->value) << "\" page=\"" << (item->page + prefixSum[item->document] + settings.pageOffset) << "\" link=\"" << escape(item->anchor) << "\" backLink=\"" << escape(item->tocAnchor) << "\"";
 		if (item->children.empty())
 			stream << "/>" << endl;
 		else {
 			stream << ">" << endl;
-			dumpChildren(stream, item->children, level+1);
-			for (int i=0; i < level; ++i) stream << "  ";
+			dumpChildren(stream, item->children, level + 1);
+			for (int i = 0; i < level; ++i) stream << "  ";
 			stream << "</item>" << endl;
 		}
 	}
@@ -146,7 +143,7 @@ void OutlinePrivate::buildPrefixSum() {
 	prefixSum.clear();
 	prefixSum.push_back(0);
 	foreach (int x, documentPages)
-		prefixSum.push_back( prefixSum.back() + x);
+		prefixSum.push_back(prefixSum.back() + x);
 }
 
 void Outline::dump(QTextStream & stream) const {
@@ -171,9 +168,8 @@ void Outline::dump(QTextStream & stream) const {
   \brief Construct a new outline class
   \param settings The settings to use
 */
-Outline::Outline(const settings::PdfGlobal & settings): d(new OutlinePrivate(settings)) {}
-Outline::~Outline() {delete d;}
-
+Outline::Outline(const settings::PdfGlobal & settings) : d(new OutlinePrivate(settings)) {}
+Outline::~Outline() { delete d; }
 
 /*!
   \brief Replace a webpage in the outline
@@ -187,18 +183,18 @@ bool Outline::replaceWebPage(int document,
 							 QWebPrinter & wp,
 							 QWebFrame * frame,
 							 const settings::PdfObject & ps,
-							 QVector<QPair<QWebElement, QString> > & local,
+							 QVector<QPair<QWebElement, QString>> & local,
 							 QHash<QString, QWebElement> & anchors) {
-	QMap< QPair<int, QPair<qreal,qreal> >, QWebElement> headings;
+	QMap<QPair<int, QPair<qreal, qreal>>, QWebElement> headings;
 	foreach (const QWebElement & e, frame->findAllElements("h1,h2,h3,h4,h5,h6,h7,h8,h9")) {
 		QPair<int, QRectF> location = wp.elementLocation(e);
-		headings[ qMakePair(location.first, qMakePair(location.second.y(), location.second.x()) ) ] = e;
+		headings[qMakePair(location.first, qMakePair(location.second.y(), location.second.x()))] = e;
 	}
 
-	//This heuristic is a little strange, it tries to create a real tree,
-	//even though someone puts a h5 below a h1 or stuff like that
-	//The way this is handled is having a level stack, indicating what h-tags
-	//a level level in the tree currently represents
+	// This heuristic is a little strange, it tries to create a real tree,
+	// even though someone puts a h5 below a h1 or stuff like that
+	// The way this is handled is having a level stack, indicating what h-tags
+	// a level level in the tree currently represents
 	QVector<uint> levelStack;
 	levelStack.push_back(0);
 	OutlineItem * root = new OutlineItem();
@@ -208,8 +204,8 @@ bool Outline::replaceWebPage(int document,
 	root->display = true;
 
 	OutlineItem * old = root;
-	for (QMap< QPair<int, QPair<qreal,qreal> >, QWebElement>::iterator i = headings.begin();
-		i != headings.end(); ++i) {
+	for (QMap<QPair<int, QPair<qreal, qreal>>, QWebElement>::iterator i = headings.begin();
+		 i != headings.end(); ++i) {
 		const QWebElement & element = i.value();
 		uint level = element.tagName().mid(1).toInt();
 		QString value = element.toPlainText().replace("\n", " ").trimmed();
@@ -233,7 +229,7 @@ bool Outline::replaceWebPage(int document,
 	}
 
 	root->fillAnchors(d->documentOutlines[document], d->anchorCounter, local, anchors);
-	bool changed=d->documentOutlines[document]->differentFrom(root);
+	bool changed = d->documentOutlines[document]->differentFrom(root);
 	delete d->documentOutlines[document];
 	d->documentOutlines[document] = root;
 
@@ -241,7 +237,7 @@ bool Outline::replaceWebPage(int document,
 		d->pageCount -= d->documentPages[document];
 		d->documentPages[document] = wp.pageCount();
 		d->pageCount += d->documentPages[document];
-		changed=true;
+		changed = true;
 	}
 	return changed;
 }
@@ -253,13 +249,12 @@ bool Outline::replaceWebPage(int document,
   \param frame The frame containing the webpage
 */
 void Outline::addWebPage(const QString & name, QWebPrinter & wp, QWebFrame * frame, const settings::PdfObject & ps,
-						 QVector<QPair<QWebElement, QString> > & local,
+						 QVector<QPair<QWebElement, QString>> & local,
 						 QHash<QString, QWebElement> & anchors) {
 	Q_UNUSED(name);
 	addEmptyWebPage();
-	replaceWebPage(d->documentOutlines.size()-1, name, wp, frame, ps, local, anchors);
+	replaceWebPage(d->documentOutlines.size() - 1, name, wp, frame, ps, local, anchors);
 }
-
 
 void Outline::addEmptyWebPage() {
 	OutlineItem * root = new OutlineItem();
@@ -281,10 +276,9 @@ void OutlinePrivate::buildHFCache(OutlineItem * i, int level) {
 			hfCache[level].push_back(hfCache[level].back());
 		if (hfCache[level].size() == page)
 			hfCache[level].push_back(j);
-		buildHFCache(j, level+1);
+		buildHFCache(j, level + 1);
 	}
 }
-
 
 /*!
   \brief Fill in header footer parameters for a given page
@@ -292,32 +286,32 @@ void OutlinePrivate::buildHFCache(OutlineItem * i, int level) {
   \param parms The structure to fill
  */
 void Outline::fillHeaderFooterParms(int page, QHash<QString, QString> & parms, const settings::PdfObject & ps) {
-	//Build hfcache
+	// Build hfcache
 	if (d->hfCache.size() == 0) {
-		for (int i=0; i < 3; ++i) {
-			QList< OutlineItem *> x;
+		for (int i = 0; i < 3; ++i) {
+			QList<OutlineItem *> x;
 			x.push_back(NULL);
 			d->hfCache.push_back(x);
 		}
 		foreach (OutlineItem * i, d->documentOutlines)
 			d->buildHFCache(i, 0);
 	}
-	for (int i=0; i < 3; ++i)
+	for (int i = 0; i < 3; ++i)
 		while (d->hfCache[i].size() <= page)
 			d->hfCache[i].push_back(d->hfCache[i].back());
 
 	int off = d->settings.pageOffset;
-	typedef QPair<QString,QString> SP;
+	typedef QPair<QString, QString> SP;
 	foreach (const SP & rep, ps.replacements)
 		parms[rep.first] = rep.second;
 
-	parms["frompage"] = QString::number(off+1);
-	parms["topage"] = QString::number(off+d->pageCount);
-	parms["page" ] = QString::number(page+off);
+	parms["frompage"] = QString::number(off + 1);
+	parms["topage"] = QString::number(off + d->pageCount);
+	parms["page"] = QString::number(page + off);
 	parms["webpage"] = ps.page;
-	parms["section" ] = d->hfCache[0][page]?d->hfCache[0][page]->value:QString("");
-	parms["subsection" ] = d->hfCache[1][page]?d->hfCache[1][page]->value:QString("");
-	parms["subsubsection" ] = d->hfCache[2][page]?d->hfCache[2][page]->value:QString("");
+	parms["section"] = d->hfCache[0][page] ? d->hfCache[0][page]->value : QString("");
+	parms["subsection"] = d->hfCache[1][page] ? d->hfCache[1][page]->value : QString("");
+	parms["subsubsection"] = d->hfCache[2][page] ? d->hfCache[2][page]->value : QString("");
 }
 
 /*!
@@ -326,8 +320,8 @@ void Outline::fillHeaderFooterParms(int page, QHash<QString, QString> & parms, c
   \param anchors The structure to fill
 */
 void Outline::fillAnchors(int doc, QHash<QString, QWebElement> & anchors) {
-  if (doc < 0 || doc >= d->documentOutlines.size()) return;
-  d->fillChildAnchors( d->documentOutlines[doc], anchors );
+	if (doc < 0 || doc >= d->documentOutlines.size()) return;
+	d->fillChildAnchors(d->documentOutlines[doc], anchors);
 }
 
 /*!
@@ -347,5 +341,5 @@ void Outline::printOutline(QPrinter * printer) {
 		d->outlineChildren(i, printer, 0);
 }
 
-}
+} // namespace wkhtmltopdf
 #endif //__EXTENSIVE_WKHTMLTOPDF_QT_HACK__

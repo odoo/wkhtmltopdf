@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,15 +17,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __PDFCONVERTER_P_HH__
-#define __PDFCONVERTER_P_HH__
-
-#include "converter_p.hh"
-#include "multipageloader.hh"
-#include "outline.hh"
-#include "pdfconverter.hh"
-#include "pdfsettings.hh"
-#include "tempfile.hh"
 #include <QAtomicInt>
 #include <QFile>
 #include <QMutex>
@@ -40,11 +30,17 @@
 #include <QWebElement>
 #endif
 
-#include "dllbegin.inc"
+#include "converter_p.hh"
+#include "multipageloader.hh"
+#include "outline.hh"
+#include "pdfconverter.hh"
+#include "pdfsettings.hh"
+#include "tempfile.hh"
+
 namespace wkhtmltopdf {
 
-class DLL_LOCAL PageObject {
-public:
+class PageObject {
+  public:
 	static QMap<QWebPage *, PageObject *> webPageToObject;
 
 	settings::PdfObject settings;
@@ -55,18 +51,18 @@ public:
 
 #ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	QHash<QString, QWebElement> anchors;
-	QVector< QPair<QWebElement,QString> > localLinks;
-	QVector< QPair<QWebElement,QString> > externalLinks;
-    // height length to reserve for header when printing page
-    double headerReserveHeight;
-    // height length to reserve for footer when printing page
-    double footerReserveHeight;
-    // keeps preloaded header to calculate header height
-    QWebPage * measuringHeader;
-    // keeps preloaded footer to calculate header height
-    QWebPage * measuringFooter;
-    // webprinter instance
-    QWebPrinter *web_printer;
+	QVector<QPair<QWebElement, QString>> localLinks;
+	QVector<QPair<QWebElement, QString>> externalLinks;
+	// height length to reserve for header when printing page
+	double headerReserveHeight;
+	// height length to reserve for footer when printing page
+	double footerReserveHeight;
+	// keeps preloaded header to calculate header height
+	QWebPage * measuringHeader;
+	// keeps preloaded footer to calculate header height
+	QWebPage * measuringFooter;
+	// webprinter instance
+	QWebPrinter * web_printer;
 #endif
 
 	int firstPageNumber;
@@ -82,33 +78,32 @@ public:
 		externalLinks.clear();
 		if (web_printer != 0)
 			delete web_printer;
-		web_printer=0;
+		web_printer = 0;
 #endif
 		headers.clear();
 		footers.clear();
 		webPageToObject.remove(page);
- 		page=0;
+		page = 0;
 		tocFile.removeAll();
 	}
 
-	PageObject(const settings::PdfObject & set, const QString * d=NULL):
-		settings(set), loaderObject(0), page(0)
+	PageObject(const settings::PdfObject & set, const QString * d = NULL) : settings(set), loaderObject(0), page(0)
 #ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-		, headerReserveHeight(0), footerReserveHeight(0), measuringHeader(0), measuringFooter(0), web_printer(0)
+																			,
+																			headerReserveHeight(0), footerReserveHeight(0), measuringHeader(0), measuringFooter(0), web_printer(0)
 #endif
 	{
-		if (d) data=*d;
+		if (d) data = *d;
 	};
 
 	~PageObject() {
 		clear();
 	}
-
 };
 
-class DLL_LOCAL PdfConverterPrivate: public ConverterPrivate {
+class PdfConverterPrivate : public ConverterPrivate {
 	Q_OBJECT
-public:
+  public:
 	PdfConverterPrivate(settings::PdfGlobal & s, PdfConverter & o);
 	~PdfConverterPrivate();
 
@@ -116,7 +111,7 @@ public:
 
 	MultiPageLoader pageLoader;
 
-private:
+  private:
 	PdfConverter & out;
 	void clearResources();
 	TempFile tempOut;
@@ -138,15 +133,14 @@ private:
 #ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	int objectPage;
 
-
-	QHash<int, QHash<QString, QWebElement> > pageAnchors;
-	QHash<int, QVector< QPair<QWebElement,QString> > > pageLocalLinks;
-	QHash<int, QVector< QPair<QWebElement,QString> > > pageExternalLinks;
-	QHash<int, QVector<QWebElement> > pageFormElements;
+	QHash<int, QHash<QString, QWebElement>> pageAnchors;
+	QHash<int, QVector<QPair<QWebElement, QString>>> pageLocalLinks;
+	QHash<int, QVector<QPair<QWebElement, QString>>> pageExternalLinks;
+	QHash<int, QVector<QWebElement>> pageFormElements;
 	bool pageHasHeaderFooter;
 
-    // loader for measuringHeader and measuringFooter
-    MultiPageLoader measuringHFLoader;
+	// loader for measuringHeader and measuringFooter
+	MultiPageLoader measuringHFLoader;
 
 	MultiPageLoader hfLoader;
 	MultiPageLoader tocLoader1;
@@ -158,17 +152,17 @@ private:
 	QHash<QString, PageObject *> urlToPageObj;
 
 	Outline * outline;
-	void findLinks(QWebFrame * frame, QVector<QPair<QWebElement, QString> > & local, QVector<QPair<QWebElement, QString> > & external, QHash<QString, QWebElement> & anchors);
-	void endPage(PageObject & object, bool hasHeaderFooter, int objectPage,  int pageNumber);
+	void findLinks(QWebFrame * frame, QVector<QPair<QWebElement, QString>> & local, QVector<QPair<QWebElement, QString>> & external, QHash<QString, QWebElement> & anchors);
+	void endPage(PageObject & object, bool hasHeaderFooter, int objectPage, int pageNumber);
 	void fillParms(QHash<QString, QString> & parms, int page, const PageObject & object);
 	QString hfreplace(const QString & q, const QHash<QString, QString> & parms);
 	QWebPage * loadHeaderFooter(QString url, const QHash<QString, QString> & parms, const settings::PdfObject & ps);
-    qreal calculateHeaderHeight(PageObject & object, QWebPage & header);
+	qreal calculateHeaderHeight(PageObject & object, QWebPage & header);
 
 #endif
 	QWebPage * currentHeader;
 	QWebPage * currentFooter;
-    QPrinter * createPrinter(const QString & tempFile);
+	QPrinter * createPrinter(const QString & tempFile);
 
 #ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	void handleTocPage(PageObject & obj);
@@ -183,9 +177,9 @@ private:
 
 	void loadTocs();
 	void loadHeaders();
-public slots:
-    void measuringHeadersLoaded(bool ok);
-    void pagesLoaded(bool ok);
+  public slots:
+	void measuringHeadersLoaded(bool ok);
+	void pagesLoaded(bool ok);
 	void tocLoaded(bool ok);
 	void headersLoaded(bool ok);
 
@@ -198,6 +192,4 @@ public slots:
 	virtual Converter & outer();
 };
 
-}
-#include "dllend.inc"
-#endif //__PDFCONVERTER_P_HH__
+} // namespace wkhtmltopdf

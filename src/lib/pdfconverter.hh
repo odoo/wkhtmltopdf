@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,35 +17,30 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __PDFCONVERTER_HH__
-#define __PDFCONVERTER_HH__
+#include "converter.hh"
+#include "pdfsettings.hh"
 
-#include <converter.hh>
-#include <pdfsettings.hh>
-
-#include <dllbegin.inc>
 namespace wkhtmltopdf {
 
-class DLL_LOCAL PdfConverterPrivate;
+class PdfConverterPrivate;
 
-class DLL_PUBLIC PdfConverter: public Converter {
+class PdfConverter : public Converter {
 	Q_OBJECT
-public:
+  public:
 	PdfConverter(settings::PdfGlobal & globalSettings);
 	~PdfConverter();
 	int pageCount();
-	void addResource(const settings::PdfObject & pageSettings, const QString * data=0);
+	void addResource(const settings::PdfObject & pageSettings, const QString * data = 0);
 	const settings::PdfGlobal & globalSettings() const;
 	const QByteArray & output();
-    static const qreal millimeterToPointMultiplier;
-private:
+	static const qreal millimeterToPointMultiplier;
+
+  private:
 	PdfConverterPrivate * d;
 	virtual ConverterPrivate & priv();
 	friend class PdfConverterPrivate;
-signals:
+  signals:
 	void producingForms(bool);
 };
 
-}
-#include <dllend.inc>
-#endif //__PDFCONVERTER_HH__
+} // namespace wkhtmltopdf

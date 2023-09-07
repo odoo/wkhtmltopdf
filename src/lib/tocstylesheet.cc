@@ -1,6 +1,3 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,21 +15,21 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <QTextStream>
 
 #include "outline_p.hh"
 #include "pdfsettings.hh"
-#include <QTextStream>
 
 namespace wkhtmltopdf {
 
 void dumpDefaultTOCStyleSheet(QTextStream & stream, settings::TableOfContent & s) {
-    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl
+	stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl
 		   << "<xsl:stylesheet version=\"2.0\"" << endl
 		   << "                xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\"" << endl
 		   << "                xmlns:outline=\"http://wkhtmltopdf.org/outline\"" << endl
 		   << "                xmlns=\"http://www.w3.org/1999/xhtml\">" << endl
 		   << "  <xsl:output doctype-public=\"-//W3C//DTD XHTML 1.0 Strict//EN\"" << endl
-	       << "              doctype-system=\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"" << endl
+		   << "              doctype-system=\"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"" << endl
 		   << "              indent=\"yes\" />" << endl
 		   << "  <xsl:template match=\"outline:outline\">" << endl
 		   << "    <html>" << endl
@@ -53,7 +50,7 @@ void dumpDefaultTOCStyleSheet(QTextStream & stream, settings::TableOfContent & s
 		   << "            font-size: 20px;" << endl
 		   << "            font-family: arial;" << endl
 		   << "          }" << endl
-		   << "          ul ul {font-size: " << (s.fontScale*100.0) << "%; }" << endl
+		   << "          ul ul {font-size: " << (s.fontScale * 100.0) << "%; }" << endl
 		   << "          ul {padding-left: 0em;}" << endl
 		   << "          ul ul {padding-left: " << s.indentation << ";}" << endl
 		   << "          a {text-decoration:none; color: black;}" << endl
@@ -91,4 +88,4 @@ void dumpDefaultTOCStyleSheet(QTextStream & stream, settings::TableOfContent & s
 		   << "</xsl:stylesheet>" << endl;
 }
 
-}
+} // namespace wkhtmltopdf

@@ -1,6 +1,3 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,50 +15,48 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __CONVERTER_HH__
-#define __CONVERTER_HH__
+#pragma once
 
 #include <QObject>
-#include <loadsettings.hh>
-#include <dllbegin.inc>
+
+#include "loadsettings.hh"
 
 namespace wkhtmltopdf {
 
-class DLL_LOCAL ConverterPrivate;
+class ConverterPrivate;
 
-class DLL_PUBLIC Converter: public QObject {
-    Q_OBJECT
-public:
-	virtual ~Converter() {};
+class Converter : public QObject {
+	Q_OBJECT
+  public:
+	virtual ~Converter(){};
 
-    int currentPhase();
-    int phaseCount();
-    QString phaseDescription(int phase=-1);
-    QString progressString();
-    int httpErrorCode();
-signals:
-    void debug(const QString & message);
-    void info(const QString & message);
-    void warning(const QString & message);
-    void error(const QString & message);
-    void phaseChanged();
-    void progressChanged(int progress);
-    void finished(bool ok);
+	int currentPhase();
+	int phaseCount();
+	QString phaseDescription(int phase = -1);
+	QString progressString();
+	int httpErrorCode();
+  signals:
+	void debug(const QString & message);
+	void info(const QString & message);
+	void warning(const QString & message);
+	void error(const QString & message);
+	void phaseChanged();
+	void progressChanged(int progress);
+	void finished(bool ok);
 
 	void checkboxSvgChanged(const QString & path);
 	void checkboxCheckedSvgChanged(const QString & path);
 	void radiobuttonSvgChanged(const QString & path);
 	void radiobuttonCheckedSvgChanged(const QString & path);
-public slots:
-    void beginConversion();
+  public slots:
+	void beginConversion();
 	bool convert();
 	void cancel();
-protected:
+
+  protected:
 	void emitCheckboxSvgs(const settings::LoadPage & ls);
 	virtual ConverterPrivate & priv() = 0;
 	friend class ConverterPrivate;
 };
 
-}
-#include <dllend.inc>
-#endif //__CONVERTER_HH__
+} // namespace wkhtmltopdf

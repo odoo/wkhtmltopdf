@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,45 +17,37 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __WEBSETTINGS_HH__
-#define __WEBSETTINGS_HH__
-
 #include <QNetworkProxy>
 #include <QString>
 
-#include <dllbegin.inc>
 namespace wkhtmltopdf {
 namespace settings {
 
-struct DLL_PUBLIC Web {
-	Web();
-
+struct Web {
 	//! Should we print background images
-	bool background;
+	bool background = true;
 
 	//! Should we load images
-	bool loadImages;
+	bool loadImages = true;
 
 	//! Should we enable Javascript
-	bool enableJavascript;
+	bool enableJavascript = true;
 
 	//! Should the horrible intelligent shrinking feature be enabled?
-	bool enableIntelligentShrinking;
+	bool enableIntelligentShrinking = true;
 
 	//! Minimum font size
-	int minimumFontSize;
+	int minimumFontSize = -1;
 
 	//! Encoding used to enterpit a document with do supplied encoding
-	QString defaultEncoding;
+	QString defaultEncoding = "";
 
 	//! Stylesheet supplied by the user
-	QString userStyleSheet;
+	QString userStyleSheet = "";
 
 	//! Should plugins be allowed
-	bool enablePlugins;
-};
+	bool enablePlugins = false;
+}; // namespace settingsstruct Web
 
-}
-}
-#include <dllend.inc>
-#endif //__WEBSETTINGS_HH__
+} // namespace settings
+} // namespace wkhtmltopdf

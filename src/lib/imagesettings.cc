@@ -1,6 +1,3 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,16 +15,13 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #include "imagesettings.hh"
 #include "reflect.hh"
 
-#include "dllbegin.inc"
-namespace wkhtmltopdf {
-namespace settings {
+namespace wkhtmltopdf::settings {
 
-template<>
-struct DLL_LOCAL ReflectImpl<CropSettings>: public ReflectClass {
+template <>
+struct ReflectImpl<CropSettings> : public ReflectClass {
 	ReflectImpl(CropSettings & c) {
 		WKHTMLTOPDF_REFLECT(left);
 		WKHTMLTOPDF_REFLECT(top);
@@ -36,12 +30,12 @@ struct DLL_LOCAL ReflectImpl<CropSettings>: public ReflectClass {
 	}
 };
 
-template<>
-struct DLL_LOCAL ReflectImpl<ImageGlobal>: public ReflectClass {
+template <>
+struct ReflectImpl<ImageGlobal> : public ReflectClass {
 	ReflectImpl(ImageGlobal & c) {
 		WKHTMLTOPDF_REFLECT(screenWidth);
 		WKHTMLTOPDF_REFLECT(screenHeight);
-		ReflectClass::add("quiet", new QuietArgBackwardsCompatReflect(c.logLevel));	// Fake the "quiet" argument
+		ReflectClass::add("quiet", new QuietArgBackwardsCompatReflect(c.logLevel)); // Fake the "quiet" argument
 		WKHTMLTOPDF_REFLECT(logLevel);
 		WKHTMLTOPDF_REFLECT(transparent);
 		WKHTMLTOPDF_REFLECT(useGraphics);
@@ -55,23 +49,21 @@ struct DLL_LOCAL ReflectImpl<ImageGlobal>: public ReflectClass {
 	}
 };
 
-CropSettings::CropSettings():
-	left(-1),
-	top(-1),
-	width(-1),
-	height(-1) {}
+CropSettings::CropSettings() : left(-1),
+							   top(-1),
+							   width(-1),
+							   height(-1) {}
 
-ImageGlobal::ImageGlobal():
-	logLevel(Info),
-	transparent(false),
-	useGraphics(false),
-	in(""),
-	out(""),
-	fmt(""),
-	screenWidth(1024),
-	screenHeight(0),
-	quality(94),
-	smartWidth(true) {}
+ImageGlobal::ImageGlobal() : logLevel(Info),
+							 transparent(false),
+							 useGraphics(false),
+							 in(""),
+							 out(""),
+							 fmt(""),
+							 screenWidth(1024),
+							 screenHeight(0),
+							 quality(94),
+							 smartWidth(true) {}
 
 QString ImageGlobal::get(const char * name) {
 	ReflectImpl<ImageGlobal> impl(*this);
@@ -83,6 +75,4 @@ bool ImageGlobal::set(const char * name, const QString & value) {
 	return impl.set(name, value);
 }
 
-
-}
-}
+} // namespace wkhtmltopdf::settings

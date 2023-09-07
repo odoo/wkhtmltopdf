@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,8 +17,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __UTILITIES_HH__
-#define __UTILITIES_HH__
 
 #include <QProxyStyle>
 #include <QFile>
@@ -30,11 +27,10 @@
 #include <QSvgRenderer>
 #include <QUrl>
 
-#include <dllbegin.inc>
 /**
  * Custom simplistic style
  */
-class DLL_PUBLIC MyLooksStyle: public QProxyStyle {
+class  MyLooksStyle: public QProxyStyle {
 	Q_OBJECT
 public:
 	typedef QProxyStyle parent_t;
@@ -54,7 +50,5 @@ public slots:
 	void setRadioButtonCheckedSvg(const QString & path);
 };
 
-DLL_PUBLIC int handleError(bool success, int errorCode);
+ int handleError(bool success, int errorCode);
 
-#include <dllend.inc>
-#endif //__UTILITIES_HH__

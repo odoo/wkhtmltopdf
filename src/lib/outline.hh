@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,26 +17,23 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __OUTLINE_HH__
-#define __OUTLINE_HH__
-
-#include "pdfsettings.hh"
 #include <QWebElement>
 #include <QWebFrame>
 
-#ifdef  __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-#include "dllbegin.inc"
+#include "pdfsettings.hh"
+
+#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 namespace wkhtmltopdf {
 
-class DLL_LOCAL OutlinePrivate;
+class OutlinePrivate;
 
-class DLL_LOCAL Outline {
-public:
+class Outline {
+  public:
 	Outline(const settings::PdfGlobal & settings);
 	~Outline();
 	void addEmptyWebPage();
-	bool replaceWebPage(int d, const QString & name, QWebPrinter & wp, QWebFrame * f, const settings::PdfObject & ps, QVector<QPair<QWebElement, QString> > & local, QHash<QString, QWebElement> & anchors);
-	void addWebPage(const QString & name, QWebPrinter & wp, QWebFrame * frame, const settings::PdfObject & ps, QVector<QPair<QWebElement, QString> > & local, QHash<QString, QWebElement> & external);
+	bool replaceWebPage(int d, const QString & name, QWebPrinter & wp, QWebFrame * f, const settings::PdfObject & ps, QVector<QPair<QWebElement, QString>> & local, QHash<QString, QWebElement> & anchors);
+	void addWebPage(const QString & name, QWebPrinter & wp, QWebFrame * frame, const settings::PdfObject & ps, QVector<QPair<QWebElement, QString>> & local, QHash<QString, QWebElement> & external);
 
 	void fillHeaderFooterParms(int page, QHash<QString, QString> & parms, const settings::PdfObject & ps);
 	void fillAnchors(int d, QHash<QString, QWebElement> & anchors);
@@ -45,13 +41,12 @@ public:
 	void printOutline(QPrinter * printer);
 
 	void dump(QTextStream & stream) const;
-private:
+
+  private:
 	OutlinePrivate * d;
 	friend class TocPrinter;
 	friend class TocPrinterPrivate;
 };
 
-#include "dllend.inc"
-}
+} // namespace wkhtmltopdf
 #endif //__EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-#endif //__OUTLINE_HH__

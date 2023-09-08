@@ -1,5 +1,3 @@
-#pragma once
-
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,11 +16,12 @@
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
 
-#include "utilities.hh"
 #include <QDebug>
 #include <QTextStream>
 #include <QMetaEnum>
 #include <QNetworkReply>
+
+#include "utilities.hh"
 
 void loadSvg(QSvgRenderer * & ptr, const QString & path, const char * def, int w, int h) {
 	 delete ptr;

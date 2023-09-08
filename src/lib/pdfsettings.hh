@@ -219,7 +219,8 @@ QString printerModeToStr(QPrinter::PrinterMode o);
 QPrinter::ColorMode strToColorMode(const char * s, bool * ok = 0);
 QString colorModeToStr(QPrinter::ColorMode o);
 
+} // namespace settings
+
 void dumpDefaultTOCStyleSheet(QTextStream & stream, settings::TableOfContent & s);
 
-} // namespace settings
 } // namespace wkhtmltopdf

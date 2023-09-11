@@ -1,0 +1,170 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the test suite of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+
+#include <QtTest/QtTest>
+
+#include <q3dockarea.h>
+#include <q3dockwindow.h>
+#include <q3mainwindow.h>
+#include <qapplication.h>
+#include <qframe.h>
+#include <qlabel.h>
+#include <qlayout.h>
+#include <qmessagebox.h>
+#include <qpushbutton.h>
+
+//TESTED_CLASS=
+//TESTED_FILES=
+
+class tst_Q3DockWindow : public QObject
+{
+    Q_OBJECT
+public:
+    tst_Q3DockWindow();
+    virtual ~tst_Q3DockWindow();
+
+
+public slots:
+    void initTestCase();
+    void cleanupTestCase();
+private slots:
+    void parents();
+    void showChild();
+};
+
+QFrame *makeFrame( const char *text, QWidget *parent )
+{
+    QFrame* frame = new QFrame(parent);
+    QVBoxLayout* layout = new QVBoxLayout(frame);
+    layout->setAutoAdd(true);
+    new QLabel(text, frame);
+    frame->setMinimumSize(200, 200);
+    return frame;
+}
+
+Q3DockWindow* makeDock( const char* text, QWidget* parent )
+{
+    Q3DockWindow* dock = new Q3DockWindow(Q3DockWindow::InDock, parent, text);
+    dock->setResizeEnabled(true);
+    dock->setCloseMode(Q3DockWindow::Always);
+    dock->setCaption(text);
+    dock->setWidget(makeFrame(text, dock));
+    dock->show();
+
+    return dock;
+}
+
+
+tst_Q3DockWindow::tst_Q3DockWindow()
+
+{
+}
+
+tst_Q3DockWindow::~tst_Q3DockWindow()
+{
+}
+
+void tst_Q3DockWindow::initTestCase()
+{
+    // create a default mainwindow
+    // If you run a widget test, this will be replaced in the testcase by the
+    // widget under test
+    QWidget *w = new QWidget(0,"mainWidget");
+    w->setFixedSize( 200, 200 );
+    qApp->setMainWidget( w );
+    w->show();
+}
+
+void tst_Q3DockWindow::cleanupTestCase()
+{
+    delete qApp->mainWidget();
+}
+
+void tst_Q3DockWindow::parents()
+{
+    // create 5 dock windows, one for each dock area
+    // and one for the mainwindow, in the end they should
+    // all except the one with the mainwindow as parent should
+    // have the same dock() and parent() pointer.
+    Q3MainWindow mw;
+    QFrame *central = makeFrame( "Central", &mw );
+    mw.setCentralWidget( central );
+
+    Q3DockWindow *topDock = makeDock( "Top", mw.topDock() );
+    QVERIFY( topDock->area() == topDock->parent() );
+
+    Q3DockWindow *leftDock = makeDock( "Left", mw.leftDock() );
+    QVERIFY( leftDock->area() == leftDock->parent() );
+
+    Q3DockWindow *rightDock= makeDock( "Right", mw.rightDock() );
+    QVERIFY( rightDock->area() == rightDock->parent() );
+
+    Q3DockWindow *bottomDock = makeDock( "Bottom", mw.bottomDock() );
+    QVERIFY( bottomDock->area() == mw.bottomDock() );
+
+    Q3DockWindow *mainDock = makeDock( "MainWindow as parent", &mw );
+    QVERIFY( mainDock->parent() == mw.topDock() );
+}
+
+
+void tst_Q3DockWindow::showChild()
+{
+    // task 26225
+    // calling show dose not propergate to child widgets if
+    // main window is already showing
+
+    Q3MainWindow mw;
+    mw.show();
+    Q3DockWindow * dock = new Q3DockWindow(&mw);
+    QPushButton  * qpb = new QPushButton("hi", dock);
+    dock->setWidget(qpb);
+    dock->show();
+    QVERIFY( mw.isVisible() );
+    QVERIFY( dock->isVisible() );
+    QVERIFY( qpb->isVisible() );
+}
+
+
+
+QTEST_MAIN(tst_Q3DockWindow)
+#include "tst_q3dockwindow.moc"
+

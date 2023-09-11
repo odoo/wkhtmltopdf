@@ -1,0 +1,174 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the test suite of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+
+#include <QtTest/QtTest>
+#include <QWidget>
+
+#include "qtestalive.cpp"
+
+class tst_Alive: public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void alive();
+    void addMouseDClick() const;
+    void compareQStringLists() const;
+    void compareQStringLists_data() const;
+};
+
+void tst_Alive::alive()
+{
+    QTestAlive a;
+    a.start();
+
+    sleep(5);
+    QCoreApplication::processEvents();
+    qDebug("CUT");
+    sleep(5);
+}
+
+void tst_Alive::addMouseDClick() const
+{
+    class DClickListener : public QWidget
+    {
+    public:
+        DClickListener() : isTested(false)
+        {
+        }
+
+        bool isTested;
+    protected:
+        virtual void mouseDoubleClickEvent(QMouseEvent * event)
+        {
+            isTested = true;
+            QCOMPARE(event->type(), QEvent::MouseButtonDblClick);
+        }
+    };
+
+    DClickListener listener;
+
+    QTestEventList list;
+    list.addMouseDClick(Qt::LeftButton);
+
+    list.simulate(&listener);
+    /* Check that we have been called at all. */
+    QVERIFY(listener.isTested);
+}
+
+void tst_Alive::compareQStringLists() const
+{
+    QFETCH(QStringList, opA);
+    QFETCH(QStringList, opB);
+
+    QCOMPARE(opA, opB);
+}
+
+void tst_Alive::compareQStringLists_data() const
+{
+    QTest::addColumn<QStringList>("opA");
+    QTest::addColumn<QStringList>("opB");
+
+    {
+        QStringList opA;
+        opA.append(QLatin1String("string1"));
+        opA.append(QLatin1String("string2"));
+
+        QStringList opB(opA);
+        opA.append(QLatin1String("string3"));
+        opB.append(QLatin1String("DIFFERS"));
+
+        QTest::newRow("") << opA << opB;
+    }
+
+    {
+        QStringList opA;
+        opA.append(QLatin1String("string1"));
+        opA.append(QLatin1String("string2"));
+
+        QStringList opB(opA);
+        opA.append(QLatin1String("string3"));
+        opA.append(QLatin1String("string4"));
+
+        opB.append(QLatin1String("DIFFERS"));
+        opB.append(QLatin1String("string4"));
+
+        QTest::newRow("") << opA << opB;
+    }
+
+    {
+        QStringList opA;
+        opA.append(QLatin1String("string1"));
+        opA.append(QLatin1String("string2"));
+
+        QStringList opB;
+        opB.append(QLatin1String("string1"));
+
+        QTest::newRow("") << opA << opB;
+    }
+
+    {
+        QStringList opA;
+        opA.append(QLatin1String("openInNewWindow"));
+        opA.append(QLatin1String("openInNewTab"));
+        opA.append(QLatin1String("separator"));
+        opA.append(QLatin1String("bookmark_add"));
+        opA.append(QLatin1String("savelinkas"));
+        opA.append(QLatin1String("copylinklocation"));
+        opA.append(QLatin1String("separator"));
+        opA.append(QLatin1String("openWith_submenu"));
+        opA.append(QLatin1String("preview1"));
+        opA.append(QLatin1String("actions_submenu"));
+        opA.append(QLatin1String("separator"));
+        opA.append(QLatin1String("viewDocumentSource"));
+
+        QStringList opB;
+        opB.append(QLatin1String("viewDocumentSource"));
+
+        QTest::newRow("") << opA << opB;
+
+        QTest::newRow("") << opB << opA;
+    }
+}
+
+QTEST_MAIN(tst_Alive)
+#include "tst_alive.moc"

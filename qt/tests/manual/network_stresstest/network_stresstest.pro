@@ -1,0 +1,13 @@
+CONFIG += testcase
+TARGET = tst_network_stresstest
+
+QT = core network testlib
+
+SOURCES  += tst_network_stresstest.cpp \
+    minihttpserver.cpp
+
+HEADERS += \
+    minihttpserver.h
+
+RESOURCES += wwwfiles.qrc
+QMAKE_RESOURCE_FLAGS += -no-compress

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0" stdsetdef="1">
+  <author></author>
+  <comment>*********************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the autotests of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+** $QT_END_LICENSE$
+**
+*********************************************************************</comment>
+  <exportmacro></exportmacro>
+  <class>ListEditor</class>
+  <widget class="QDialog" name="ListEditor">
+    <property name="geometry">
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>331</width>
+        <height>301</height>
+      </rect>
+    </property>
+    <property name="windowTitle">
+      <string>Edit...</string>
+    </property>
+    <layout class="QGridLayout">
+      <property name="margin">
+        <number>11</number>
+      </property>
+      <property name="spacing">
+        <number>6</number>
+      </property>
+      <item row="0" column="0" rowspan="5" colspan="1">
+        <widget class="Q3ListView" name="listview">
+          <property name="selectionMode">
+            <enum>Q3ListView::Extended</enum>
+          </property>
+          <property name="resizeMode">
+            <enum>Q3ListView::AllColumns</enum>
+          </property>
+          <column>
+            <property name="text">
+              <string>Column 1</string>
+            </property>
+            <property name="clickable">
+              <bool>true</bool>
+            </property>
+            <property name="resizeable">
+              <bool>true</bool>
+            </property>
+          </column>
+        </widget>
+      </item>
+      <item row="0" column="1">
+        <widget class="QPushButton" name="PushButton1">
+          <property name="text">
+            <string>&amp;Add</string>
+          </property>
+        </widget>
+      </item>
+      <item row="1" column="1">
+        <widget class="QPushButton" name="PushButton2">
+          <property name="text">
+            <string>&amp;Remove</string>
+          </property>
+        </widget>
+      </item>
+      <item row="2" column="1">
+        <widget class="QPushButton" name="PushButton3">
+          <property name="text">
+            <string>Re&amp;name</string>
+          </property>
+        </widget>
+      </item>
+      <item row="4" column="1">
+        <widget class="QPushButton" name="PushButton4">
+          <property name="text">
+            <string>&amp;Close</string>
+          </property>
+        </widget>
+      </item>
+      <item row="3" column="1">
+        <spacer name="Spacer1">
+          <property name="sizeHint">
+            <size>
+              <width>20</width>
+              <height>20</height>
+            </size>
+          </property>
+          <property name="sizeType">
+            <enum>QSizePolicy::Expanding</enum>
+          </property>
+          <property name="orientation">
+            <enum>Qt::Vertical</enum>
+          </property>
+        </spacer>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11"/>
+  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
+  <connections>
+    <connection>
+      <sender>PushButton1</sender>
+      <signal>clicked()</signal>
+      <receiver>ListEditor</receiver>
+      <slot>addItem()</slot>
+    </connection>
+    <connection>
+      <sender>PushButton2</sender>
+      <signal>clicked()</signal>
+      <receiver>ListEditor</receiver>
+      <slot>removeItems()</slot>
+    </connection>
+    <connection>
+      <sender>PushButton4</sender>
+      <signal>clicked()</signal>
+      <receiver>ListEditor</receiver>
+      <slot>accept()</slot>
+    </connection>
+    <connection>
+      <sender>listview</sender>
+      <signal>itemRenamed(Q3ListViewItem*,int)</signal>
+      <receiver>ListEditor</receiver>
+      <slot>renamed(Q3ListViewItem*)</slot>
+    </connection>
+    <connection>
+      <sender>PushButton3</sender>
+      <signal>clicked()</signal>
+      <receiver>ListEditor</receiver>
+      <slot>renameItem()</slot>
+    </connection>
+  </connections>
+</ui>

@@ -1,0 +1,118 @@
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the test suite of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:LGPL$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 2.1 or version 3 as published by the Free
+** Software Foundation and appearing in the file LICENSE.LGPLv21 and
+** LICENSE.LGPLv3 included in the packaging of this file. Please review the
+** following information to ensure the GNU Lesser General Public License
+** requirements will be met: https://www.gnu.org/licenses/lgpl.html and
+** http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+**
+** As a special exception, The Qt Company gives you certain additional
+** rights. These rights are described in The Qt Company LGPL Exception
+** version 1.1, included in the file LGPL_EXCEPTION.txt in this package.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 3.0 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.  Please review the following information to
+** ensure the GNU General Public License version 3.0 requirements will be
+** met: http://www.gnu.org/copyleft/gpl.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+
+#include <QApplication>
+#include <QGroupBox>
+#include <Q3GroupBox>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QDebug>
+#include <QtTest/QtTest>
+
+class tst_q3groupbox : public QObject
+{
+Q_OBJECT
+private slots:
+    void getSetCheck();
+    void groupBoxHeight();
+};
+
+// Testing get/set functions
+void tst_q3groupbox::getSetCheck()
+{
+    Q3GroupBox obj1;
+    // int Q3GroupBox::insideMargin()
+    // void Q3GroupBox::setInsideMargin(int)
+    obj1.setInsideMargin(0);
+    QCOMPARE(0, obj1.insideMargin());
+    obj1.setInsideMargin(INT_MIN);
+    QCOMPARE(INT_MIN, obj1.insideMargin());
+    obj1.setInsideMargin(INT_MAX);
+    QCOMPARE(INT_MAX, obj1.insideMargin());
+
+    // int Q3GroupBox::insideSpacing()
+    // void Q3GroupBox::setInsideSpacing(int)
+    obj1.setInsideSpacing(0);
+    QCOMPARE(0, obj1.insideSpacing());
+    obj1.setInsideSpacing(INT_MIN);
+    QCOMPARE(INT_MIN, obj1.insideSpacing());
+    obj1.setInsideSpacing(INT_MAX);
+    QCOMPARE(INT_MAX, obj1.insideSpacing());
+}
+
+/*
+    Test that a Q3GroupBox has a reasonable height compared to a QGroupBox.
+*/
+void tst_q3groupbox::groupBoxHeight()
+{
+    QWidget w;
+
+    // Create group boxes.
+    Q3GroupBox * const g3 = new Q3GroupBox(1000, Qt::Vertical, "Q3 Group Box", &w);
+    new QLabel("Row 1", g3);
+
+    QGroupBox * const g4 = new QGroupBox(&w, "QGroupBox");
+    g4->setTitle("QGroupBox");
+    QVBoxLayout * const g4Layout = new QVBoxLayout(g4);
+    g4Layout->addWidget(new QLabel("QT4 Row 1"));
+
+    // Add them to a layout.
+    QVBoxLayout * const layout = new QVBoxLayout(&w, 5, 5);
+    layout->addWidget(g3);
+    layout->addWidget(g4);
+    layout->addWidget(new QLabel("Label at Bottom"));
+    w.show();
+
+    // Measure height and test.
+    const int q3height = g3->height();
+    const int q4height = g4->height();
+
+    const double withinReason = 0.5; // Up to 50% off is OK.
+    const int minimum = int(q4height * (1.0 - withinReason));
+    const int maximum = int(q4height * (1.0 + withinReason));
+
+    QVERIFY(q3height > minimum);
+    QVERIFY(q3height < maximum);
+}
+
+QTEST_MAIN(tst_q3groupbox)
+#include "tst_q3groupbox.moc"

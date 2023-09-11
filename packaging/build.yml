@@ -1,0 +1,610 @@
+# prefix used in determining full image name in "docker-images" and "compile-docker"
+docker-prefix: "wkhtmltopdf/0.12:"
+
+# all targets supported by the docker-related commands, keys are as follows:
+#
+#   source:         Dockerfile used to build image
+#   output:         one of deb, rpm, tar or 7z
+#   args:           build-time docker args (optional)
+#   arch:           used as arch specified to fpm (for deb or rpm output)
+#   matrix:         list of architectures distro supports (NOTE: generates per-arch targets)
+#   depend:         dependent packages specified to fpm (for deb or rpm output)
+#   qt_config:      override the qt configuration used for building Qt (optional)
+#   cross_compile:  use given prefix for cross-compilation (optional)
+#   qemu:           emulate via qemu-user-static image for specified platform
+#
+docker-targets:
+  bullseye:
+    source: docker/Dockerfile.debian
+    args:
+      from: debian:bullseye
+    output: deb
+    matrix: ['amd64', 'i386', 'arm64', 'armhf', 'armel', 'ppc64el']
+    depend: >
+      ca-certificates
+      fontconfig
+      libc6
+      libfreetype6
+      libjpeg62-turbo
+      libpng16-16
+      libssl1.1
+      libstdc++6
+      libx11-6
+      libxcb1
+      libxext6
+      libxrender1
+      xfonts-75dpi
+      xfonts-base
+      zlib1g
+
+  buster:
+    source: docker/Dockerfile.debian
+    args:
+      from: debian:buster
+    output: deb
+    matrix: ['amd64', 'i386', 'arm64', 'armhf', 'armel', 'ppc64el']
+    depend: >
+      ca-certificates
+      fontconfig
+      libc6
+      libfreetype6
+      libjpeg62-turbo
+      libpng16-16
+      libssl1.1
+      libstdc++6
+      libx11-6
+      libxcb1
+      libxext6
+      libxrender1
+      xfonts-75dpi
+      xfonts-base
+      zlib1g
+
+  bookworm:
+    source: docker/Dockerfile.debian
+    args:
+      from: debian:bookworm
+      python: python3
+    output: deb
+    matrix: ['amd64', 'i386', 'arm64', 'armhf', 'armel', 'ppc64el']
+    depend: >
+      ca-certificates
+      fontconfig
+      libc6
+      libfreetype6
+      libjpeg62-turbo
+      libpng16-16
+      libssl3
+      libstdc++6
+      libx11-6
+      libxcb1
+      libxext6
+      libxrender1
+      xfonts-75dpi
+      xfonts-base
+      zlib1g
+
+  raspberrypi.bookworm-armhf:
+    source: docker/Dockerfile.debian
+    args:
+      from: balenalib/rpi-raspbian:bookworm
+      python: python3
+    output: deb
+    qemu:   linux/386 # see https://github.com/RPi-Distro/pi-gen/issues/271
+    arch:   armhf
+    depend: >
+      ca-certificates
+      fontconfig
+      libc6
+      libfreetype6
+      libjpeg62-turbo
+      libpng16-16
+      libssl3
+      libstdc++6
+      libx11-6
+      libxcb1
+      libxext6
+      libxrender1
+      xfonts-75dpi
+      xfonts-base
+      zlib1g
+
+  raspberrypi.bullseye-armhf:
+    source: docker/Dockerfile.debian
+    args:
+      from: balenalib/rpi-raspbian:bullseye
+    output: deb
+    qemu:   linux/386 # see https://github.com/RPi-Distro/pi-gen/issues/271
+    arch:   armhf
+    depend: >
+      ca-certificates
+      fontconfig
+      libc6
+      libfreetype6
+      libjpeg62-turbo
+      libpng16-16
+      libssl1.1
+      libstdc++6
+      libx11-6
+      libxcb1
+      libxext6
+      libxrender1
+      xfonts-75dpi
+      xfonts-base
+      zlib1g
+
+  raspberrypi.buster-armhf:
+    source: docker/Dockerfile.debian
+    args:
+      from: balenalib/rpi-raspbian:buster
+    output: deb
+    qemu:   linux/386 # see https://github.com/RPi-Distro/pi-gen/issues/271
+    arch:   armhf
+    depend: >
+      ca-certificates
+      fontconfig
+      libc6
+      libfreetype6
+      libjpeg62-turbo
+      libpng16-16
+      libssl1.1
+      libstdc++6
+      libx11-6
+      libxcb1
+      libxext6
+      libxrender1
+      xfonts-75dpi
+      xfonts-base
+      zlib1g
+
+  jammy:
+    source: docker/Dockerfile.debian
+    args:
+      from: ubuntu:jammy
+      jpeg: libjpeg-turbo8-dev
+      python: python3
+    output: deb
+    matrix: ['amd64', 'arm64', 'armhf', 'ppc64el', 's390x']
+    depend: >
+      ca-certificates
+      fontconfig
+      libc6
+      libfreetype6
+      libjpeg-turbo8
+      libpng16-16
+      libssl3
+      libstdc++6
+      libx11-6
+      libxcb1
+      libxext6
+      libxrender1
+      xfonts-75dpi
+      xfonts-base
+      zlib1g
+
+  focal:
+    source: docker/Dockerfile.debian
+    args:
+      from: ubuntu:focal
+      jpeg: libjpeg-turbo8-dev
+    output: deb
+    matrix: ['amd64', 'arm64', 'armhf', 'ppc64el']
+    depend: >
+      ca-certificates
+      fontconfig
+      libc6
+      libfreetype6
+      libjpeg-turbo8
+      libpng16-16
+      libssl1.1
+      libstdc++6
+      libx11-6
+      libxcb1
+      libxext6
+      libxrender1
+      xfonts-75dpi
+      xfonts-base
+      zlib1g
+
+  bionic:
+    source: docker/Dockerfile.debian
+    args:
+      from: ubuntu:bionic
+      jpeg: libjpeg-turbo8-dev
+    output: deb
+    matrix: ['amd64', 'i386', 'arm64', 'armhf', 'ppc64el']
+    depend: >
+      ca-certificates
+      fontconfig
+      libc6
+      libfreetype6
+      libjpeg-turbo8
+      libpng16-16
+      libssl1.1
+      libstdc++6
+      libx11-6
+      libxcb1
+      libxext6
+      libxrender1
+      xfonts-75dpi
+      xfonts-base
+      zlib1g
+
+  almalinux9:
+    source: docker/Dockerfile.centos
+    args:
+      from: almalinux:9
+    output: rpm
+    matrix: ['x86_64', 'aarch64', 'ppc64le']
+    depend: >
+      ca-certificates
+      fontconfig
+      freetype
+      glibc
+      libjpeg
+      libpng
+      libstdc++
+      libX11
+      libXext
+      libXrender
+      openssl
+      xorg-x11-fonts-75dpi
+      xorg-x11-fonts-Type1
+      zlib
+
+  almalinux8:
+    source: docker/Dockerfile.centos
+    args:
+      from: almalinux:8
+    output: rpm
+    matrix: ['x86_64', 'aarch64', 'ppc64le']
+    depend: >
+      ca-certificates
+      fontconfig
+      freetype
+      glibc
+      libjpeg
+      libpng
+      libstdc++
+      libX11
+      libXext
+      libXrender
+      openssl
+      xorg-x11-fonts-75dpi
+      xorg-x11-fonts-Type1
+      zlib
+
+  centos7:
+    source: docker/Dockerfile.centos
+    args:
+      from: centos:7
+    output: rpm
+    matrix: ['x86_64', 'i686', 'aarch64', 'ppc64le']
+    depend: >
+      ca-certificates
+      fontconfig
+      freetype
+      glibc
+      libjpeg
+      libpng
+      libstdc++
+      libX11
+      libXext
+      libXrender
+      openssl
+      xorg-x11-fonts-75dpi
+      xorg-x11-fonts-Type1
+      zlib
+
+  fedora37:
+    source: docker/Dockerfile.centos
+    args:
+      from: fedora:37
+    output: rpm
+    matrix: ['x86_64', 'aarch64', 'ppc64le']
+    depend: >
+      ca-certificates
+      fontconfig
+      freetype
+      glibc
+      libjpeg
+      libpng
+      libstdc++
+      libX11
+      libXext
+      libXrender
+      openssl
+      xorg-x11-fonts-75dpi
+      xorg-x11-fonts-Type1
+      zlib
+
+  archlinux:
+    source: docker/Dockerfile.archlinux
+    args:
+      from: archlinux:latest
+    output: pacman
+    matrix: ['amd64']
+    depend: >
+      openssl
+      zlib
+      fontconfig
+      freetype2
+      libjpeg
+      libpng
+      libxext
+      libxrender
+
+  amazonlinux2:
+    source: docker/Dockerfile.centos
+    args:
+      from: amazonlinux:2
+    output: rpm
+    matrix: ['x86_64', 'aarch64']
+    depend: >
+      ca-certificates
+      fontconfig
+      freetype
+      glibc
+      libjpeg
+      libpng
+      libstdc++
+      libX11
+      libXext
+      libXrender
+      openssl
+      xorg-x11-fonts-75dpi
+      xorg-x11-fonts-Type1
+      zlib
+
+  amazonlinux2023:
+    source: docker/Dockerfile.centos
+    args:
+      from: amazonlinux:2023
+    output: rpm
+    matrix: ['x86_64', 'aarch64']
+    depend: >
+      ca-certificates
+      fontconfig
+      freetype
+      glibc
+      libjpeg
+      libpng
+      libstdc++
+      libX11
+      libXext
+      libXrender
+      openssl
+      xorg-x11-fonts-75dpi
+      xorg-x11-fonts-Type1
+      zlib
+
+  amazonlinux2_lambda:
+    source: docker/Dockerfile.centos
+    args:
+      from: amazonlinux:2
+    output: lambda_zip
+    arch: x86_64
+
+  opensuse.leap15:
+    source: docker/Dockerfile.opensuse
+    args:
+      from: opensuse/leap:15
+    output: rpm
+    matrix: ['x86_64', 'aarch64', 'ppc64le']
+    depend: >
+      ca-certificates
+      fontconfig
+      libfreetype6
+      glibc
+      libjpeg8
+      libpng16-16
+      libstdc++6
+      libX11-6
+      libXext6
+      libXrender1
+      openssl
+      xorg-x11-fonts
+      libz1
+
+  mxe-cross-win32:
+    source:         docker/Dockerfile.mxe
+    args:
+      from:   debian:buster
+      target: i686-w64-mingw32.static
+    qt_config:      mingw-w64
+    cross_compile:  i686-w64-mingw32.static-
+    output:         7z
+
+  mxe-cross-win64:
+    source:         docker/Dockerfile.mxe
+    args:
+      from:   debian:buster
+      target: x86_64-w64-mingw32.static
+    qt_config:      mingw-w64
+    cross_compile:  x86_64-w64-mingw32.static-
+    output:         7z
+
+# all targets supported by the vagrant command, keys are as follows:
+#
+# vm:               VM to use for building (defined in vagrant/Vagrantfile)
+# qt_config:        configuration used in compiling Qt
+# home_in_rsync:    path of home directory when connecting via rsync
+# custom_build:     custom build steps plugin (optional, default is vagrant/<vm>.py)
+# make:             make command (optional, default is make -jNUMPROC)
+#
+vagrant-targets:
+  macos-cocoa:
+    vm:             macos
+    qt_config:      macos-cocoa
+    home_in_rsync:  /Users/vagrant
+
+  msvc2015-win64:
+    vm:             windows
+    qt_config:      msvc
+    home_in_rsync:  /c/Users/vagrant
+    make:           nmake
+    msvc_version:   "14.0"
+    msvc_redist:    https://download.microsoft.com/download/6/D/F/6DF3FF94-F7F9-4F0B-838C-A328D1A7D0EE/vc_redist.x64.exe
+
+  msvc2015-win32:
+    vm:             windows
+    qt_config:      msvc
+    home_in_rsync:  /c/Users/vagrant
+    make:           nmake
+    msvc_version:   "14.0"
+    msvc_redist:    https://download.microsoft.com/download/6/D/F/6DF3FF94-F7F9-4F0B-838C-A328D1A7D0EE/vc_redist.x86.exe
+
+# Qt configure arguments
+qt-config:
+  common: >
+    -opensource
+    -confirm-license
+    -fast
+    -release
+    -static
+    -graphicssystem raster
+    -webkit
+    -exceptions
+    -xmlpatterns
+    -system-zlib
+    -system-libpng
+    -system-libjpeg
+    -no-libmng
+    -no-libtiff
+    -no-accessibility
+    -no-stl
+    -no-qt3support
+    -no-phonon
+    -no-phonon-backend
+    -no-opengl
+    -no-declarative
+    -no-script
+    -no-scripttools
+    -no-sql-db2
+    -no-sql-ibase
+    -no-sql-mysql
+    -no-sql-oci
+    -no-sql-odbc
+    -no-sql-psql
+    -no-sql-sqlite
+    -no-sql-sqlite2
+    -no-sql-tds
+    -no-mmx
+    -no-3dnow
+    -no-sse
+    -no-sse2
+    -no-multimedia
+    -nomake demos
+    -nomake docs
+    -nomake examples
+    -nomake tools
+    -nomake tests
+    -nomake translations
+  debug:
+    -debug
+    -webkit-debug
+  docker: >
+    -silent
+    -xrender
+    -largefile
+    -iconv
+    -openssl-linked
+    -no-javascript-jit
+    -no-rpath
+    -no-dbus
+    -no-nis
+    -no-cups
+    -no-pch
+    -no-gtkstyle
+    -no-nas-sound
+    -no-sm
+    -no-xshape
+    -no-xinerama
+    -no-xcursor
+    -no-xfixes
+    -no-xrandr
+    -no-mitshm
+    -no-xinput
+    -no-xkb
+    -no-glib
+    -no-gstreamer
+    -no-icu
+    -no-openvg
+    -no-xsync
+    -no-audio-backend
+    -no-sse3
+    -no-ssse3
+    -no-sse4.1
+    -no-sse4.2
+    -no-avx
+    -no-neon
+  mingw-w64: >
+    -silent
+    -openssl-linked
+    -no-reduce-exports
+    -no-rpath
+    -no-pch
+    -xplatform win32-g++-4.6
+  macos-cocoa: >
+    -silent
+    -reduce-exports
+    -no-framework
+    -no-dwarf2
+    -openssl-linked
+    -largefile
+    -no-rpath
+    -cocoa
+    -platform unsupported/macx-clang-libc++
+  msvc: >
+    -mp
+    -qt-style-windows
+    -no-style-cleanlooks
+    -no-style-windowsxp
+    -no-style-windowsvista
+    -no-style-plastique
+    -no-style-motif
+    -no-style-cde
+    -openssl-linked
+
+# docker image which provides fpm
+fpm-image:      wkhtmltopdf/fpm:1.10.2-20221124
+
+# qemu-user-static -- allow overriding the setup for a specific target
+qemu-user-static:
+  default:
+    image: aptman/qus:d5.0 # chosen because it works with most builds
+    setup:
+      - "-- -r"
+      - "-s -- -p"
+  almalinux9-ppc64le:
+    image: aptman/qus:d6.1 # required for POWER 9 support used in image
+    setup:
+      - "-- -r"
+      - "-s -- -p"
+
+# mapping of distro architecture => docker platform
+matrix-platforms:
+  # debian/ubuntu
+  amd64:   linux/amd64
+  i386:    linux/386
+  armel:   linux/arm/v5
+  armhf:   linux/arm/v7
+  arm64:   linux/arm64/v8
+  ppc64el: linux/ppc64le
+  s390x:   linux/s390x
+  # centos
+  x86_64:  linux/amd64
+  i686:    linux/386
+  aarch64: linux/arm64/v8
+  ppc64le: linux/ppc64le
+
+# parameters for building linux packages via fpm (deb/rpm)
+fpm-params:
+  name:         wkhtmltox
+  description:  convert HTML to PDF and various image formats using QtWebkit
+  license:      LGPLv3
+  vendor:       wkhtmltopdf
+  maintainer:   Ashish Kulkarni <ashish@kulkarni.dev>
+  url:          https://wkhtmltopdf.org/
+  prefix:       /usr/local
+  category:     utils

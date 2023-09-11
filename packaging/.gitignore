@@ -1,0 +1,4 @@
+targets/
+vagrant/.vagrant
+*.pyc
+__pycache__

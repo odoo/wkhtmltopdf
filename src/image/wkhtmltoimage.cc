@@ -30,33 +30,24 @@
 #include <locale.h>
 #endif
 
-int main(int argc, char** argv) {
-#if defined(Q_OS_UNIX)
+int main(int argc, char ** argv) {
 	setlocale(LC_ALL, "");
-#if QT_VERSION >= 0x050000 && !defined(__EXTENSIVE_WKHTMLTOPDF_QT_HACK__)
-	setenv("QT_QPA_PLATFORM", "offscreen", 0);
-#endif
-#endif
-	//This will store all our settings
+
+	// This will store all our settings
 	wkhtmltopdf::settings::ImageGlobal settings;
-	//Create a command line parser to parse commandline arguments
+	// Create a command line parser to parse commandline arguments
 	ImageCommandLineParser parser(settings);
-	//Parse the arguments
-	parser.parseArguments(argc, (const char**)argv);
+	// Parse the arguments
+	parser.parseArguments(argc, (const char **)argv);
 
-
-	bool use_graphics=true;
-#if defined(Q_OS_UNIX) || defined(Q_OS_MAC)
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	use_graphics=settings.useGraphics;
+	bool use_graphics = true;
+	use_graphics = settings.useGraphics;
 	if (!use_graphics) QApplication::setGraphicsSystem("raster");
-#endif
-#endif
 	QApplication a(argc, argv, use_graphics);
 	MyLooksStyle * style = new MyLooksStyle();
 	a.setStyle(style);
 
-	//Create the actual page converter to convert the pages
+	// Create the actual page converter to convert the pages
 	wkhtmltopdf::ImageConverter converter(settings);
 	QObject::connect(&converter, SIGNAL(checkboxSvgChanged(const QString &)), style, SLOT(setCheckboxSvg(const QString &)));
 	QObject::connect(&converter, SIGNAL(checkboxCheckedSvgChanged(const QString &)), style, SLOT(setCheckboxCheckedSvg(const QString &)));

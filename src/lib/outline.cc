@@ -23,8 +23,6 @@
 
 #include "outline_p.hh"
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-
 namespace wkhtmltopdf {
 /*!
   \file outline_p.hh
@@ -342,4 +340,3 @@ void Outline::printOutline(QPrinter * printer) {
 }
 
 } // namespace wkhtmltopdf
-#endif //__EXTENSIVE_WKHTMLTOPDF_QT_HACK__

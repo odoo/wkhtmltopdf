@@ -21,8 +21,6 @@
 #ifndef QWEBFRAME_H
 #define QWEBFRAME_H
 
-#define  __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 #include <QtCore/qvariant.h>

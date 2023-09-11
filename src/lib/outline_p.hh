@@ -19,8 +19,6 @@
 
 #include "outline.hh"
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-
 namespace wkhtmltopdf {
 
 class OutlineItem {
@@ -66,4 +64,3 @@ class OutlinePrivate {
 };
 
 } // namespace wkhtmltopdf
-#endif //__EXTENSIVE_WKHTMLTOPDF_QT_HACK__

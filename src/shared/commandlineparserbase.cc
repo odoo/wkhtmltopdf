@@ -42,15 +42,10 @@ bool ahsort(const ArgHandler * a, const ArgHandler * b) {
   \param extended Should we also output extended arguments
   \param doc Indicate to the outputter that it is writing documentation
 */
-void CommandLineParserBase::outputSwitches(Outputter * o, bool extended, bool doc) const {
+void CommandLineParserBase::outputSwitches(Outputter * o, bool extended, bool) const {
 	foreach (const QString & section, sections) {
 		QList<const ArgHandler *> display;
 		foreach (const ArgHandler * handler, sectionArgumentHandles[section]) {
-#ifndef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-			if (!doc && handler->qthack) continue;
-#else
-			Q_UNUSED(doc);
-#endif
 			if (!extended && handler->extended) continue;
 			display.push_back(handler);
 		}
@@ -74,11 +69,7 @@ void CommandLineParserBase::outputSwitches(Outputter * o, bool extended, bool do
 #define STRINGIZE(x) STRINGIZE_(x)
 
 const char * CommandLineParserBase::appVersion() const {
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	return STRINGIZE(FULL_VERSION) " (with patched qt)";
-#else
-	return STRINGIZE(FULL_VERSION);
-#endif
 }
 
 /*!
@@ -131,10 +122,7 @@ void CommandLineParserBase::parseArg(int sections, const int argc, const char **
 			usage(stderr, false);
 			exit(1);
 		}
-#ifndef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-		if (j.value()->qthack)
-			fprintf(stderr, "The switch %s is not supported when using unpatched qt and will be ignored.", argv[arg]);
-#endif
+
 		// Skip already handled switch arguments
 		arg += j.value()->argn.size();
 	} else {
@@ -164,10 +152,7 @@ void CommandLineParserBase::parseArg(int sections, const int argc, const char **
 				usage(stderr, false);
 				exit(1);
 			}
-#ifndef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-			if (k.value()->qthack)
-				fprintf(stderr, "The switch -%c is not supported when using unpatched qt and will be ignored.", argv[c][j]);
-#endif
+
 			// Skip already handled switch arguments
 			arg += k.value()->argn.size();
 		}

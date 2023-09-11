@@ -15,8 +15,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "outputter.hh"
 #include "pdfcommandlineparser.hh"
+#include "outputter.hh"
 #include <qwebframe.h>
 
 using namespace wkhtmltopdf::settings;
@@ -36,23 +36,19 @@ using namespace wkhtmltopdf::settings;
 */
 void PdfCommandLineParser::manpage(FILE * fd) const {
 	Outputter * o = Outputter::man(fd);
- 	outputManName(o);
- 	outputSynopsis(o);
- 	outputDescripton(o);
+	outputManName(o);
+	outputSynopsis(o);
+	outputDescripton(o);
 	outputSwitches(o, true, false);
 	outputProxyDoc(o);
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
- 	outputHeaderFooterDoc(o);
- 	outputOutlineDoc(o);
+	outputHeaderFooterDoc(o);
+	outputOutlineDoc(o);
 	outputTableOfContentDoc(o);
-#else
-	outputNotPatched(o,true);
-#endif
 	outputPageSizes(o);
 	outputArgsFromStdin(o);
- 	outputPageBreakDoc(o);
- 	outputContact(o);
- 	outputAuthors(o);
+	outputPageBreakDoc(o);
+	outputContact(o);
+	outputAuthors(o);
 	delete o;
 }
 
@@ -62,14 +58,11 @@ void PdfCommandLineParser::manpage(FILE * fd) const {
   \param extended Should we show extended arguments
 */
 void PdfCommandLineParser::usage(FILE * fd, bool extended) const {
-	Outputter * o = Outputter::text(fd,false);
+	Outputter * o = Outputter::text(fd, false);
 	outputName(o);
 	outputSynopsis(o);
- 	outputDescripton(o);
+	outputDescripton(o);
 	outputSwitches(o, extended, false);
-#ifndef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	outputNotPatched(o, true);
-#endif
 	if (extended) {
 		outputPageSizes(o);
 		outputArgsFromStdin(o);
@@ -78,7 +71,7 @@ void PdfCommandLineParser::usage(FILE * fd, bool extended) const {
 		outputOutlineDoc(o);
 		outputTableOfContentDoc(o);
 	}
- 	outputContact(o);
+	outputContact(o);
 	delete o;
 }
 
@@ -88,7 +81,7 @@ void PdfCommandLineParser::usage(FILE * fd, bool extended) const {
   \param html Do we want the html manual, or the README
 */
 void PdfCommandLineParser::readme(FILE * fd, bool html) const {
-	Outputter * o = html?Outputter::html(fd):Outputter::text(fd, true);
+	Outputter * o = html ? Outputter::html(fd) : Outputter::text(fd, true);
 	outputDocStart(o);
 	outputContact(o);
 	outputNotPatched(o, false);
@@ -96,11 +89,11 @@ void PdfCommandLineParser::readme(FILE * fd, bool html) const {
 	outputAuthors(o);
 	outputSynopsis(o);
 	outputSwitches(o, true, true);
- 	outputProxyDoc(o);
- 	outputHeaderFooterDoc(o);
- 	outputOutlineDoc(o);
+	outputProxyDoc(o);
+	outputHeaderFooterDoc(o);
+	outputOutlineDoc(o);
 	outputTableOfContentDoc(o);
- 	outputPageBreakDoc(o);
+	outputPageBreakDoc(o);
 	outputPageSizes(o);
 	outputArgsFromStdin(o);
 	outputStaticProblems(o);
@@ -110,64 +103,41 @@ void PdfCommandLineParser::readme(FILE * fd, bool html) const {
 }
 
 /*!
- * Load default arguments and put them in the settings structure
- */
-//void PdfCommandLineParser::loadDefaults() {
-	//settings.in.clear();
-	//settings.proxy.host = "";
-	//foreach(ArgHandler * h, longToHandler)
-	//	h->useDefault(*d);
-
-	//Load configuration from environment
-	//char * val;
-	//const char * vars[] = {"proxy","all_proxy","http_proxy", NULL};
-	//for(int i=0; vars[i]; ++i) {
-	//	if ((val = getenv("proxy"))) {
-	//		bool ok=false;
-	//		Settings::ProxySettings p = Settings::strToProxy(val, &ok);
-	//		if (ok)
-	//			settings.proxy = p;
-	//	}
-	//}
-//}
-
-
-/*!
  * Parse command line arguments, and set settings accordingly.
  * \param argc the number of command line arguments
  * \param argv a NULL terminated list with the arguments
  */
 void PdfCommandLineParser::parseArguments(int argc, const char ** argv, bool fromStdin) {
 	bool defaultMode = false;
-	int arg=1;
+	int arg = 1;
 
 	PdfObject def;
 
-	//Parse global options
-	for (;arg < argc;++arg) {
+	// Parse global options
+	for (; arg < argc; ++arg) {
 		if (argv[arg][0] != '-' || argv[arg][1] == '\0' || defaultMode) break;
 		parseArg(global | page, argc, argv, defaultMode, arg, (char *)&def);
 	}
 
 	if (readArgsFromStdin && !fromStdin) return;
 
-	//Parse page options
-	while (arg < argc-1) {
+	// Parse page options
+	while (arg < argc - 1) {
 		pageSettings.push_back(def);
 		PdfObject & ps = pageSettings.back();
 		int sections = page;
-		if (!strcmp(argv[arg],"cover")) {
+		if (!strcmp(argv[arg], "cover")) {
 			++arg;
-			if (arg >= argc-1) {
+			if (arg >= argc - 1) {
 				fprintf(stderr, "You need to specify a input file to cover\n\n");
 				usage(stderr, false);
 				exit(1);
 			}
 			ps.page = QString::fromLocal8Bit(argv[arg++]);
 			// parse page options and then override the header/footer settings
-			for (;arg < argc;++arg) {
+			for (; arg < argc; ++arg) {
 				if (argv[arg][0] != '-' || argv[arg][1] == '\0' || defaultMode) break;
-				parseArg(sections, argc, argv, defaultMode, arg, (char*)&ps);
+				parseArg(sections, argc, argv, defaultMode, arg, (char *)&ps);
 			}
 
 			ps.header.left = ps.header.right = ps.header.center = "";
@@ -177,14 +147,14 @@ void PdfCommandLineParser::parseArguments(int argc, const char ** argv, bool fro
 			ps.includeInOutline = false;
 
 			continue;
-		} else if (!strcmp(argv[arg],"toc")) {
+		} else if (!strcmp(argv[arg], "toc")) {
 			++arg;
 			sections = page | toc;
 			ps.isTableOfContent = true;
 		} else {
-			if (!strcmp(argv[arg],"page")) {
+			if (!strcmp(argv[arg], "page")) {
 				++arg;
-				if (arg >= argc-1) {
+				if (arg >= argc - 1) {
 					fprintf(stderr, "You need to specify a input file to page\n\n");
 					usage(stderr, false);
 					exit(1);
@@ -194,9 +164,9 @@ void PdfCommandLineParser::parseArguments(int argc, const char ** argv, bool fro
 			ps.page = QString::fromLocal8Bit(a);
 			++arg;
 		}
-		for (;arg < argc;++arg) {
+		for (; arg < argc; ++arg) {
 			if (argv[arg][0] != '-' || argv[arg][1] == '\0' || defaultMode) break;
-			parseArg(sections, argc, argv, defaultMode, arg, (char*)&ps);
+			parseArg(sections, argc, argv, defaultMode, arg, (char *)&ps);
 		}
 	}
 
@@ -205,5 +175,5 @@ void PdfCommandLineParser::parseArguments(int argc, const char ** argv, bool fro
 		usage(stderr, false);
 		exit(1);
 	}
-	globalSettings.out = QString::fromLocal8Bit(argv[argc-1]);
+	globalSettings.out = QString::fromLocal8Bit(argv[argc - 1]);
 }

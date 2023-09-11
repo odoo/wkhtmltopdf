@@ -15,8 +15,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "pdfcommandlineparser.hh"
-#include "progressfeedback.hh"
 #include <QCommonStyle>
 #include <QPainter>
 #include <QStyleOption>
@@ -30,6 +28,9 @@
 #include <qglobal.h>
 #include <string.h>
 #include <utilities.hh>
+
+#include "pdfcommandlineparser.hh"
+#include "progressfeedback.hh"
 
 #if defined(Q_OS_UNIX)
 #include <locale.h>
@@ -173,12 +174,8 @@ char * fgets_large(FILE * fp) {
 }
 
 int main(int argc, char * argv[]) {
-#if defined(Q_OS_UNIX)
 	setlocale(LC_ALL, "");
-#if QT_VERSION >= 0x050000 && !defined(__EXTENSIVE_WKHTMLTOPDF_QT_HACK__)
-	setenv("QT_QPA_PLATFORM", "offscreen", 0);
-#endif
-#endif
+
 	// This will store all our settings
 	PdfGlobal globalSettings;
 	QList<PdfObject> objectSettings;
@@ -193,12 +190,10 @@ int main(int argc, char * argv[]) {
 
 	// Construct QApplication required for printing
 	bool use_graphics = true;
-#if defined(Q_OS_UNIX) || defined(Q_OS_MAC)
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
+
 	use_graphics = globalSettings.useGraphics;
 	if (!use_graphics) QApplication::setGraphicsSystem("raster");
-#endif
-#endif
+
 	QApplication a(argc, argv, use_graphics);
 	MyLooksStyle * style = new MyLooksStyle();
 	a.setStyle(style);

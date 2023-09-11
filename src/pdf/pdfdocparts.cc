@@ -83,7 +83,6 @@ void PdfCommandLineParser::outputSynopsis(Outputter * o) const {
 	o->endSection();
 }
 
-
 /*!
   Explain what the program does
   \param o The outputter to output to
@@ -92,12 +91,7 @@ void PdfCommandLineParser::outputDescripton(Outputter * o) const {
 	o->beginSection("Description");
 	o->beginParagraph();
 	o->text("Converts one or more HTML pages into a PDF document, ");
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	o->text("using wkhtmltopdf patched qt.");
-#else
-	o->bold("not");
-	o->text(" using wkhtmltopdf patched qt.");
-#endif
 	o->endParagraph();
 	o->endSection();
 }
@@ -163,20 +157,20 @@ void PdfCommandLineParser::outputHeaderFooterDoc(Outputter * o) const {
 				 "arguments respectively.  In header and footer text string supplied to e.g. --header-left, "
 				 "the following variables will be substituted.");
 	o->verbatim(
-" * [page]       Replaced by the number of the pages currently being printed\n"
-" * [frompage]   Replaced by the number of the first page to be printed\n"
-" * [topage]     Replaced by the number of the last page to be printed\n"
-" * [webpage]    Replaced by the URL of the page being printed\n"
-" * [section]    Replaced by the name of the current section\n"
-" * [subsection] Replaced by the name of the current subsection\n"
-" * [date]       Replaced by the current date in system local format\n"
-" * [isodate]    Replaced by the current date in ISO 8601 extended format\n"
-" * [time]       Replaced by the current time in system local format\n"
-" * [title]      Replaced by the title of the of the current page object\n"
-" * [doctitle]   Replaced by the title of the output document\n"
-" * [sitepage]   Replaced by the number of the page in the current site being converted\n"
-" * [sitepages]  Replaced by the number of pages in the current site being converted\n"
-"\n");
+		" * [page]       Replaced by the number of the pages currently being printed\n"
+		" * [frompage]   Replaced by the number of the first page to be printed\n"
+		" * [topage]     Replaced by the number of the last page to be printed\n"
+		" * [webpage]    Replaced by the URL of the page being printed\n"
+		" * [section]    Replaced by the name of the current section\n"
+		" * [subsection] Replaced by the name of the current subsection\n"
+		" * [date]       Replaced by the current date in system local format\n"
+		" * [isodate]    Replaced by the current date in ISO 8601 extended format\n"
+		" * [time]       Replaced by the current time in system local format\n"
+		" * [title]      Replaced by the title of the of the current page object\n"
+		" * [doctitle]   Replaced by the title of the output document\n"
+		" * [sitepage]   Replaced by the number of the page in the current site being converted\n"
+		" * [sitepages]  Replaced by the number of pages in the current site being converted\n"
+		"\n");
 	o->paragraph("As an example specifying --header-right \"Page [page] of [topage]\", "
 				 "will result in the text \"Page x of y\" where x is the number of the "
 				 "current page and y is the number of the last page, to appear in the upper "
@@ -184,39 +178,38 @@ void PdfCommandLineParser::outputHeaderFooterDoc(Outputter * o) const {
 	o->paragraph("Headers and footers can also be supplied with HTML documents. As an example one "
 				 "could specify --header-html header.html, and use the following content in header.html:");
 	o->verbatim(
-"<!DOCTYPE html>\n"
-"<html><head><script>\n"
-"function subst() {\n"
-"    var vars = {};\n"
-"    var query_strings_from_url = document.location.search.substring(1).split('&');\n"
-"    for (var query_string in query_strings_from_url) {\n"
-"        if (query_strings_from_url.hasOwnProperty(query_string)) {\n"
-"            var temp_var = query_strings_from_url[query_string].split('=', 2);\n"
-"            vars[temp_var[0]] = decodeURI(temp_var[1]);\n"
-"        }\n"
-"    }\n"
-"    var css_selector_classes = ['page', 'frompage', 'topage', 'webpage', 'section', 'subsection', 'date', 'isodate', 'time', 'title', 'doctitle', 'sitepage', 'sitepages'];\n"
-"    for (var css_class in css_selector_classes) {\n"
-"        if (css_selector_classes.hasOwnProperty(css_class)) {\n"
-"            var element = document.getElementsByClassName(css_selector_classes[css_class]);\n"
-"            for (var j = 0; j < element.length; ++j) {\n"
-"                element[j].textContent = vars[css_selector_classes[css_class]];\n"
-"            }\n"
-"        }\n"
-"    }\n"
-"}\n"
-"</script></head><body style=\"border:0; margin: 0;\" onload=\"subst()\">\n"
-"<table style=\"border-bottom: 1px solid black; width: 100%\">\n"
-"  <tr>\n"
-"    <td class=\"section\"></td>\n"
-"    <td style=\"text-align:right\">\n"
-"      Page <span class=\"page\"></span> of <span class=\"topage\"></span>\n"
-"    </td>\n"
-"  </tr>\n"
-"</table>\n"
-"</body></html>\n"
-"\n"
-		);
+		"<!DOCTYPE html>\n"
+		"<html><head><script>\n"
+		"function subst() {\n"
+		"    var vars = {};\n"
+		"    var query_strings_from_url = document.location.search.substring(1).split('&');\n"
+		"    for (var query_string in query_strings_from_url) {\n"
+		"        if (query_strings_from_url.hasOwnProperty(query_string)) {\n"
+		"            var temp_var = query_strings_from_url[query_string].split('=', 2);\n"
+		"            vars[temp_var[0]] = decodeURI(temp_var[1]);\n"
+		"        }\n"
+		"    }\n"
+		"    var css_selector_classes = ['page', 'frompage', 'topage', 'webpage', 'section', 'subsection', 'date', 'isodate', 'time', 'title', 'doctitle', 'sitepage', 'sitepages'];\n"
+		"    for (var css_class in css_selector_classes) {\n"
+		"        if (css_selector_classes.hasOwnProperty(css_class)) {\n"
+		"            var element = document.getElementsByClassName(css_selector_classes[css_class]);\n"
+		"            for (var j = 0; j < element.length; ++j) {\n"
+		"                element[j].textContent = vars[css_selector_classes[css_class]];\n"
+		"            }\n"
+		"        }\n"
+		"    }\n"
+		"}\n"
+		"</script></head><body style=\"border:0; margin: 0;\" onload=\"subst()\">\n"
+		"<table style=\"border-bottom: 1px solid black; width: 100%\">\n"
+		"  <tr>\n"
+		"    <td class=\"section\"></td>\n"
+		"    <td style=\"text-align:right\">\n"
+		"      Page <span class=\"page\"></span> of <span class=\"topage\"></span>\n"
+		"    </td>\n"
+		"  </tr>\n"
+		"</table>\n"
+		"</body></html>\n"
+		"\n");
 	o->paragraph("As can be seen from the example, the arguments are sent to the header/footer "
 				 "html documents in get fashion.");
 	o->endSection();

@@ -70,22 +70,13 @@ bool looksLikeHtmlAndNotAUrl(QString str) {
 
 PdfConverterPrivate::PdfConverterPrivate(PdfGlobal & s, PdfConverter & o)
 	: settings(s), pageLoader(s.load, settings.dpi, true),
-	  out(o), printer(0), painter(0)
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	  ,
-	  measuringHFLoader(s.load, settings.dpi), hfLoader(s.load, settings.dpi), tocLoader1(s.load, settings.dpi), tocLoader2(s.load, settings.dpi), tocLoader(&tocLoader1), tocLoaderOld(&tocLoader2), outline(0), currentHeader(0), currentFooter(0)
-#endif
-{
+	  out(o), printer(0), painter(0), hfLoader(s.load, settings.dpi), tocLoader1(s.load, settings.dpi), tocLoader2(s.load, settings.dpi), tocLoader(&tocLoader1), tocLoaderOld(&tocLoader2), outline(0), currentHeader(0), currentFooter(0) {
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	phaseDescriptions.push_back("Loading pages");
 	phaseDescriptions.push_back("Counting pages");
 	phaseDescriptions.push_back("Loading TOC");
 	phaseDescriptions.push_back("Resolving links");
 	phaseDescriptions.push_back("Loading headers and footers");
-#else
-	phaseDescriptions.push_back("Loading page");
-#endif
 	phaseDescriptions.push_back("Printing pages");
 	phaseDescriptions.push_back("Done");
 
@@ -95,14 +86,6 @@ PdfConverterPrivate::PdfConverterPrivate(PdfGlobal & s, PdfConverter & o)
 	connect(&pageLoader, SIGNAL(warning(QString)), this, SLOT(forwardWarning(QString)));
 	connect(&pageLoader, SIGNAL(info(QString)), this, SLOT(forwardInfo(QString)));
 	connect(&pageLoader, SIGNAL(debug(QString)), this, SLOT(forwardDebug(QString)));
-
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	connect(&measuringHFLoader, SIGNAL(loadProgress(int)), this, SLOT(loadProgress(int)));
-	connect(&measuringHFLoader, SIGNAL(loadFinished(bool)), this, SLOT(measuringHeadersLoaded(bool)));
-	connect(&measuringHFLoader, SIGNAL(error(QString)), this, SLOT(forwardError(QString)));
-	connect(&measuringHFLoader, SIGNAL(warning(QString)), this, SLOT(forwardWarning(QString)));
-	connect(&measuringHFLoader, SIGNAL(info(QString)), this, SLOT(forwardInfo(QString)));
-	connect(&measuringHFLoader, SIGNAL(debug(QString)), this, SLOT(forwardDebug(QString)));
 
 	connect(&hfLoader, SIGNAL(loadProgress(int)), this, SLOT(loadProgress(int)));
 	connect(&hfLoader, SIGNAL(loadFinished(bool)), this, SLOT(headersLoaded(bool)));
@@ -124,7 +107,6 @@ PdfConverterPrivate::PdfConverterPrivate(PdfGlobal & s, PdfConverter & o)
 	connect(&tocLoader2, SIGNAL(warning(QString)), this, SLOT(forwardWarning(QString)));
 	connect(&tocLoader2, SIGNAL(info(QString)), this, SLOT(forwardInfo(QString)));
 	connect(&tocLoader2, SIGNAL(debug(QString)), this, SLOT(forwardDebug(QString)));
-#endif
 
 	if (!settings.viewportSize.isEmpty()) {
 		QStringList viewportSizeList = settings.viewportSize.split("x");
@@ -144,38 +126,15 @@ void PdfConverterPrivate::beginConvert() {
 	currentPhase = 0;
 	errorCode = 0;
 
-#ifndef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	if (objects.size() > 1) {
-		emit out.error("This version of wkhtmltopdf is built against an unpatched version of QT, and does not support more than one input document.");
-		fail();
-		return;
-	}
-#else
-	bool headerHeightsCalcNeeded = false;
-#endif
-
 	for (QList<PageObject>::iterator i = objects.begin(); i != objects.end(); ++i) {
 		PageObject & o = *i;
 		settings::PdfObject & s = o.settings;
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 		if (!s.header.htmlUrl.isEmpty()) {
 			if (looksLikeHtmlAndNotAUrl(s.header.htmlUrl)) {
 				emit out.error("--header-html should be a URL and not a string containing HTML code.");
 				fail();
 				return;
-			}
-
-			// we should auto calculate header if top margin is not specified
-			if (settings.margin.top.first == -1) {
-				headerHeightsCalcNeeded = true;
-				o.measuringHeader = &measuringHFLoader.addResource(
-														  MultiPageLoader::guessUrlFromString(s.header.htmlUrl), s.load)
-										 ->page;
-			} else {
-				// or just set static values
-				// add spacing to prevent moving header out of page
-				o.headerReserveHeight = settings.margin.top.first + s.header.spacing;
 			}
 		}
 
@@ -185,20 +144,7 @@ void PdfConverterPrivate::beginConvert() {
 				fail();
 				return;
 			}
-
-			if (settings.margin.bottom.first == -1) {
-				// we should auto calculate footer if top margin is not specified
-				headerHeightsCalcNeeded = true;
-				o.measuringFooter = &measuringHFLoader.addResource(
-														  MultiPageLoader::guessUrlFromString(s.footer.htmlUrl), s.load)
-										 ->page;
-			} else {
-				// or just set static values
-				// add spacing to prevent moving footer out of page
-				o.footerReserveHeight = settings.margin.bottom.first + s.footer.spacing;
-			}
 		}
-#endif
 
 		if (!s.isTableOfContent) {
 			o.loaderObject = pageLoader.addResource(s.page, s.load, &o.data);
@@ -211,33 +157,23 @@ void PdfConverterPrivate::beginConvert() {
 	emit out.phaseChanged();
 	loadProgress(0);
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	if (headerHeightsCalcNeeded) {
-		// preload header/footer to check their heights
-		measuringHFLoader.load();
-	} else {
-		// set defaults if top or bottom mergin is not specified
-		if (settings.margin.top.first == -1) {
-			settings.margin.top.first = 10;
-		}
-		if (settings.margin.bottom.first == -1) {
-			settings.margin.bottom.first = 10;
-		}
-
-		for (QList<PageObject>::iterator i = objects.begin(); i != objects.end(); ++i) {
-			PageObject & o = *i;
-			o.headerReserveHeight = settings.margin.top.first;
-			o.footerReserveHeight = settings.margin.bottom.first;
-		}
-
-		pageLoader.load();
+	// set defaults if top or bottom mergin is not specified
+	if (settings.margin.top.first == -1) {
+		settings.margin.top.first = 10;
 	}
-#else
+	if (settings.margin.bottom.first == -1) {
+		settings.margin.bottom.first = 10;
+	}
+
+	for (QList<PageObject>::iterator i = objects.begin(); i != objects.end(); ++i) {
+		PageObject & o = *i;
+		o.headerReserveHeight = settings.margin.top.first;
+		o.footerReserveHeight = settings.margin.bottom.first;
+	}
+
 	pageLoader.load();
-#endif
 }
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 // calculates header/footer height
 // returns millimeters
 qreal PdfConverterPrivate::calculateHeaderHeight(PageObject & object, QWebPage & header) {
@@ -263,8 +199,6 @@ qreal PdfConverterPrivate::calculateHeaderHeight(PageObject & object, QWebPage &
 	return (height / PdfConverter::millimeterToPointMultiplier);
 }
 
-#endif
-
 QPrinter * PdfConverterPrivate::createPrinter(const QString & tempFile) {
 	QPrinter * printer = new QPrinter(settings.resolution);
 	// Tell the printer object to print the file <out>
@@ -286,7 +220,6 @@ QPrinter * PdfConverterPrivate::createPrinter(const QString & tempFile) {
 	return printer;
 }
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 void PdfConverterPrivate::preprocessPage(PageObject & obj) {
 	currentObject++;
 	if (obj.settings.isTableOfContent) {
@@ -320,7 +253,6 @@ void PdfConverterPrivate::preprocessPage(PageObject & obj) {
 		outline->addEmptyWebPage();
 	painter->restore();
 }
-#endif
 
 /*!
  * Prepares printing out the document to the pdf file
@@ -359,7 +291,6 @@ void PdfConverterPrivate::pagesLoaded(bool ok) {
 	}
 
 	// Setup margins and papersize
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	double maxHeaderHeight = objects[0].headerReserveHeight;
 	double maxFooterHeight = objects[0].footerReserveHeight;
 	for (QList<PageObject>::iterator i = objects.begin(); i != objects.end(); ++i) {
@@ -370,11 +301,6 @@ void PdfConverterPrivate::pagesLoaded(bool ok) {
 	printer->setPageMargins(settings.margin.left.first, maxHeaderHeight,
 							settings.margin.right.first, maxFooterHeight,
 							settings.margin.left.second);
-#else
-	printer->setPageMargins(settings.margin.left.first, settings.margin.top.first,
-							settings.margin.right.first, settings.margin.bottom.first,
-							settings.margin.left.second);
-#endif
 
 	if ((settings.size.height.first != -1) && (settings.size.width.first != -1)) {
 		printer->setPaperSize(QSizeF(settings.size.width.first, settings.size.height.first), settings.size.height.second);
@@ -392,13 +318,6 @@ void PdfConverterPrivate::pagesLoaded(bool ok) {
 		return;
 	}
 
-#ifndef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	// If you do not have the hacks you get this crappy solution
-	printer->setCopyCount(settings.copies);
-	printer->setCollateCopies(settings.collate);
-
-	printDocument();
-#else
 	printer->printEngine()->setProperty(QPrintEngine::PPK_UseCompression, settings.useCompression);
 	printer->printEngine()->setProperty(QPrintEngine::PPK_ImageQuality, settings.imageQuality);
 	printer->printEngine()->setProperty(QPrintEngine::PPK_ImageDPI, settings.imageDPI);
@@ -433,46 +352,40 @@ void PdfConverterPrivate::pagesLoaded(bool ok) {
 	actualPages = pageCount * settings.copies;
 
 	loadTocs();
-#endif
 }
 
 void PdfConverterPrivate::loadHeaders() {
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	currentPhase = 4;
 	emit out.phaseChanged();
 	bool hf = false;
 
-	int pageNumber = 1;
 	for (int d = 0; d < objects.size(); ++d) {
 		PageObject & obj = objects[d];
 		if (!obj.loaderObject || obj.loaderObject->skip) continue;
 
 		settings::PdfObject & ps = obj.settings;
-		for (int op = 0; op < obj.pageCount; ++op) {
-			if (!ps.header.htmlUrl.isEmpty() || !ps.footer.htmlUrl.isEmpty()) {
-				QHash<QString, QString> parms;
-				fillParms(parms, pageNumber, obj);
-				parms["sitepage"] = QString::number(op + 1);
-				parms["sitepages"] = QString::number(obj.pageCount);
-				hf = true;
-				if (!ps.header.htmlUrl.isEmpty())
-					obj.headers.push_back(loadHeaderFooter(ps.header.htmlUrl, parms, ps));
-				if (!ps.footer.htmlUrl.isEmpty()) {
-					obj.footers.push_back(loadHeaderFooter(ps.footer.htmlUrl, parms, ps));
-				}
+		if (!ps.header.htmlUrl.isEmpty() || !ps.footer.htmlUrl.isEmpty()) {
+			QHash<QString, QString> parms;
+			fillParms(parms, 1, obj);
+			parms["sitepage"] = QString::number(1);
+			parms["sitepages"] = QString::number(obj.pageCount);
+
+			hf = true;
+			if (!ps.header.htmlUrl.isEmpty())
+				obj.header = loadHeaderFooter(ps.header.htmlUrl, parms, ps);
+
+			if (!ps.footer.htmlUrl.isEmpty()) {
+				obj.footer = loadHeaderFooter(ps.footer.htmlUrl, parms, ps);
 			}
-			if (ps.pagesCount) ++pageNumber;
 		}
 	}
 	if (hf)
 		hfLoader.load();
 	else
 		printDocument();
-#endif
 }
 
 void PdfConverterPrivate::loadTocs() {
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	std::swap(tocLoaderOld, tocLoader);
 	tocLoader->clearResources();
 
@@ -533,10 +446,8 @@ void PdfConverterPrivate::loadTocs() {
 		tocLoader->load();
 	} else
 		tocLoaded(true);
-#endif
 }
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 void PdfConverterPrivate::findLinks(QWebFrame * frame, QVector<QPair<QWebElement, QString>> & local, QVector<QPair<QWebElement, QString>> & external, QHash<QString, QWebElement> & anchors) {
 	bool ulocal = true, uexternal = true;
 	if (PageObject::webPageToObject.contains(frame->page())) {
@@ -721,17 +632,13 @@ void PdfConverterPrivate::handleTocPage(PageObject & obj) {
 	tocChanged = outline->replaceWebPage(obj.number, obj.settings.toc.captionText, wp, obj.page->mainFrame(), obj.settings, obj.localLinks, obj.anchors) || tocChanged;
 	painter->restore();
 }
-#endif
 
 void PdfConverterPrivate::tocLoaded(bool ok) {
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	if (errorCode == 0) errorCode = tocLoader->httpErrorCode();
-#endif
 	if (!ok) {
 		fail();
 		return;
 	}
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	tocChanged = false;
 	pageCount = 0;
 	currentObject = 0;
@@ -769,48 +676,35 @@ void PdfConverterPrivate::tocLoaded(bool ok) {
 
 		loadHeaders();
 	}
-#endif
-}
-
-void PdfConverterPrivate::measuringHeadersLoaded(bool ok) {
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	if (errorCode == 0) errorCode = measuringHFLoader.httpErrorCode();
-#endif
-	if (!ok) {
-		fail();
-		return;
-	}
-
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	for (int d = 0; d < objects.size(); ++d) {
-		PageObject & obj = objects[d];
-		if (obj.measuringHeader) {
-			// add spacing to prevent moving header out of page
-			obj.headerReserveHeight = calculateHeaderHeight(obj, *obj.measuringHeader) + obj.settings.header.spacing;
-		}
-
-		if (obj.measuringFooter) {
-			// add spacing to prevent moving footer out of page
-			obj.footerReserveHeight = calculateHeaderHeight(obj, *obj.measuringFooter) + obj.settings.footer.spacing;
-		}
-	}
-#endif
-
-	pageLoader.load();
 }
 
 void PdfConverterPrivate::headersLoaded(bool ok) {
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	if (errorCode == 0) errorCode = hfLoader.httpErrorCode();
-#endif
 	if (!ok) {
 		fail();
 		return;
 	}
+
+	for (int d = 0; d < objects.size(); ++d) {
+		PageObject & obj = objects[d];
+
+		if (obj.header && settings.margin.top.first == -1) {
+			// add spacing to prevent moving header out of page
+			obj.headerReserveHeight = calculateHeaderHeight(obj, *obj.header) + obj.settings.header.spacing;
+		} else {
+			obj.headerReserveHeight = settings.margin.top.first + obj.settings.header.spacing;
+		}
+
+		if (obj.header && settings.margin.bottom.first == -1) {
+			// add spacing to prevent moving footer out of page
+			obj.footerReserveHeight = calculateHeaderHeight(obj, *obj.header) + obj.settings.footer.spacing;
+		} else {
+			obj.footerReserveHeight = settings.margin.bottom.first + obj.settings.footer.spacing;
+		}
+	}
+
 	printDocument();
 }
-
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 
 void PdfConverterPrivate::spoolPage(int page) {
 	progressString = QString("Page ") + QString::number(actualPage) + QString(" of ") + QString::number(actualPages);
@@ -962,16 +856,7 @@ void PdfConverterPrivate::endPrintObject(PageObject & obj) {
 	}
 }
 
-#endif
-
 void PdfConverterPrivate::printDocument() {
-#ifndef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	currentPhase = 1;
-	emit out.phaseChanged();
-	objects[0].page->mainFrame()->print(printer);
-	progressString = "";
-	emit out.progressChanged(-1);
-#else
 	actualPage = 1;
 
 	int cc = settings.collate ? settings.copies : 1;
@@ -992,10 +877,10 @@ void PdfConverterPrivate::printDocument() {
 			// const settings::PdfObject & ps = objects[d].settings;
 
 			for (int i = 0; i < pageCount; ++i) {
-				if (!objects[d].headers.empty())
-					handleHeader(objects[d].headers[i], i);
-				if (!objects[d].footers.empty())
-					handleFooter(objects[d].footers[i], i);
+				if (!objects[d].header)
+					handleHeader(objects[d].header, i);
+				if (!objects[d].footer)
+					handleFooter(objects[d].footer, i);
 			}
 		}
 		endPrintObject(objects[objects.size() - 1]);
@@ -1008,7 +893,7 @@ void PdfConverterPrivate::printDocument() {
 	}
 
 	painter->end();
-#endif
+
 	if (settings.out == "-" && lout != "/dev/stdout") {
 		QFile i(lout);
 		QFile o;
@@ -1036,11 +921,7 @@ void PdfConverterPrivate::printDocument() {
 		tempOut.removeAll();
 	}
 	clearResources();
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	currentPhase = 6;
-#else
-	currentPhase = 2;
-#endif
 	emit out.phaseChanged();
 	conversionDone = true;
 	emit out.finished(true);
@@ -1048,7 +929,6 @@ void PdfConverterPrivate::printDocument() {
 	qApp->exit(0); // quit qt's event handling
 }
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 QWebPage * PdfConverterPrivate::loadHeaderFooter(QString url, const QHash<QString, QString> & parms, const settings::PdfObject & ps) {
 	QUrl u = MultiPageLoader::guessUrlFromString(url);
 	for (QHash<QString, QString>::const_iterator i = parms.begin(); i != parms.end(); ++i)
@@ -1066,19 +946,16 @@ QString PdfConverterPrivate::hfreplace(const QString & q, const QHash<QString, Q
 		r = r.replace("[" + i.key() + "]", i.value(), Qt::CaseInsensitive);
 	return r;
 }
-#endif
 
 void PdfConverterPrivate::clearResources() {
 	objects.clear();
 	pageLoader.clearResources();
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 	hfLoader.clearResources();
 	tocLoader1.clearResources();
 	tocLoader2.clearResources();
 
 	if (outline)
 		delete std::exchange(outline, nullptr);
-#endif
 
 	if (printer)
 		delete std::exchange(printer, nullptr);
@@ -1111,7 +988,6 @@ PdfConverter::~PdfConverter() {
 	PdfConverterPrivate * tmp = d;
 	d = 0;
 	tmp->deleteLater();
-	;
 }
 
 /*!

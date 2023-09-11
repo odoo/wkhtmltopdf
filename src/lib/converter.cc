@@ -34,12 +34,12 @@ namespace wkhtmltopdf {
 void ConverterPrivate::updateWebSettings(QWebSettings * ws, const settings::Web & s) const {
 	if (!s.defaultEncoding.isEmpty())
 		ws->setDefaultTextEncoding(s.defaultEncoding);
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
+
 	if (!s.enableIntelligentShrinking) {
 		ws->setPrintingMaximumShrinkFactor(1.0);
 		ws->setPrintingMinimumShrinkFactor(1.0);
 	}
-#endif
+
 	ws->setAttribute(QWebSettings::JavaEnabled, s.enablePlugins);
 	ws->setAttribute(QWebSettings::JavascriptEnabled, s.enableJavascript);
 	ws->setAttribute(QWebSettings::JavascriptCanOpenWindows, false);

@@ -22,7 +22,6 @@
 
 #include "pdfsettings.hh"
 
-#ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
 namespace wkhtmltopdf {
 
 class OutlinePrivate;
@@ -49,4 +48,3 @@ class Outline {
 };
 
 } // namespace wkhtmltopdf
-#endif //__EXTENSIVE_WKHTMLTOPDF_QT_HACK__

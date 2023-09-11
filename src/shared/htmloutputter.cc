@@ -1,6 +1,3 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,8 +15,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "outputter.hh"
 #include <QTextDocument>
+
+#include "outputter.hh"
 
 #if QT_VERSION >= 0x050000
 #define S(x) x.toHtmlEscaped().toUtf8().constData()
@@ -27,14 +25,16 @@
 #define S(x) Qt::escape(x).toUtf8().constData()
 #endif
 
-class HtmlOutputter: public Outputter {
-private:
+class HtmlOutputter : public Outputter {
+  private:
 	FILE * fd;
 	bool ordered;
-public:
-	HtmlOutputter(FILE * _): fd(_) {
+
+  public:
+	HtmlOutputter(FILE * _) : fd(_) {
 		fprintf(fd,
-				"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+				"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN"
+				"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
 				"<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\" dir=\"ltr\">\n"
 				"<head>\n"
 				"  <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\" />\n"
@@ -50,7 +50,7 @@ public:
 	}
 
 	~HtmlOutputter() {
-		fprintf(fd,"</body></html>\n");
+		fprintf(fd, "</body></html>\n");
 	}
 
 	void beginSection(const QString & name) {
@@ -61,11 +61,11 @@ public:
 	}
 
 	void beginParagraph() {
-		fprintf(fd,"<p>");
+		fprintf(fd, "<p>");
 	}
 
 	void endParagraph() {
-		fprintf(fd,"</p>\n");
+		fprintf(fd, "</p>\n");
 	}
 
 	void text(const QString & t) {
@@ -85,7 +85,7 @@ public:
 	}
 
 	void link(const QString & t) {
-		fprintf(fd, "<a href=\"%s\">%s</a>", S(t),S(t));
+		fprintf(fd, "<a href=\"%s\">%s</a>", S(t), S(t));
 	}
 
 	void verbatim(const QString & t) {
@@ -94,11 +94,11 @@ public:
 
 	void beginList(bool o) {
 		ordered = o;
-		fprintf(fd, ordered?"<ol>":"<ul>");
+		fprintf(fd, ordered ? "<ol>" : "<ul>");
 	}
 
 	void endList() {
-		fprintf(fd, ordered?"</ol>":"</ul>");
+		fprintf(fd, ordered ? "</ol>" : "</ul>");
 	}
 
 	void listItem(const QString & s) {
@@ -112,25 +112,24 @@ public:
 	void cswitch(const ArgHandler * h) {
 		fprintf(fd, "<tr><td class=\"short\">");
 		if (h->shortSwitch)
-			fprintf(fd, "-%c,",h->shortSwitch);
-		fprintf(fd, "</td><td class=\"long\">--%s%s</td><td class=\"arg\">",S(h->longName),
-				(h->qthack?"<span style=\"font-weight: normal; font-size: 80%; color:red;\">*</span>":""));
+			fprintf(fd, "-%c,", h->shortSwitch);
+		fprintf(fd, "</td><td class=\"long\">--%s%s</td><td class=\"arg\">", S(h->longName),
+				(h->qthack ? "<span style=\"font-weight: normal; font-size: 80%; color:red;\">*</span>" : ""));
 		foreach (const QString & arg, h->argn)
-			fprintf(fd, "&lt;%s&gt; ",S(arg));
-		fprintf(fd, "</td><td class=\"desc\">%s</td></tr>\n",S(h->getDesc()));
+			fprintf(fd, "&lt;%s&gt; ", S(arg));
+		fprintf(fd, "</td><td class=\"desc\">%s</td></tr>\n", S(h->getDesc()));
 	}
 
 	void endSwitch() {
 		fprintf(fd, "</table>\n");
 		fprintf(fd, "<p>Items marked <span style=\"font-weight: normal; font-size: 80%%; color:red;\">*</span> are only available using patched QT.</p>");
 	}
-
 };
 
 /*!
   Create a Html outputter
   \param fd A file description to output to
 */
-  Outputter * Outputter::html(FILE * fd) {
+Outputter * Outputter::html(FILE * fd) {
 	return new HtmlOutputter(fd);
 }

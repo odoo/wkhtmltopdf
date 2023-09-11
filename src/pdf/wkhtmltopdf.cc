@@ -1,6 +1,3 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -27,11 +24,11 @@
 #include <QtPlugin>
 #include <cstdlib>
 #include <iostream>
+#include <pdfconverter.hh>
+#include <pdfsettings.hh>
 #include <qapplication.h>
 #include <qglobal.h>
 #include <string.h>
-#include <pdfconverter.hh>
-#include <pdfsettings.hh>
 #include <utilities.hh>
 
 #if defined(Q_OS_UNIX)
@@ -48,87 +45,101 @@ using namespace wkhtmltopdf;
  * \param nargc on return will hold the number of arguments read
  * \param nargv on return will hold the arguments read and be NULL terminated
  */
-enum State {skip, tok, q1, q2, q1_esc, q2_esc, tok_esc};
-void parseString(char * buff, int &nargc, char ***nargv) {
+enum State { skip,
+			 tok,
+			 q1,
+			 q2,
+			 q1_esc,
+			 q2_esc,
+			 tok_esc };
+void parseString(char * buff, int & nargc, char *** nargv) {
 	int nargv_size = 1024;
-	*nargv = (char**)malloc(sizeof(char*) * nargv_size);
+	*nargv = (char **)malloc(sizeof(char *) * nargv_size);
 	if (!*nargv) exit(1);
 
 	State state = skip;
-	int write_start=0;
-	int write=0;
-	for (int read=0; buff[read]!='\0'; ++read) {
-		State next_state=state;
+	int write_start = 0;
+	int write = 0;
+	for (int read = 0; buff[read] != '\0'; ++read) {
+		State next_state = state;
 		switch (state) {
-		case skip:
-			//Whitespace skipping state
-			if (buff[read]!=' ' && buff[read]!='\t' && buff[read]!='\r' && buff[read]!='\n') {
-				--read;
-				next_state=tok;
-			}
-			break;
-		case tok:
-			//Normal toking reading state
-			if (buff[read]=='\'') next_state=q1;
-			else if (buff[read]=='"') next_state=q2;
-			else if (buff[read]=='\\') next_state=tok_esc;
-			else if (buff[read]==' ' || buff[read]=='\t' || buff[read]=='\n' || buff[read]=='\r') {
-				next_state=skip;
-				if (write_start != write) {
-					buff[write++]='\0';
-					if (nargc+1 >= nargv_size)
-					{
-						nargv_size *= 2;
-						*nargv = (char**)realloc(*nargv, sizeof(char*) * nargv_size);
-						if (!*nargv) exit(1);
-					}
-					(*nargv)[nargc++] = buff+write_start;
+			case skip:
+				// Whitespace skipping state
+				if (buff[read] != ' ' && buff[read] != '\t' && buff[read] != '\r' && buff[read] != '\n') {
+					--read;
+					next_state = tok;
 				}
-				write_start = write;
-			} else buff[write++] = buff[read];
-			break;
-		case q1:
-			//State parsing a single qoute argument
-			if (buff[read]=='\'') next_state=tok;
-			else if (buff[read]=='\\') next_state=q1_esc;
-			else buff[write++] = buff[read];
-			break;
-		case q2:
-			//State parsing a double qoute argument
-			if (buff[read]=='"') next_state=tok;
-			else if (buff[read]=='\\') next_state=q2_esc;
-			else buff[write++] = buff[read];
-			break;
-		case tok_esc:
-			//Escape one char and return to the token parsing state
-			next_state=tok;
-			buff[write++] = buff[read];
-			break;
-		case q1_esc:
-			//Espace one char and return to the single quote parsing state
-			next_state=q1;
-			buff[write++] = buff[read];
-			break;
-		case q2_esc:
-			//Escape one char and return to the double qoute parsing state
-			next_state=q2;
-			buff[write++] = buff[read];
-			break;
+				break;
+			case tok:
+				// Normal toking reading state
+				if (buff[read] == '\'')
+					next_state = q1;
+				else if (buff[read] == '"')
+					next_state = q2;
+				else if (buff[read] == '\\')
+					next_state = tok_esc;
+				else if (buff[read] == ' ' || buff[read] == '\t' || buff[read] == '\n' || buff[read] == '\r') {
+					next_state = skip;
+					if (write_start != write) {
+						buff[write++] = '\0';
+						if (nargc + 1 >= nargv_size) {
+							nargv_size *= 2;
+							*nargv = (char **)realloc(*nargv, sizeof(char *) * nargv_size);
+							if (!*nargv) exit(1);
+						}
+						(*nargv)[nargc++] = buff + write_start;
+					}
+					write_start = write;
+				} else
+					buff[write++] = buff[read];
+				break;
+			case q1:
+				// State parsing a single qoute argument
+				if (buff[read] == '\'')
+					next_state = tok;
+				else if (buff[read] == '\\')
+					next_state = q1_esc;
+				else
+					buff[write++] = buff[read];
+				break;
+			case q2:
+				// State parsing a double qoute argument
+				if (buff[read] == '"')
+					next_state = tok;
+				else if (buff[read] == '\\')
+					next_state = q2_esc;
+				else
+					buff[write++] = buff[read];
+				break;
+			case tok_esc:
+				// Escape one char and return to the token parsing state
+				next_state = tok;
+				buff[write++] = buff[read];
+				break;
+			case q1_esc:
+				// Espace one char and return to the single quote parsing state
+				next_state = q1;
+				buff[write++] = buff[read];
+				break;
+			case q2_esc:
+				// Escape one char and return to the double qoute parsing state
+				next_state = q2;
+				buff[write++] = buff[read];
+				break;
 		}
-		state=next_state;
+		state = next_state;
 	}
-	if (nargc+1 + 2 >= nargv_size)
-	{
+	if (nargc + 1 + 2 >= nargv_size) {
 		nargv_size *= 2;
-		*nargv = (char**)realloc(*nargv, sizeof(char*) * nargv_size);
+		*nargv = (char **)realloc(*nargv, sizeof(char *) * nargv_size);
 		if (!*nargv) exit(1);
 	}
-	//Remember the last parameter
+	// Remember the last parameter
 	if (write_start != write) {
-		buff[write++]='\0';
-		(*nargv)[nargc++] = buff+write_start;
+		buff[write++] = '\0';
+		(*nargv)[nargc++] = buff + write_start;
 	}
-	(*nargv)[nargc]=NULL;
+	(*nargv)[nargc] = NULL;
 }
 
 /*
@@ -136,8 +147,7 @@ void parseString(char * buff, int &nargc, char ***nargv) {
  * Derived from getline function from DHCPD client daemon.
  * Needed because of Windows and systems before POSIX 2008.
  */
-char * fgets_large(FILE * fp)
-{
+char * fgets_large(FILE * fp) {
 	const size_t bufsize_grow = 1024;
 	size_t bytes = 0, buflen = 0;
 	char *p, *buf = NULL;
@@ -169,23 +179,23 @@ int main(int argc, char * argv[]) {
 	setenv("QT_QPA_PLATFORM", "offscreen", 0);
 #endif
 #endif
-	//This will store all our settings
+	// This will store all our settings
 	PdfGlobal globalSettings;
 	QList<PdfObject> objectSettings;
-	//Create a command line parser to parse commandline arguments
+	// Create a command line parser to parse commandline arguments
 	PdfCommandLineParser parser(globalSettings, objectSettings);
 
-	//Setup default values in settings
-	//parser.loadDefaults();
+	// Setup default values in settings
+	// parser.loadDefaults();
 
-	//Parse the arguments
-	parser.parseArguments(argc, (const char**)argv);
+	// Parse the arguments
+	parser.parseArguments(argc, (const char **)argv);
 
-	//Construct QApplication required for printing
-	bool use_graphics=true;
+	// Construct QApplication required for printing
+	bool use_graphics = true;
 #if defined(Q_OS_UNIX) || defined(Q_OS_MAC)
 #ifdef __EXTENSIVE_WKHTMLTOPDF_QT_HACK__
-	use_graphics=globalSettings.useGraphics;
+	use_graphics = globalSettings.useGraphics;
 	if (!use_graphics) QApplication::setGraphicsSystem("raster");
 #endif
 #endif
@@ -194,21 +204,21 @@ int main(int argc, char * argv[]) {
 	a.setStyle(style);
 
 	if (parser.readArgsFromStdin) {
-		char *buff;
+		char * buff;
 		while ((buff = fgets_large(stdin)) != NULL) {
-			int nargc=argc;
-			char **nargv;
-			parseString(buff,nargc,&nargv);
-			for (int i=0; i < argc; ++i) nargv[i] = argv[i];
+			int nargc = argc;
+			char ** nargv;
+			parseString(buff, nargc, &nargv);
+			for (int i = 0; i < argc; ++i) nargv[i] = argv[i];
 
 			PdfGlobal globalSettings;
 			QList<PdfObject> objectSettings;
-			//Create a command line parser to parse commandline arguments
+			// Create a command line parser to parse commandline arguments
 			PdfCommandLineParser parser(globalSettings, objectSettings);
-			//Setup default values in settings
-			//parser.loadDefaults();
-			//Parse the arguments
-			parser.parseArguments(nargc, (const char**)nargv, true);
+			// Setup default values in settings
+			// parser.loadDefaults();
+			// Parse the arguments
+			parser.parseArguments(nargc, (const char **)nargv, true);
 
 			PdfConverter converter(globalSettings);
 			ProgressFeedback feedback(globalSettings.logLevel, converter);
@@ -222,7 +232,7 @@ int main(int argc, char * argv[]) {
 		}
 		exit(EXIT_SUCCESS);
 	}
-	//Create the actual page converter to convert the pages
+	// Create the actual page converter to convert the pages
 	PdfConverter converter(globalSettings);
 	QObject::connect(&converter, SIGNAL(producingForms(bool)), style, SLOT(producingForms(bool)));
 	QObject::connect(&converter, SIGNAL(checkboxSvgChanged(const QString &)), style, SLOT(setCheckboxSvg(const QString &)));

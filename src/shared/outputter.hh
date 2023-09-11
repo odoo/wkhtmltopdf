@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,35 +17,33 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __OUTPUTTER_HH__
-#define __OUTPUTTER_HH__
-#include "commandlineparserbase.hh"
 #include <QString>
 #include <QVector>
-#include <stdio.h>
+#include <cstdio>
+
+#include "commandlineparserbase.hh"
 
 class Outputter {
-public:
+  public:
 	virtual ~Outputter() {}
 	virtual void beginSection(const QString & name) = 0;
 	virtual void endSection() = 0;
 	virtual void beginParagraph() = 0;
 	virtual void text(const QString & t) = 0;
-	virtual void bold(const QString & t) =  0;
+	virtual void bold(const QString & t) = 0;
 	virtual void italic(const QString & t) = 0;
 	virtual void link(const QString & l) = 0;
 	virtual void sectionLink(const QString & s) = 0;
 	virtual void endParagraph() = 0;
 	virtual void verbatim(const QString & t) = 0;
- 	virtual void beginList(bool ordered=false) = 0;
- 	virtual void endList() = 0;
- 	virtual void listItem(const QString & t) = 0;
+	virtual void beginList(bool ordered = false) = 0;
+	virtual void endList() = 0;
+	virtual void listItem(const QString & t) = 0;
 	virtual void beginSwitch() = 0;
 	virtual void cswitch(const ArgHandler * h) = 0;
 	virtual void endSwitch() = 0;
 	void paragraph(const QString & t);
-	static Outputter * text(FILE * fd, bool doc=false, bool extended=false);
-	static Outputter * man(FILE * fd);
-	static Outputter * html(FILE * fd);
+	static Outputter * text(std::FILE * fd, bool doc = false, bool extended = false);
+	static Outputter * man(std::FILE * fd);
+	static Outputter * html(std::FILE * fd);
 };
-#endif //__OUTPUTTER_HH__

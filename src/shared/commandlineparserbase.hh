@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,15 +17,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __COMMANDLINEPARSERBASE_HH__
-#define __COMMANDLINEPARSERBASE_HH__
-#include <loadsettings.hh>
-#include <websettings.hh>
+#include "loadsettings.hh"
+#include "websettings.hh"
+
 class Outputter;
 class CommandLineParserBase;
 
 class ArgHandler {
-public:
+  public:
 	QString longName;
 	QString desc;
 	char shortSwitch;
@@ -37,11 +35,11 @@ public:
 	virtual QString getDesc() const;
 	virtual ~ArgHandler();
 	int section;
-	virtual bool operator() (const char ** args, CommandLineParserBase & parser, char * page) = 0;
+	virtual bool operator()(const char ** args, CommandLineParserBase & parser, char * page) = 0;
 };
 
 class CommandLineParserBase {
-public:
+  public:
 	int currentMode;
 	QString currentSection;
 	bool currentExtended;
@@ -50,39 +48,38 @@ public:
 	QList<QString> sections;
 	QHash<QString, ArgHandler *> longToHandler;
 	QHash<char, ArgHandler *> shortToHandler;
-	QHash<QString, QList<ArgHandler *> > sectionArgumentHandles;
+	QHash<QString, QList<ArgHandler *>> sectionArgumentHandles;
 	QHash<QString, QString> sectionDesc;
 
-	//basearguments.cc
-	void section(QString s, QString desc="");
+	// basearguments.cc
+	void section(QString s, QString desc = "");
 	void mode(int m);
 	void qthack(bool);
 	void extended(bool);
 
-	void addarg(QString, char, QString, ArgHandler * h, bool display=true);
+	void addarg(QString, char, QString, ArgHandler * h, bool display = true);
 	void addDocArgs();
 	void addWebArgs(wkhtmltopdf::settings::Web & s);
 	void addGlobalLoadArgs(wkhtmltopdf::settings::LoadGlobal & s);
 	void addPageLoadArgs(wkhtmltopdf::settings::LoadPage & s);
 
-	//commondocparts.cc
+	// commondocparts.cc
 	void outputName(Outputter * o) const;
 	void outputLicense(Outputter * o) const;
 	void outputAuthors(Outputter * o) const;
 	void outputStaticProblems(Outputter * o) const;
 	void outputProxyDoc(Outputter * o) const;
 
-	//commandlineparserbase.cc
+	// commandlineparserbase.cc
 	void outputSwitches(Outputter * o, bool extended, bool doc) const;
-	virtual char * mapAddress(char * d, char *) const {return d;}
+	virtual char * mapAddress(char * d, char *) const { return d; }
 	virtual void license(FILE * fd) const;
 	virtual void version(FILE * fd) const;
 	void parseArg(int sections, const int argc, const char ** argv, bool & defaultMode, int & arg, char * page);
 
 	virtual QString appName() const = 0;
-	const char *appVersion() const;
+	const char * appVersion() const;
 	virtual void usage(FILE * fd, bool extended) const = 0;
 	virtual void manpage(FILE * fd) const = 0;
 	virtual void readme(FILE * fd, bool html) const = 0;
 };
-#endif //__COMMANDLINEPARSERBASE_HH__

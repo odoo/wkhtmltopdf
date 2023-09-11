@@ -1,6 +1,3 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,14 +15,14 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __PDFCOMMANDLINEPARSER_HH__
-#define __PDFCOMMANDLINEPARSER_HH__
-#include "commandlineparserbase.hh"
-#include <cstdio>
-#include <pdfsettings.hh>
+#pragma once
 
-class PdfCommandLineParser: public CommandLineParserBase {
-public:
+#include <cstdio>
+
+#include "commandlineparserbase.hh"
+#include "pdfsettings.hh"
+class PdfCommandLineParser : public CommandLineParserBase {
+  public:
 	const static int global = 1;
 	const static int page = 2;
 	const static int toc = 4;
@@ -35,11 +32,11 @@ public:
 
 	wkhtmltopdf::settings::PdfObject od;
 
-	//Arguments.cc
+	// Arguments.cc
 	PdfCommandLineParser(wkhtmltopdf::settings::PdfGlobal & globalSettings,
-					  QList<wkhtmltopdf::settings::PdfObject> & pageSettings);
+						 QList<wkhtmltopdf::settings::PdfObject> & pageSettings);
 
-	//docparts.cc
+	// docparts.cc
 	void outputManName(Outputter * o) const;
 	void outputSynopsis(Outputter * o) const;
 	void outputDescripton(Outputter * o) const;
@@ -55,19 +52,18 @@ public:
 	void outputInstallation(Outputter * o) const;
 	void outputExamples(Outputter * o) const;
 
-	//commandlineparser.cc
-	virtual QString appName() const {return "wkhtmltopdf";}
+	// commandlineparser.cc
+	virtual QString appName() const { return "wkhtmltopdf"; }
 	virtual void usage(FILE * fd, bool extended) const;
 	virtual void manpage(FILE * fd) const;
 	virtual void readme(FILE * fd, bool html) const;
 
-	void parseArguments(int argc, const char ** argv, bool fromStdin=false);
+	void parseArguments(int argc, const char ** argv, bool fromStdin = false);
 
 	virtual char * mapAddress(char * d, char * ns) const {
 		const char * _od = reinterpret_cast<const char *>(&od);
-		if (_od > d || d >= _od + sizeof(wkhtmltopdf::settings::PdfObject)) return d;;
+		if (_od > d || d >= _od + sizeof(wkhtmltopdf::settings::PdfObject)) return d;
+		;
 		return d - _od + ns;
 	}
-
 };
-#endif //__PDFCOMMANDLINEPARSER_HH__

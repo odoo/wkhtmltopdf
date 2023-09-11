@@ -1,6 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,29 +17,27 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __PROGRESSFEEDBACK_HH__
-#define __PROGRESSFEEDBACK_HH__
-#include <converter.hh>
-#include <logging.hh>
+#include "converter.hh"
+#include "logging.hh"
 namespace wkhtmltopdf {
 
-class ProgressFeedback: public QObject {
+class ProgressFeedback : public QObject {
 	Q_OBJECT
-private:
+  private:
 	settings::LogLevel logLevel;
 	Converter & converter;
 	int lw;
 	void finishLine(int start);
-public slots:
-	void debug(const QString &message);
-	void info(const QString &message);
-	void warning(const QString &message);
-	void error(const QString &message);
+  public slots:
+	void debug(const QString & message);
+	void info(const QString & message);
+	void warning(const QString & message);
+	void error(const QString & message);
 	void phaseChanged();
 	void progressChanged(int progress);
-public:
+
+  public:
 	ProgressFeedback(settings::LogLevel logLevel, Converter & _);
 };
 
-}
-#endif //__PROGRESSFEEDBACK_HH__
+} // namespace wkhtmltopdf

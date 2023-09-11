@@ -1,6 +1,3 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
 //
 // This file is part of wkhtmltopdf.
@@ -18,17 +15,20 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "outputter.hh"
 #include <QStringList>
+
+#include "outputter.hh"
+
 #define S(x) ((x).toUtf8().constData())
 
-class ManOutputter: public Outputter {
-private:
+class ManOutputter : public Outputter {
+  private:
 	FILE * fd;
 	int order;
-public:
-	ManOutputter(FILE * _): fd(_) {
-		fprintf(fd,".TH WKHTMLTOPDF 1 \"2009 February 23\"\n\n");
+
+  public:
+	ManOutputter(FILE * _) : fd(_) {
+		fprintf(fd, ".TH WKHTMLTOPDF 1 \"2009 February 23\"\n\n");
 	}
 
 	void beginSection(const QString & name) {
@@ -70,7 +70,7 @@ public:
 	void verbatim(const QString & t) {
 		QString str = QString(t).replace("-", "\\-");
 		QStringList l = str.split('\n');
-		while ( l.back() == "") l.pop_back();
+		while (l.back() == "") l.pop_back();
 		foreach (const QString & line, l)
 			fprintf(fd, "  %s\n", S(line));
 		fprintf(fd, "\n");
@@ -81,7 +81,7 @@ public:
 	}
 
 	void beginList(bool ordered) {
-		order=(ordered?1:-1);
+		order = (ordered ? 1 : -1);
 	}
 
 	void endList() {
@@ -89,9 +89,11 @@ public:
 	}
 
 	void listItem(const QString & s) {
-		if (order < 0) fprintf(fd, " * ");
-		else fprintf(fd, "%3d ", order++);
-		fprintf(fd,"%s\n",S(s));
+		if (order < 0)
+			fprintf(fd, " * ");
+		else
+			fprintf(fd, "%3d ", order++);
+		fprintf(fd, "%s\n", S(s));
 	}
 
 	void cswitch(const ArgHandler * h) {
@@ -101,10 +103,10 @@ public:
 			fprintf(fd, "\\-%c, ", h->shortSwitch);
 		else
 			fprintf(fd, "    ");
-		fprintf(fd,"\\-\\-%s\\fR", S(h->longName));
+		fprintf(fd, "\\-\\-%s\\fR", S(h->longName));
 
 		for (QVector<QString>::const_iterator i = h->argn.constBegin(); i != h->argn.constEnd(); ++i)
-			fprintf(fd," \\fI<%s>\\fR", S(*i));
+			fprintf(fd, " \\fI<%s>\\fR", S(*i));
 
 		fprintf(fd, "\n%s\n", S(QString(h->desc).replace("-", "\\-")));
 	}
@@ -120,5 +122,5 @@ public:
   \param fd A file description to output to
 */
 Outputter * Outputter::man(FILE * fd) {
-  return new ManOutputter(fd);
+	return new ManOutputter(fd);
 }

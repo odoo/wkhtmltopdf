@@ -174,7 +174,7 @@ def compile_docker(config, target, src_dir, tgt_dir, debug=False):
 
     wkh2ppro = os.path.join(srcDir, "wkhtmltopdf.pro")
     dshell(appprefix, qmake + f" {wkh2ppro} CONFIG+=silent")
-    dshell(appprefix, "make install INSTALL_ROOT=/tgt/wkhtmltox")
+    dshell(appprefix, f"make install INSTALL_ROOT={tgt_dir}/wkhtmltox")
 
 
 def package_docker(config, target, src_dir, iteration, clean=False, debug=False):

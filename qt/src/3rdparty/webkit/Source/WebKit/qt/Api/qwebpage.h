@@ -419,8 +419,6 @@ protected:
 
     virtual QString userAgentForUrl(const QUrl& url) const;
 
-    virtual QString overrideMediaType() const;
-
 private:
     Q_PRIVATE_SLOT(d, void _q_onLoadProgressChanged(int))
 #ifndef QT_NO_ACTION

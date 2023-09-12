@@ -466,9 +466,9 @@ qt-config:
     -webkit
     -exceptions
     -xmlpatterns
-    -system-zlib
-    -system-libpng
-    -system-libjpeg
+    -qt-zlib
+    -qt-libpng
+    -qt-libjpeg
     -no-libmng
     -no-libtiff
     -no-accessibility

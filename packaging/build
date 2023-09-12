@@ -173,7 +173,11 @@ def compile_docker(config, target, src_dir, tgt_dir, debug=False):
         dshell(appprefix, qmake + " -set CROSS_COMPILE %s" % cross)
 
     wkh2ppro = os.path.join(srcDir, "wkhtmltopdf.pro")
-    dshell(appprefix, qmake + f" {wkh2ppro} CONFIG+=silent")
+    dshell(
+        appprefix,
+        qmake
+        + f' {wkh2ppro} "CONFIG+=silent static staticlib" QMAKE_LFLAGS_RELEASE+="-static-libstdc++ -static-libgcc"',
+    )
     dshell(appprefix, f"make install INSTALL_ROOT={tgt_dir}/wkhtmltox")
 
 

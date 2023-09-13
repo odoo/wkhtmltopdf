@@ -1188,7 +1188,7 @@ QFixed QFontEngineFT::xHeight() const
     TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_os2);
     if (os2 && os2->sxHeight) {
         lockFace();
-        QFixed answer = QFixed(os2->sxHeight * freetype->face->size->metrics.y_ppem) / freetype->face->units_per_EM;
+        QFixed answer = QFixed(os2->sxHeight*freetype->face->size->metrics.y_ppem)/freetype->face->units_per_EM;
         unlockFace();
         return answer;
     }
@@ -1200,7 +1200,7 @@ QFixed QFontEngineFT::averageCharWidth() const
     TT_OS2 *os2 = (TT_OS2 *)FT_Get_Sfnt_Table(freetype->face, ft_sfnt_os2);
     if (os2 && os2->xAvgCharWidth) {
         lockFace();
-        QFixed answer = QFixed(os2->xAvgCharWidth * freetype->face->size->metrics.x_ppem) / freetype->face->units_per_EM;
+        QFixed answer = QFixed(os2->xAvgCharWidth*freetype->face->size->metrics.x_ppem)/freetype->face->units_per_EM;
         unlockFace();
         return answer;
     }

@@ -1522,8 +1522,8 @@ void QPdfEngine::addAnchor(const QRectF &r, const QString &name)
     char buf[256];
     QRectF rr = d->pageMatrix().mapRect(r);
     uint anchor = d->addXrefEntry(-1);
-    d->xprintf("[%d 0 R /XYZ %s \n",
-               d->pages.back(),
+    d->xprintf("[%d /XYZ %s \n",
+               d->pages.size() - 1,
                qt_real_to_string(rr.left(), buf));
     d->xprintf("%s 0]\n",
                qt_real_to_string(rr.bottom(), buf));

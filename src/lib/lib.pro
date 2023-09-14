@@ -16,7 +16,7 @@
 # along with wkhtmltopdf.  If not, see <http:#www.gnu.org/licenses/>.
 
 TEMPLATE = lib
-CONFIG += dll
+CONFIG += static
 
 include(../../common.pri)
 include(lib.pri)

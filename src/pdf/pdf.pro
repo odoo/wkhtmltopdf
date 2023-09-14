@@ -18,6 +18,7 @@
 include(../../common.pri)
 
 TEMPLATE = app
+CONFIG += static
 TARGET = wkhtmltopdf
 DESTDIR = ../../bin
 DEPENDPATH += . ../shared

@@ -3038,7 +3038,7 @@ void Configure::generateOutputVars()
     if (dictionary["FONT_CONFIG"] == "yes") {
         qtConfig += "fontconfig";
         qmakeVars += "QMAKE_CFLAGS_FONTCONFIG =";
-        qmakeVars += "QMAKE_LIBS_FONTCONFIG   = -lfreetype -lfontconfig";
+        qmakeVars += "QMAKE_LIBS_FONTCONFIG   = -lfreetype -lfontconfig -lexpat";
     }
 
     // We currently have no switch for QtSvg, so add it unconditionally.

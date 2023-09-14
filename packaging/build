@@ -176,8 +176,9 @@ def compile_docker(config, target, src_dir, tgt_dir, debug=False):
     dshell(
         appprefix,
         qmake
-        + f' {wkh2ppro} "CONFIG+=silent static staticlib" QMAKE_LFLAGS_RELEASE+="-static-libstdc++ -static-libgcc"',
+        + f' {wkh2ppro} "CONFIG+=static staticlib" QMAKE_LFLAGS_RELEASE+="-static -static-libstdc++ -static-libgcc"',
     )
+
     dshell(appprefix, f"make install INSTALL_ROOT={tgt_dir}/wkhtmltox")
 
 
@@ -360,7 +361,7 @@ def build_vagrant(
         qmake = os.path.join(tgt_dir, "qt", "bin", "qmake")
         shell(make, os.path.join(tgt_dir, "qt"))
         shell(
-            "%s %s/wkhtmltopdf.pro CONFIG+=silent %s" % (qmake, src_dir, custom_qmk),
+            "%s %s/wkhtmltopdf.pro %s" % (qmake, src_dir, custom_qmk),
             os.path.join(tgt_dir, "app"),
         )
         shell(make, os.path.join(tgt_dir, "app"))

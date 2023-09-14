@@ -18,6 +18,8 @@
 include(../../common.pri)
 
 TEMPLATE = app
+
+CONFIG += static
 TARGET = wkhtmltoimage
 DESTDIR = ../../bin
 DEPENDPATH += . ../shared

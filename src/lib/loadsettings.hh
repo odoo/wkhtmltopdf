@@ -25,17 +25,16 @@ namespace settings {
 
 /*! \brief Settings considering proxy */
 struct Proxy {
-	Proxy();
 	//! Type of proxy to use
-	QNetworkProxy::ProxyType type;
+	QNetworkProxy::ProxyType type{QNetworkProxy::NoProxy};
 	//! The port of the proxy to use
-	int port;
+	int port{-1};
 	//! The host name of the proxy to use or NULL
-	QString host;
+	QString host{};
 	//! Username for the said proxy or NULL
-	QString user;
+	QString user{};
 	//! Password for the said proxy or NULL
-	QString password;
+	QString password{};
 };
 
 struct PostItem {
@@ -45,13 +44,11 @@ struct PostItem {
 };
 
 struct LoadGlobal {
-	LoadGlobal();
 	//! Path of the cookie jar file
-	QString cookieJar;
+	QString cookieJar{""};
 };
 
 struct LoadPage {
-	LoadPage();
 
 	enum LoadErrorHandling {
 		abort,
@@ -75,20 +72,20 @@ struct LoadPage {
 	QString clientSslCrtPath;
 
 	//! How many milliseconds should we wait for a Javascript redirect
-	int jsdelay;
+	int jsdelay{200};
 
 	//! What window.status value should we wait for
-	QString windowStatus;
+	QString windowStatus{};
 
 	//! What zoom factor should we apply when printing
 	// TODO MOVE
-	float zoomFactor;
+	float zoomFactor{1};
 
 	//! Map of custom header variables
 	QList<QPair<QString, QString>> customHeaders;
 
 	//! Set if the custom header should be repeated for each resource request
-	bool repeatCustomHeaders;
+	bool repeatCustomHeaders{false};
 
 	//! Map of cookies
 	QList<QPair<QString, QString>> cookies;
@@ -96,20 +93,20 @@ struct LoadPage {
 	QList<PostItem> post;
 
 	//! Block access to local files for the given page
-	bool blockLocalFileAccess;
+	bool blockLocalFileAccess{true};
 
 	//! If access to local files is not allowed in general, allow it for these files
 	QList<QString> allowed;
 
 	//! Stop Javascript from running too long
-	bool stopSlowScripts;
+	bool stopSlowScripts{true};
 
 	//! Output Javascript debug messages
-	bool debugJavascript;
+	bool debugJavascript{false};
 
 	//! What should we do about load errors
-	LoadErrorHandling loadErrorHandling;
-	LoadErrorHandling mediaLoadErrorHandling;
+	LoadErrorHandling loadErrorHandling{abort};
+	LoadErrorHandling mediaLoadErrorHandling{ignore};
 
 	//! Proxy related settings
 	Proxy proxy;
@@ -122,17 +119,17 @@ struct LoadPage {
 	QString radiobuttonSvg;
 	QString radiobuttonCheckedSvg;
 
-	QString cacheDir;
+	QString cacheDir{""};
 	static QList<QString> mediaFilesExtensions;
 
 	// Hosts to bypass
 	QList<QString> bypassProxyForHosts;
 
 	//! Whether to use the proxy for resolving hostnames
-	bool proxyHostNameLookup;
+	bool proxyHostNameLookup{false};
 
 	//! Should we use the print or the screen media type
-	bool printMediaType;
+	bool printMediaType{false};
 };
 
 LoadPage::LoadErrorHandling strToLoadErrorHandling(const char * s, bool * ok = 0);

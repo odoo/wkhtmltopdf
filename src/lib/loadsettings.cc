@@ -122,25 +122,4 @@ QString proxyToStr(const Proxy & p) {
 	return res;
 }
 
-Proxy::Proxy() : type(QNetworkProxy::NoProxy),
-				 port(-1),
-				 host(),
-				 user(),
-				 password() {}
-
-LoadGlobal::LoadGlobal() : cookieJar("") {}
-
-LoadPage::LoadPage() : jsdelay(200),
-					   windowStatus(""),
-					   zoomFactor(1.0),
-					   repeatCustomHeaders(false),
-					   blockLocalFileAccess(true),
-					   stopSlowScripts(true),
-					   debugJavascript(false),
-					   loadErrorHandling(abort),
-					   mediaLoadErrorHandling(ignore),
-					   cacheDir(""),
-					   printMediaType(false),
-					   proxyHostNameLookup(false){};
-
 } // namespace wkhtmltopdf::settings

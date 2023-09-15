@@ -1,4 +1,5 @@
 // Copyright 2010-2020 wkhtmltopdf authors
+// Copyright 2023 Odoo S.A.
 //
 // This file is part of wkhtmltopdf.
 //
@@ -15,62 +16,61 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-
 #include <QDebug>
-#include <QTextStream>
 #include <QMetaEnum>
 #include <QNetworkReply>
+#include <QTextStream>
 
 #include "utilities.hh"
 
-void loadSvg(QSvgRenderer * & ptr, const QString & path, const char * def, int w, int h) {
-	 delete ptr;
-	 ptr = 0;
-	 if (path != "") {
-	 	ptr = new QSvgRenderer(path);
+void loadSvg(QSvgRenderer *& ptr, const QString & path, const char * def, int w, int h) {
+	delete ptr;
+	ptr = 0;
+	if (path != "") {
+		ptr = new QSvgRenderer(path);
 		if (ptr->isValid()) return;
 		qWarning() << "Failed to load " << path;
 		delete ptr;
-	 }
+	}
 
-	 QByteArray a;
-	 QTextStream s(&a, QIODevice::WriteOnly );
-	 s << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
-	   << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"
-	   << "<svg xmlns=\"http://www.w3.org/2000/svg\"\n"
-	   << "  xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n"
-	   << "  version=\"1.1\"\n"
-	   << "  baseProfile=\"full\"\n"
-	   << "  width=\"" << w << "px\"\n"
-	   << "  height=\"" << h << "px\"\n"
-	   << "  viewBox=\"0 0 " << w << "px " << h << "px\">\n"
-	   << def
-	   << "</svg>\n";
-	 s.flush();
-	 ptr = new QSvgRenderer(a);
+	QByteArray a;
+	QTextStream s(&a, QIODevice::WriteOnly);
+	s << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+	  << "<!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">\n"
+	  << "<svg xmlns=\"http://www.w3.org/2000/svg\"\n"
+	  << "  xmlns:xlink=\"http://www.w3.org/1999/xlink\"\n"
+	  << "  version=\"1.1\"\n"
+	  << "  baseProfile=\"full\"\n"
+	  << "  width=\"" << w << "px\"\n"
+	  << "  height=\"" << h << "px\"\n"
+	  << "  viewBox=\"0 0 " << w << "px " << h << "px\">\n"
+	  << def
+	  << "</svg>\n";
+	s.flush();
+	ptr = new QSvgRenderer(a);
 
-	 if (ptr->isValid()) return;
-	 delete ptr;
-	 ptr = 0;
+	if (ptr->isValid()) return;
+	delete ptr;
+	ptr = 0;
 }
 
-#define RB \
-"<path d=\"M0,0 h-1 a1,1 0 0,0 2,0 z\" fill=\"#808080\" stroke=\"\" stroke-width=\"0\" transform=\"translate(5.5,5.5)rotate(-225)scale(5.5,5.5)\"/>\n" \
-"<path d=\"M0,0 h-1 a1,1 0 0,0 2,0 z\" fill=\"#ffffff\" stroke=\"\" stroke-width=\"0\" transform=\"translate(5.5,5.5)rotate(-45)scale(5.5,5.5)\"/>\n" \
-"<path d=\"M0,0 h-1 a1,1 0 0,0 2,0 z\" fill=\"#404040\" stroke=\"\" stroke-width=\"0\" transform=\"translate(5.5,5.5)rotate(-225)scale(4.5,4.5)\"/>\n" \
- "<path d=\"M0,0 h-1 a1,1 0 0,0 2,0 z\" fill=\"#d4d0c8\" stroke=\"\" stroke-width=\"0\" transform=\"translate(5.5,5.5)rotate(-45)scale(4.5,4.5)\"/>\n" \
-"<circle id=\"c1\" cx=\"5.5\" cy=\"5.5\" r=\"3.5\" fill=\"white\" stroke=\"\" stroke-width=\"0\"/>\n"
+#define RB                                                                                                                                                 \
+	"<path d=\"M0,0 h-1 a1,1 0 0,0 2,0 z\" fill=\"#808080\" stroke=\"\" stroke-width=\"0\" transform=\"translate(5.5,5.5)rotate(-225)scale(5.5,5.5)\"/>\n" \
+	"<path d=\"M0,0 h-1 a1,1 0 0,0 2,0 z\" fill=\"#ffffff\" stroke=\"\" stroke-width=\"0\" transform=\"translate(5.5,5.5)rotate(-45)scale(5.5,5.5)\"/>\n"  \
+	"<path d=\"M0,0 h-1 a1,1 0 0,0 2,0 z\" fill=\"#404040\" stroke=\"\" stroke-width=\"0\" transform=\"translate(5.5,5.5)rotate(-225)scale(4.5,4.5)\"/>\n" \
+	"<path d=\"M0,0 h-1 a1,1 0 0,0 2,0 z\" fill=\"#d4d0c8\" stroke=\"\" stroke-width=\"0\" transform=\"translate(5.5,5.5)rotate(-45)scale(4.5,4.5)\"/>\n"  \
+	"<circle id=\"c1\" cx=\"5.5\" cy=\"5.5\" r=\"3.5\" fill=\"white\" stroke=\"\" stroke-width=\"0\"/>\n"
 
-#define CB \
-"<rect x=\"0\" y=\"0\" width=\"1\" height=\"12\" fill=\"#808080\" stroke=\"\" stroke-width=\"0\" />\n" \
-"<rect x=\"1\" y=\"0\" width=\"11\" height=\"1\" fill=\"#808080\" stroke=\"\" stroke-width=\"0\" />\n" \
-"<rect x=\"1\" y=\"11\" width=\"11\" height=\"1\" fill=\"#d4d0c8\" stroke=\"\" stroke-width=\"0\" />\n" \
-"<rect x=\"11\" y=\"1\" width=\"1\" height=\"11\" fill=\"#d4d0c8\" stroke=\"\" stroke-width=\"0\" />\n" \
-"<rect x=\"1\" y=\"1\" width=\"1\" height=\"10\" fill=\"#404040\" stroke=\"\" stroke-width=\"0\" />\n" \
-"<rect x=\"2\" y=\"1\" width=\"9\" height=\"1\" fill=\"#404040\" stroke=\"\" stroke-width=\"0\" />\n" \
-"<rect x=\"2\" y=\"10\" width=\"9\" height=\"1\" fill=\"#ffffff\" stroke=\"\" stroke-width=\"0\" />\n" \
-"<rect x=\"10\" y=\"2\" width=\"1\" height=\"9\" fill=\"#ffffff\" stroke=\"\" stroke-width=\"0\" />\n" \
-"<rect x=\"2\" y=\"2\" width=\"8\" height=\"8\" fill=\"#ffffff\" stroke=\"\" stroke-width=\"0\" />\n"
+#define CB                                                                                                  \
+	"<rect x=\"0\" y=\"0\" width=\"1\" height=\"12\" fill=\"#808080\" stroke=\"\" stroke-width=\"0\" />\n"  \
+	"<rect x=\"1\" y=\"0\" width=\"11\" height=\"1\" fill=\"#808080\" stroke=\"\" stroke-width=\"0\" />\n"  \
+	"<rect x=\"1\" y=\"11\" width=\"11\" height=\"1\" fill=\"#d4d0c8\" stroke=\"\" stroke-width=\"0\" />\n" \
+	"<rect x=\"11\" y=\"1\" width=\"1\" height=\"11\" fill=\"#d4d0c8\" stroke=\"\" stroke-width=\"0\" />\n" \
+	"<rect x=\"1\" y=\"1\" width=\"1\" height=\"10\" fill=\"#404040\" stroke=\"\" stroke-width=\"0\" />\n"  \
+	"<rect x=\"2\" y=\"1\" width=\"9\" height=\"1\" fill=\"#404040\" stroke=\"\" stroke-width=\"0\" />\n"   \
+	"<rect x=\"2\" y=\"10\" width=\"9\" height=\"1\" fill=\"#ffffff\" stroke=\"\" stroke-width=\"0\" />\n"  \
+	"<rect x=\"10\" y=\"2\" width=\"1\" height=\"9\" fill=\"#ffffff\" stroke=\"\" stroke-width=\"0\" />\n"  \
+	"<rect x=\"2\" y=\"2\" width=\"8\" height=\"8\" fill=\"#ffffff\" stroke=\"\" stroke-width=\"0\" />\n"
 
 void MyLooksStyle::setCheckboxSvg(const QString & path) {
 	loadSvg(checkbox, path,
@@ -88,15 +88,16 @@ void MyLooksStyle::setRadioButtonSvg(const QString & path) {
 void MyLooksStyle::setRadioButtonCheckedSvg(const QString & path) {
 	loadSvg(radiobutton_checked, path,
 			RB
-			"<circle id=\"c2\" cx=\"5.5\" cy=\"5.5\" r=\"1.5\" fill=\"black\" stroke=\"\" stroke-width=\"0\"/>\n", 11, 11);
+			"<circle id=\"c2\" cx=\"5.5\" cy=\"5.5\" r=\"1.5\" fill=\"black\" stroke=\"\" stroke-width=\"0\"/>\n",
+			11, 11);
 }
 
-MyLooksStyle::MyLooksStyle(): weAreDrawingForms(false) {
+MyLooksStyle::MyLooksStyle() : weAreDrawingForms(false) {
 }
 
-void MyLooksStyle::producingForms(bool f) {weAreDrawingForms=f;}
+void MyLooksStyle::producingForms(bool f) { weAreDrawingForms = f; }
 
-void MyLooksStyle::drawPrimitive( PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget) const {
+void MyLooksStyle::drawPrimitive(PrimitiveElement element, const QStyleOption * option, QPainter * painter, const QWidget * widget) const {
 	painter->setBrush(Qt::white);
 	painter->setPen(QPen(Qt::black, 0.7));
 	painter->setBackground(Qt::NoBrush);
@@ -105,10 +106,10 @@ void MyLooksStyle::drawPrimitive( PrimitiveElement element, const QStyleOption *
 	if (element == QStyle::PE_PanelLineEdit) {
 		painter->drawRect(r);
 	} else if (element == QStyle::PE_IndicatorCheckBox) {
-		if (weAreDrawingForms || ((option->state & QStyle::State_On)? !checkbox_checked: !checkbox)) {
+		if (weAreDrawingForms || ((option->state & QStyle::State_On) ? !checkbox_checked : !checkbox)) {
 			painter->drawRect(r);
 			if (!weAreDrawingForms && (option->state & QStyle::State_On)) {
-				r.translate(int(r.width()*0.075), int(r.width()*0.075));
+				r.translate(int(r.width() * 0.075), int(r.width() * 0.075));
 				painter->drawLine(r.topLeft(), r.bottomRight());
 				painter->drawLine(r.topRight(), r.bottomLeft());
 			}
@@ -117,12 +118,12 @@ void MyLooksStyle::drawPrimitive( PrimitiveElement element, const QStyleOption *
 		else
 			checkbox->render(painter, r);
 	} else if (element == QStyle::PE_IndicatorRadioButton) {
-		if (weAreDrawingForms || ((option->state & QStyle::State_On)? !radiobutton_checked: !radiobutton)) {
+		if (weAreDrawingForms || ((option->state & QStyle::State_On) ? !radiobutton_checked : !radiobutton)) {
 			painter->drawEllipse(r);
 			if (!weAreDrawingForms && (option->state & QStyle::State_On)) {
-				r.translate(int(r.width()*0.20), int(r.width()*0.20));
-				r.setWidth(int(r.width()*0.70));
-				r.setHeight(int(r.height()*0.70));
+				r.translate(int(r.width() * 0.20), int(r.width() * 0.20));
+				r.setWidth(int(r.width() * 0.70));
+				r.setHeight(int(r.height() * 0.70));
 				painter->setBrush(Qt::black);
 				painter->drawEllipse(r);
 			}
@@ -161,7 +162,7 @@ int handleError(bool success, int errorCode) {
 			QNetworkReply::NetworkError error = (QNetworkReply::NetworkError)(errorCode - 1000);
 			QString errorValue;
 			QMetaObject meta = QNetworkReply::staticMetaObject;
-			for (int i=0; i < meta.enumeratorCount(); ++i) {
+			for (int i = 0; i < meta.enumeratorCount(); ++i) {
 				QMetaEnum m = meta.enumerator(i);
 				if (m.name() == QLatin1String("NetworkError")) {
 					errorValue = QLatin1String(m.valueToKey(error));
@@ -174,7 +175,7 @@ int handleError(bool success, int errorCode) {
 	} else if (!success) {
 		fprintf(stderr, "Exit with code %d, due to unknown error.\n", EXIT_FAILURE);
 	}
-	return success?EXIT_SUCCESS:EXIT_FAILURE;
+	return success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 QSvgRenderer * MyLooksStyle::checkbox = 0;

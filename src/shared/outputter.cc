@@ -1,4 +1,5 @@
 // Copyright 2010-2020 wkhtmltopdf authors
+// Copyright 2023 Odoo S.A.
 //
 // This file is part of wkhtmltopdf.
 //
@@ -95,7 +96,6 @@
   Begin a section with command line switches
 */
 
-
 /*!
   \fn Outputter::cswitch(const ArgHandler * h, bool doc)
   Output a switch description
@@ -107,7 +107,6 @@
   \fn Outputter::endSwitch()
   End a switch section
 */
-
 
 /*!
   Output a paragraph of simple text

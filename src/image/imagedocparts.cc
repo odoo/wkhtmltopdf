@@ -1,7 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
+// Copyright 2023 Odoo S.A.
 //
 // This file is part of wkhtmltopdf.
 //
@@ -57,7 +55,6 @@ void ImageCommandLineParser::outputDescripton(Outputter * o) const {
 	o->endSection();
 }
 
-
 /*!
   Output contact information
   \param o The outputter to output to
@@ -89,8 +86,8 @@ void ImageCommandLineParser::outputDocStart(Outputter * o) const {
 void ImageCommandLineParser::outputCompilation(Outputter * o) const {
 	o->beginSection("Compilation");
 	o->paragraph("It can happen that the static binary does not work for your system "
-		     "for one reason or the other, in that case you might need to compile "
-		     "wkhtmltoimage yourself.");
+				 "for one reason or the other, in that case you might need to compile "
+				 "wkhtmltoimage yourself.");
 	o->endParagraph();
 	o->endSection();
 }

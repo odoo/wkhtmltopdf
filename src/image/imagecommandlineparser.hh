@@ -1,7 +1,5 @@
-// -*- mode: c++; tab-width: 4; indent-tabs-mode: t; eval: (progn (c-set-style "stroustrup") (c-set-offset 'innamespace 0)); -*-
-// vi:set ts=4 sts=4 sw=4 noet :
-//
 // Copyright 2010-2020 wkhtmltopdf authors
+// Copyright 2023 Odoo S.A.
 //
 // This file is part of wkhtmltopdf.
 //
@@ -25,16 +23,16 @@
 #include <imagesettings.hh>
 
 /*! \brief The class is responsible for parsing command line information
-*/
-class ImageCommandLineParser: public CommandLineParserBase {
-public:
+ */
+class ImageCommandLineParser : public CommandLineParserBase {
+  public:
 	const static int global = 1;
 	wkhtmltopdf::settings::ImageGlobal & settings;
 
-	//arguments.cc
+	// arguments.cc
 	ImageCommandLineParser(wkhtmltopdf::settings::ImageGlobal & settings);
-	~ImageCommandLineParser() {};
-	//docparts.cc
+	~ImageCommandLineParser(){};
+	// docparts.cc
 	void outputManName(Outputter * o) const;
 	void outputSynopsis(Outputter * o) const;
 	void outputDescripton(Outputter * o) const;
@@ -47,14 +45,13 @@ public:
 	void outputInstallation(Outputter * o) const;
 	void outputExamples(Outputter * o) const;
 
-	//commandlineparser.cc
+	// commandlineparser.cc
 	virtual void usage(FILE * fd, bool extended) const;
 	virtual void manpage(FILE * fd) const;
 	virtual void readme(FILE * fd, bool html) const;
-	virtual QString appName() const {return "wkhtmltoimage";}
+	virtual QString appName() const { return "wkhtmltoimage"; }
 
-	//void loadDefaults();
-	void parseArguments(int argc, const char ** argv, bool final=false);
-
+	// void loadDefaults();
+	void parseArguments(int argc, const char ** argv, bool final = false);
 };
 #endif //__IMAGECOMMANDLINEPARSER_HH__

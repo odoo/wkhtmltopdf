@@ -1,6 +1,7 @@
 #pragma once
 
 // Copyright 2010, 2012 wkhtmltopdf authors
+// Copyright 2023 Odoo S.A.
 //
 // This file is part of wkhtmltopdf.
 //

@@ -31,7 +31,6 @@ class ArgHandler {
 	QVector<QString> argn;
 	bool display;
 	bool extended;
-	bool qthack;
 	virtual QString getDesc() const;
 	virtual ~ArgHandler();
 	int section;
@@ -43,7 +42,6 @@ class CommandLineParserBase {
 	int currentMode;
 	QString currentSection;
 	bool currentExtended;
-	bool currentHack;
 
 	QList<QString> sections;
 	QHash<QString, ArgHandler *> longToHandler;
@@ -54,7 +52,6 @@ class CommandLineParserBase {
 	// basearguments.cc
 	void section(QString s, QString desc = "");
 	void mode(int m);
-	void qthack(bool);
 	void extended(bool);
 
 	void addarg(QString, char, QString, ArgHandler * h, bool display = true);

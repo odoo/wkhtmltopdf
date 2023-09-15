@@ -107,14 +107,6 @@ void CommandLineParserBase::section(QString s, QString desc) {
 	sections.push_back(s);
 }
 
-/*!
-  Indicate whether the next arguments we add require a patched qt to work
-  /param h Do we require a patch
-*/
-void CommandLineParserBase::qthack(bool h) {
-	currentHack = h;
-}
-
 void CommandLineParserBase::mode(int m) {
 	currentMode = m;
 }
@@ -141,7 +133,6 @@ void CommandLineParserBase::addarg(QString l, char s, QString d, ArgHandler * h,
 	h->longName = l;
 	h->shortSwitch = s;
 	h->display = display;
-	h->qthack = currentHack;
 	h->section = currentMode;
 	h->extended = currentExtended;
 	longToHandler[l] = h;
@@ -151,14 +142,12 @@ void CommandLineParserBase::addarg(QString l, char s, QString d, ArgHandler * h,
 
 void CommandLineParserBase::addDocArgs() {
 	extended(false);
-	qthack(false);
 	addarg("help", 'h', "Display help", new Caller<HelpFunc<false>>());
 	addarg("version", 'V', "Output version information and exit", new Caller<VersionFunc>());
 	addarg("license", 0, "Output license information and exit", new Caller<LicenseFunc>());
 	addarg("extended-help", 'H', "Display more extensive help, detailing less common command switches", new Caller<HelpFunc<true>>());
 
 	extended(true);
-	qthack(false);
 	addarg("manpage", 0, "Output program man page", new Caller<ManPageFunc>());
 	addarg("htmldoc", 0, "Output program html help", new Caller<ReadmeFunc<true>>());
 	addarg("readme", 0, "Output program readme", new Caller<ReadmeFunc<false>>());
@@ -166,14 +155,12 @@ void CommandLineParserBase::addDocArgs() {
 
 void CommandLineParserBase::addGlobalLoadArgs(LoadGlobal & s) {
 	extended(true);
-	qthack(false);
 
 	addarg("cookie-jar", 0, "Read and write cookies from and to the supplied cookie jar file", new QStrSetter(s.cookieJar, "path"));
 }
 
 void CommandLineParserBase::addWebArgs(Web & s) {
 	extended(true);
-	qthack(false);
 
 	addarg("enable-plugins", 0, "Enable installed plugins (plugins will likely not work)", new ConstSetter<bool>(s.enablePlugins, true));
 	addarg("disable-plugins", 0, "Disable installed plugins", new ConstSetter<bool>(s.enablePlugins, false));
@@ -187,14 +174,11 @@ void CommandLineParserBase::addWebArgs(Web & s) {
 	addarg("enable-javascript", 0, "Do allow web pages to run javascript", new ConstSetter<bool>(s.enableJavascript, true));
 
 	extended(true);
-	qthack(true);
-	qthack(false);
 	addarg("encoding", 0, "Set the default text encoding, for input", new QStrSetter(s.defaultEncoding, "encoding"));
 }
 
 void CommandLineParserBase::addPageLoadArgs(LoadPage & s) {
 	extended(true);
-	qthack(false);
 	addarg("proxy", 'p', "Use a proxy", new ProxySetter(s.proxy, "proxy"));
 	addarg("proxy-hostname-lookup", 0, "Use the proxy for resolving hostnames", new ConstSetter<bool>(s.proxyHostNameLookup, true));
 	addarg("bypass-proxy-for", 0, "Bypass proxy for host (repeatable)", new StringListSetter(s.bypassProxyForHosts, "value"));

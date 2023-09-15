@@ -57,11 +57,6 @@
 */
 
 /*!
-  \var ArgHandler::qthack
-  \brief Indicate that the argument is only available with hacked qt
-*/
-
-/*!
   \fn ArgHandler::operator()(const char ** args, CommandLineParserPrivate & parser)
   Callend when the switch was specified
   \param args The arguments to the switch, guarantied to have size of argn
@@ -168,7 +163,6 @@ PdfCommandLineParser::PdfCommandLineParser(PdfGlobal & s, QList<PdfObject> & ps)
 	addDocArgs();
 
 	extended(false);
-	qthack(false);
 
 	addarg("quiet", 'q', "Be less verbose, maintained for backwards compatibility; Same as using --log-level none", new ConstSetter<LogLevel>(s.logLevel, None));
 	addarg("log-level", 0, "Set log level to: none, error, warn, info or debug", new LogLevelSetter(s.logLevel, "level"));
@@ -188,7 +182,6 @@ PdfCommandLineParser::PdfCommandLineParser(PdfGlobal & s, QList<PdfObject> & ps)
 	addarg("read-args-from-stdin", 0, "Read command line arguments from stdin", new ConstSetter<bool>(readArgsFromStdin, true));
 
 	extended(true);
-	qthack(false);
 	addarg("margin-bottom", 'B', "Set the page bottom margin", new UnitRealSetter(s.margin.bottom, "unitreal"));
 	addarg("margin-left", 'L', "Set the page left margin", new UnitRealSetter(s.margin.left, "unitreal"));
 	addarg("margin-right", 'R', "Set the page right margin", new UnitRealSetter(s.margin.right, "unitreal"));
@@ -201,7 +194,6 @@ PdfCommandLineParser::PdfCommandLineParser(PdfGlobal & s, QList<PdfObject> & ps)
 	addGlobalLoadArgs(s.load);
 
 	extended(true);
-	qthack(true);
 
 	addarg("image-quality", 0, "When jpeg compressing images use this quality", new IntSetter(s.imageQuality, "integer"));
 	addarg("image-dpi", 0, "When embedding images scale them down to this dpi", new IntSetter(s.imageDPI, "integer"));
@@ -213,7 +205,6 @@ PdfCommandLineParser::PdfCommandLineParser(PdfGlobal & s, QList<PdfObject> & ps)
 
 	section("Outline Options");
 	extended(true);
-	qthack(true);
 	addarg("outline", 0, "Put an outline into the pdf", new ConstSetter<bool>(s.outline, true));
 	addarg("no-outline", 0, "Do not put an outline into the pdf", new ConstSetter<bool>(s.outline, false));
 	addarg("outline-depth", 0, "Set the depth of the outline", new IntSetter(s.outlineDepth, "level"));
@@ -227,12 +218,10 @@ PdfCommandLineParser::PdfCommandLineParser(PdfGlobal & s, QList<PdfObject> & ps)
 	addarg("viewport-size", 0, "Set viewport size if you have custom scrollbars or css attribute overflow to emulate window size", new QStrSetter(s.viewportSize, ""));
 	addWebArgs(od.web);
 	extended(true);
-	qthack(false);
 	addarg("no-background", 0, "Do not print background", new ConstSetter<bool>(od.web.background, false));
 	addarg("background", 0, "Do print background", new ConstSetter<bool>(od.web.background, true));
 
 	extended(true);
-	qthack(true);
 	addarg("include-in-outline", 0, "Include the page in the table of contents and outlines", new ConstSetter<bool>(od.includeInOutline, true));
 	addarg("exclude-from-outline", 0, "Do not include the page in the table of contents and outlines", new ConstSetter<bool>(od.includeInOutline, false));
 
@@ -240,12 +229,10 @@ PdfCommandLineParser::PdfCommandLineParser(PdfGlobal & s, QList<PdfObject> & ps)
 	addarg("enable-smart-shrinking", 0, "Enable the intelligent shrinking strategy used by WebKit that makes the pixel/dpi ratio non-constant", new ConstSetter<bool>(od.web.enableIntelligentShrinking, true));
 
 	extended(false);
-	qthack(true);
 	addarg("print-media-type", 0, "Use print media-type instead of screen", new ConstSetter<bool>(od.load.printMediaType, true));
 	addarg("no-print-media-type", 0, "Do not use print media-type instead of screen", new ConstSetter<bool>(od.load.printMediaType, false));
 
 	extended(true);
-	qthack(true);
 	addarg("enable-forms", 0, "Turn HTML form fields into pdf form fields", new ConstSetter<bool>(od.produceForms, true));
 	addarg("disable-forms", 0, "Do not turn HTML form fields into pdf form fields", new ConstSetter<bool>(od.produceForms, false));
 	addarg("disable-internal-links", 0, "Do not make local links", new ConstSetter<bool>(od.useLocalLinks, false));
@@ -262,7 +249,6 @@ PdfCommandLineParser::PdfCommandLineParser(PdfGlobal & s, QList<PdfObject> & ps)
 	addarg("page-offset", 0, "Set the starting page number", new IntSetter(s.pageOffset, "offset", 1));
 
 	section("Headers And Footer Options");
-	qthack(true);
 	extended(true);
 	addarg("footer-center", 0, "Centered footer text", new QStrSetter(od.footer.center, "text"));
 	addarg("footer-font-name", 0, "Set footer font name", new QStrSetter(od.footer.fontName, "name"));
@@ -289,7 +275,6 @@ PdfCommandLineParser::PdfCommandLineParser(PdfGlobal & s, QList<PdfObject> & ps)
 	section("TOC Options");
 	mode(toc);
 	extended(true);
-	qthack(true);
 	addarg("xsl-style-sheet", 0, "Use the supplied xsl style sheet for printing the table of contents", new QStrSetter(od.tocXsl, "file"));
 
 	addarg("toc-header-text", 0, "The header text of the toc", new QStrSetter(od.toc.captionText, "text"));

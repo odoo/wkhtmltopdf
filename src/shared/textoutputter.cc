@@ -141,7 +141,7 @@ class TextOutputter : public Outputter {
 			fprintf(fd, "    ");
 		fprintf(fd, "--%s", S(h->longName));
 		w += 4 + 2 + h->longName.size();
-		if (doc && h->qthack) {
+		if (doc) {
 			fprintf(fd, " *");
 			w += 2;
 		}

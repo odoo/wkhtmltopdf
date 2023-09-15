@@ -2,8 +2,8 @@
 -Wall
 -Wextra
 
--I./wkhtmltopdf/src/shared
--I./wkhtmltopdf/src/lib
+-I./src/shared
+-I./src/lib
 
 -I./build/qt/include/
 -I./build/qt/include/Qt

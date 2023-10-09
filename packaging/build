@@ -108,6 +108,42 @@ def get_version(src_dir, iteration):
     return (rel_ver, "0.%s.%s.%s.%s" % (commit_on, offset, rel_tag, commit[1:]))
 
 
+def shell_docker(config, target, src_dir, tgt_dir, debug=False) -> None:
+    if target not in config["docker-targets"]:
+        message("Unknown target: %s" % target)
+        sys.exit(1)
+
+    if not os.path.exists(os.path.join(src_dir, "wkhtmltopdf.pro")):
+        message("Not wkhtmltopdf source directory: %s" % src_dir)
+        sys.exit(1)
+
+    if not os.path.exists(os.path.join(src_dir, "qt", "configure")):
+        message("Qt not present in wkhtmltopdf source: %s" % src_dir)
+        sys.exit(1)
+
+    dimage = "--user %d:%d %s%s" % (
+        os.getuid(),
+        os.getgid(),
+        config["docker-prefix"],
+        target,
+    )
+
+    docker_images(config, [target], False)
+    shell(
+        "docker run -it -v%s:%s -v%s:/%s -v%s:/pkg -w%s %s %s"
+        % (
+            os.path.abspath(src_dir),
+            os.path.abspath(src_dir),
+            os.path.abspath(tgt_dir),
+            os.path.abspath(tgt_dir),
+            os.getcwd(),
+            os.getcwd(),
+            dimage,
+            "bash",
+        )
+    )
+
+
 def compile_docker(config, target, src_dir, tgt_dir, debug=False):
     if target not in config["docker-targets"]:
         message("Unknown target: %s" % target)
@@ -221,6 +257,15 @@ def main():
         "--debug", action="store_true", default=False, help="compile in debug mode"
     )
     compile.set_defaults(func=compile_docker)
+
+    shell = sub.add_parser("shell-docker", help="compile source via Docker image")
+    shell.add_argument("target", help="target to use for compilation")
+    shell.add_argument("src_dir", help="directory which has wkhtmltopdf source code")
+    shell.add_argument("tgt_dir", help="output directory")
+    shell.add_argument(
+        "--debug", action="store_true", default=False, help="compile in debug mode"
+    )
+    shell.set_defaults(func=shell_docker)
 
     cli = sys.argv[1:] if len(sys.argv) > 1 else ["-h"]
     args = vars(parser.parse_args(cli))

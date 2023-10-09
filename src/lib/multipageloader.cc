@@ -16,7 +16,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "multipageloader_p.hh"
 #include <QByteArray>
 #include <QFile>
 #include <QFileInfo>
@@ -33,6 +32,8 @@
 #if QT_VERSION >= 0x050000
 #include <QUrlQuery>
 #endif
+
+#include "multipageloader_p.hh"
 
 namespace wkhtmltopdf {
 /*!
@@ -68,7 +69,6 @@ void MyNetworkAccessManager::allow(QString path) {
 }
 
 QNetworkReply * MyNetworkAccessManager::createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData) {
-	emit debug(QString("Creating request: ") + req.url().toString());
 
 	if (disposed) {
 		emit warning("Received createRequest signal on a disposed ResourceObject's NetworkAccessManager. "
@@ -150,16 +150,16 @@ QList<QNetworkProxy> MyNetworkProxyFactory::queryProxy(const QNetworkProxyQuery 
 MyQWebPage::MyQWebPage(ResourceObject & res) : resource(res) {}
 
 void MyQWebPage::javaScriptAlert(QWebFrame *, const QString & msg) {
-	resource.info(QString("Javascript alert: %1").arg(msg));
+	resource.warning(QString("Javascript alert: %1").arg(msg));
 }
 
 bool MyQWebPage::javaScriptConfirm(QWebFrame *, const QString & msg) {
-	resource.info(QString("Javascript confirm: %1 (answered yes)").arg(msg));
+	resource.warning(QString("Javascript confirm: %1 (answered yes)").arg(msg));
 	return true;
 }
 
 bool MyQWebPage::javaScriptPrompt(QWebFrame *, const QString & msg, const QString & defaultValue, QString * result) {
-	resource.info(QString("Javascript prompt: %1 (answered %2)").arg(msg, defaultValue));
+	resource.warning(QString("Javascript prompt: %1 (answered %2)").arg(msg, defaultValue));
 	result = (QString *)&defaultValue;
 	Q_UNUSED(result);
 	return true;
@@ -167,7 +167,7 @@ bool MyQWebPage::javaScriptPrompt(QWebFrame *, const QString & msg, const QStrin
 
 void MyQWebPage::javaScriptConsoleMessage(const QString & message, int lineNumber, const QString & sourceID) {
 	if (resource.settings.debugJavascript)
-		resource.info(QString("%1:%2 %3").arg(sourceID).arg(lineNumber).arg(message));
+		resource.warning(QString("%1:%2 %3").arg(sourceID).arg(lineNumber).arg(message));
 }
 
 bool MyQWebPage::shouldInterruptJavaScript() {
@@ -175,26 +175,21 @@ bool MyQWebPage::shouldInterruptJavaScript() {
 		resource.warning("A slow script was stopped");
 		return true;
 	}
-	resource.debug("A slow script has been detected, but was not stopped");
 	return false;
 }
 
-QString MyQWebPage::overrideMediaType() const {
-	return resource.settings.printMediaType ? "print" : "screen";
-}
-
-ResourceObject::ResourceObject(MultiPageLoaderPrivate & mpl, const QUrl & u, const settings::LoadPage & s) : networkAccessManager(s),
-																											 url(u),
-																											 loginTry(0),
-																											 progress(0),
-																											 windowStatusCounter(0),
-																											 finished(false),
-																											 signalPrint(false),
-																											 multiPageLoader(mpl),
-																											 webPage(*this),
-																											 lo(webPage),
-																											 httpErrorCode(0),
-																											 settings(s) {
+ResourceObject::ResourceObject(MultiPageLoaderPrivate & mpl, const QUrl & u, const settings::LoadPage & s)
+	: networkAccessManager(s),
+	  url(u),
+	  loginTry(0),
+	  progress(0),
+	  finished(false),
+	  signalPrint(false),
+	  multiPageLoader(mpl),
+	  webPage(*this),
+	  lo(webPage),
+	  httpErrorCode(0),
+	  settings(s) {
 
 	connect(&networkAccessManager, SIGNAL(authenticationRequired(QNetworkReply *, QAuthenticator *)), this,
 			SLOT(handleAuthenticationRequired(QNetworkReply *, QAuthenticator *)));
@@ -214,12 +209,6 @@ ResourceObject::ResourceObject(MultiPageLoaderPrivate & mpl, const QUrl & u, con
 
 	connect(&networkAccessManager, SIGNAL(finished(QNetworkReply *)),
 			this, SLOT(amfinished(QNetworkReply *)));
-
-	connect(&networkAccessManager, SIGNAL(debug(const QString &)),
-			this, SLOT(debug(const QString &)));
-
-	connect(&networkAccessManager, SIGNAL(info(const QString &)),
-			this, SLOT(info(const QString &)));
 
 	connect(&networkAccessManager, SIGNAL(warning(const QString &)),
 			this, SLOT(warning(const QString &)));
@@ -263,7 +252,6 @@ ResourceObject::ResourceObject(MultiPageLoaderPrivate & mpl, const QUrl & u, con
  * Once loading starting, this is called
  */
 void ResourceObject::loadStarted() {
-	debug("QWebPage load started.");
 	if (finished == true) {
 		++multiPageLoader.loading;
 		finished = false;
@@ -293,8 +281,6 @@ void ResourceObject::loadProgress(int p) {
 }
 
 void ResourceObject::loadFinished(bool ok) {
-	debug("QWebPage load finished.");
-
 	// If we are finished, this might be a potential bug.
 	if (finished || multiPageLoader.resources.size() <= 0) {
 		warning("A finished ResourceObject received a loading finished signal. "
@@ -332,16 +318,10 @@ void ResourceObject::loadFinished(bool ok) {
 
 void ResourceObject::waitWindowStatus() {
 	QString windowStatus = webPage.mainFrame()->evaluateJavaScript("window.status").toString();
+	// warning(QString("window.status:" + windowStatus + " settings.windowStatus:" + settings.windowStatus));
 	if (windowStatus != settings.windowStatus) {
-		// This is once a second
-		if ((++windowStatusCounter % 20) == 0) {
-			windowStatusCounter = 0;
-			debug(QString("Waiting for window.status; Found: \"" + windowStatus + "\", but expecting: \"" + settings.windowStatus + "\"."));
-		}
-
 		QTimer::singleShot(50, this, SLOT(waitWindowStatus()));
 	} else {
-		debug("Window status \"" + settings.windowStatus + "\" found.");
 		QTimer::singleShot(settings.jsdelay, this, SLOT(loadDone()));
 	}
 }
@@ -354,8 +334,6 @@ void ResourceObject::printRequested(QWebFrame *) {
 void ResourceObject::loadDone() {
 	if (finished) return;
 	finished = true;
-
-	debug("Loading done; Stopping QWebPage and any possible page refreshes.");
 
 	// Ensure no more loading goes..
 	webPage.triggerAction(QWebPage::Stop);
@@ -394,14 +372,6 @@ void ResourceObject::handleAuthenticationRequired(QNetworkReply * reply, QAuthen
 	}
 }
 
-void ResourceObject::debug(const QString & str) {
-	emit multiPageLoader.outer.debug(str);
-}
-
-void ResourceObject::info(const QString & str) {
-	emit multiPageLoader.outer.info(str);
-}
-
 void ResourceObject::warning(const QString & str) {
 	emit multiPageLoader.outer.warning(str);
 }
@@ -415,8 +385,6 @@ void ResourceObject::error(const QString & str) {
  * \param reply The networkreply that has finished
  */
 void ResourceObject::amfinished(QNetworkReply * reply) {
-	debug(QString("Finished request: ") + reply->url().toString());
-
 	int networkStatus = reply->error();
 	int httpStatus = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 	if ((networkStatus != 0 && networkStatus != 5) || (httpStatus > 399 && httpErrorCode == 0)) {
@@ -594,7 +562,8 @@ bool MultiPageLoader::copyFile(QFile & src, QFile & dst) {
 	return true;
 }
 
-MultiPageLoaderPrivate::MultiPageLoaderPrivate(const settings::LoadGlobal & s, int dpi_, MultiPageLoader & o) : outer(o), settings(s), dpi(dpi_) {
+MultiPageLoaderPrivate::MultiPageLoaderPrivate(const settings::LoadGlobal & s, int dpi_, MultiPageLoader & o)
+	: outer(o), settings(s), dpi(dpi_) {
 
 	cookieJar = new MyCookieJar();
 
@@ -811,20 +780,8 @@ void MultiPageLoader::cancel() {
 */
 
 /*!
-  \fn void MultiPageLoader::debug(QString text)
-  \brief Signal emitted when a debug message was generated
-  \param text The debug message
-*/
-
-/*!
-  \fn void MultiPageLoader::info(QString text)
-  \brief Signal emitted when an info message was generated
-  \param text The info message
-*/
-
-/*!
   \fn void MultiPageLoader::warning(QString text)
-  \brief Signal emitted when a non fatal warning has occurred
+  \brief Signal emitted when a none fatal warning has occurred
   \param text A string describing the warning
 */
 
@@ -833,4 +790,5 @@ void MultiPageLoader::cancel() {
   \brief Signal emitted when a fatal error has occurred
   \param text A string describing the error
 */
+
 } // namespace wkhtmltopdf

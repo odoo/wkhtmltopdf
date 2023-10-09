@@ -16,9 +16,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <qwebframe.h>
+
 #include "imagecommandlineparser.hh"
 #include "outputter.hh"
-#include <qwebframe.h>
 
 /*!
   \file commandlineparser.hh
@@ -78,28 +79,6 @@ void ImageCommandLineParser::readme(FILE * fd, bool html) const {
 	outputExamples(o);
 	delete o;
 }
-
-/*!
- * Load default arguments and put them in the settings structure
- */
-// void ImageCommandLineParser::loadDefaults() {
-// 	d->settings.in = "-";
-// 	d->settings.proxy.host = "";
-// 	foreach (ArgHandler * h, d->longToHandler)
-// 		h->useDefault(*d);
-
-// 	//Load configuration from environment
-// 	char * val;
-// 	const char * vars[] = {"proxy","all_proxy","http_proxy", NULL};
-// 	for (int i=0; vars[i]; ++i) {
-// 		if ((val = getenv("proxy"))) {
-// 			bool ok=false;
-// 			Settings::ProxySettings p = Settings::strToProxy(val, &ok);
-// 			if (ok)
-// 				d->settings.proxy = p;
-// 		}
-// 	}
-// }
 
 /*!
  * Parse command line arguments, and set settings accordingly.

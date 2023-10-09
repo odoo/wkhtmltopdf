@@ -1,5 +1,3 @@
-#pragma once
-
 // Copyright 2010-2020 wkhtmltopdf authors
 // Copyright 2023 Odoo S.A.
 //
@@ -18,45 +16,43 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <QDir>
 #include <QFile>
-#include <QWebSettings>
+#include <QUuid>
 
-#include "converter.hh"
-#include "websettings.hh"
+#include "tempfile.hh"
+/*!
+  \file tempfile.hh
+  \brief Defines the TempFile class
+*/
 
-namespace wkhtmltopdf {
+/*!
+  \class TempFile
+  \brief Class responsible for creating and deleting temporary files
+*/
+TempFile::TempFile() {
+}
 
-class ConverterPrivate : public QObject {
-	Q_OBJECT
-  public:
-	void copyFile(QFile & src, QFile & dst);
+TempFile::~TempFile() {
+	removeAll();
+}
 
-	QList<QString> phaseDescriptions;
-	int currentPhase;
+/*!
+  \brief Create a new temporary file
+  \param ext The extension of the temporary file
+  \returns Path of the new temporary file
+*/
+QString TempFile::create(const QString & ext) {
+	QString path = QDir::tempPath() + "/wktemp-" + QUuid::createUuid().toString().mid(1, 36) + ext;
+	paths.append(path);
+	return path;
+}
 
-	QString progressString;
-
-  protected:
-	bool error;
-	virtual void clearResources() = 0;
-	virtual Converter & outer() = 0;
-	int errorCode;
-
-	bool conversionDone;
-
-	void updateWebSettings(QWebSettings * ws, const settings::Web & s) const;
-  public slots:
-	void fail();
-	void loadProgress(int progress);
-
-	virtual void beginConvert() = 0;
-	void cancel();
-	bool convert();
-	void forwardError(QString error);
-	void forwardWarning(QString warning);
-
-  private:
-	friend class Converter;
-};
-
-} // namespace wkhtmltopdf
+/*!
+  \brief Remove all the temporary files held by this object
+*/
+void TempFile::removeAll() {
+	foreach (const QString & path, paths)
+		QFile::remove(path);
+	paths.clear();
+}

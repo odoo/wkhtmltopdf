@@ -240,7 +240,7 @@ contains(QT_CONFIG, freetype) {
     embedded:CONFIG += opentype
     # pull in the proper freetype2 include directory
     include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
-    LIBS_PRIVATE += -lfreetype
+    LIBS_PRIVATE += -lfreetype -lbrotlidec -lbrotlicommon
 }
 
 contains(QT_CONFIG, fontconfig) {

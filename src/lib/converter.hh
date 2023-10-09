@@ -1,3 +1,5 @@
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 // Copyright 2023 Odoo S.A.
 //
@@ -15,8 +17,6 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
-
-#pragma once
 
 #include <QObject>
 
@@ -37,8 +37,6 @@ class Converter : public QObject {
 	QString progressString();
 	int httpErrorCode();
   signals:
-	void debug(const QString & message);
-	void info(const QString & message);
 	void warning(const QString & message);
 	void error(const QString & message);
 	void phaseChanged();

@@ -1,3 +1,5 @@
+#pragma once
+
 // Copyright 2010-2020 wkhtmltopdf authors
 // Copyright 2023 Odoo S.A.
 //
@@ -16,10 +18,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef __IMAGECOMMANDLINEPARSER_HH__
-#define __IMAGECOMMANDLINEPARSER_HH__
-#include "commandlineparserbase.hh"
 #include <cstdio>
+
+#include "commandlineparserbase.hh"
 #include <imagesettings.hh>
 
 /*! \brief The class is responsible for parsing command line information
@@ -54,4 +55,3 @@ class ImageCommandLineParser : public CommandLineParserBase {
 	// void loadDefaults();
 	void parseArguments(int argc, const char ** argv, bool final = false);
 };
-#endif //__IMAGECOMMANDLINEPARSER_HH__

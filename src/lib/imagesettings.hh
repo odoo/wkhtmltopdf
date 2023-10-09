@@ -26,6 +26,7 @@
 
 namespace wkhtmltopdf {
 namespace settings {
+
 /*! \brief Settings for cropping image */
 struct CropSettings {
 	CropSettings();

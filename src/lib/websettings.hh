@@ -25,30 +25,35 @@ namespace wkhtmltopdf {
 namespace settings {
 
 struct Web {
+	Web();
+
 	//! Should we print background images
-	bool background = true;
+	bool background;
 
 	//! Should we load images
-	bool loadImages = true;
+	bool loadImages;
 
 	//! Should we enable Javascript
-	bool enableJavascript = true;
+	bool enableJavascript;
 
 	//! Should the horrible intelligent shrinking feature be enabled?
-	bool enableIntelligentShrinking = true;
+	bool enableIntelligentShrinking;
 
 	//! Minimum font size
-	int minimumFontSize = -1;
+	int minimumFontSize;
+
+	//! Should we use the print or the screen media type
+	bool printMediaType;
 
 	//! Encoding used to enterpit a document with do supplied encoding
-	QString defaultEncoding = "";
+	QString defaultEncoding;
 
 	//! Stylesheet supplied by the user
-	QString userStyleSheet = "";
+	QString userStyleSheet;
 
 	//! Should plugins be allowed
-	bool enablePlugins = false;
-}; // namespace settingsstruct Web
+	bool enablePlugins;
+};
 
 } // namespace settings
 } // namespace wkhtmltopdf

@@ -114,8 +114,7 @@ class HtmlOutputter : public Outputter {
 		fprintf(fd, "<tr><td class=\"short\">");
 		if (h->shortSwitch)
 			fprintf(fd, "-%c,", h->shortSwitch);
-		fprintf(fd, "</td><td class=\"long\">--%s%s</td><td class=\"arg\">", S(h->longName),
-				("<span style=\"font-weight: normal; font-size: 80%; color:red;\">*</span>"));
+		fprintf(fd, "</td><td class=\"long\">--%s%s</td><td class=\"arg\">", S(h->longName), "");
 		foreach (const QString & arg, h->argn)
 			fprintf(fd, "&lt;%s&gt; ", S(arg));
 		fprintf(fd, "</td><td class=\"desc\">%s</td></tr>\n", S(h->getDesc()));

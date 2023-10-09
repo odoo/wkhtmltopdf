@@ -35,12 +35,11 @@ namespace wkhtmltopdf {
 void ConverterPrivate::updateWebSettings(QWebSettings * ws, const settings::Web & s) const {
 	if (!s.defaultEncoding.isEmpty())
 		ws->setDefaultTextEncoding(s.defaultEncoding);
-
 	if (!s.enableIntelligentShrinking) {
 		ws->setPrintingMaximumShrinkFactor(1.0);
 		ws->setPrintingMinimumShrinkFactor(1.0);
 	}
-
+	ws->setPrintingMediaType(s.printMediaType ? "print" : "screen");
 	ws->setAttribute(QWebSettings::JavaEnabled, s.enablePlugins);
 	ws->setAttribute(QWebSettings::JavascriptEnabled, s.enableJavascript);
 	ws->setAttribute(QWebSettings::JavascriptCanOpenWindows, false);
@@ -77,14 +76,6 @@ void ConverterPrivate::forwardError(QString error) {
 
 void ConverterPrivate::forwardWarning(QString warning) {
 	emit outer().warning(warning);
-}
-
-void ConverterPrivate::forwardInfo(QString info) {
-	emit outer().info(info);
-}
-
-void ConverterPrivate::forwardDebug(QString debug) {
-	emit outer().debug(debug);
 }
 
 void ConverterPrivate::cancel() {

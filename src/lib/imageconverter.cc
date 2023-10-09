@@ -30,14 +30,20 @@
 #include <QWebPage>
 #include <qapplication.h>
 
+#ifdef Q_OS_WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
+
 #include "imageconverter_p.hh"
 #include "imagesettings.hh"
 
 namespace wkhtmltopdf {
 
-ImageConverterPrivate::ImageConverterPrivate(ImageConverter & o, wkhtmltopdf::settings::ImageGlobal & s, const QString * data) : settings(s),
-																																 loader(s.loadGlobal, 96, true),
-																																 out(o) {
+ImageConverterPrivate::ImageConverterPrivate(ImageConverter & o, wkhtmltopdf::settings::ImageGlobal & s, const QString * data)
+	: settings(s),
+	  loader(s.loadGlobal, 96, true),
+	  out(o) {
 	out.emitCheckboxSvgs(s.loadPage);
 	if (data) inputData = *data;
 
@@ -49,8 +55,6 @@ ImageConverterPrivate::ImageConverterPrivate(ImageConverter & o, wkhtmltopdf::se
 	connect(&loader, SIGNAL(loadFinished(bool)), this, SLOT(pagesLoaded(bool)));
 	connect(&loader, SIGNAL(error(QString)), this, SLOT(forwardError(QString)));
 	connect(&loader, SIGNAL(warning(QString)), this, SLOT(forwardWarning(QString)));
-	connect(&loader, SIGNAL(info(QString)), this, SLOT(forwardInfo(QString)));
-	connect(&loader, SIGNAL(debug(QString)), this, SLOT(forwardDebug(QString)));
 }
 
 void ImageConverterPrivate::beginConvert() {
@@ -147,6 +151,9 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 		file.setFileName(settings.out);
 		openOk = file.open(QIODevice::WriteOnly);
 	} else {
+#ifdef Q_OS_WIN32
+		_setmode(_fileno(stdout), _O_BINARY);
+#endif
 		openOk = file.open(stdout, QIODevice::WriteOnly);
 	}
 
@@ -159,7 +166,8 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 	if (settings.crop.top < 0) settings.crop.top = 0;
 	if (settings.crop.width < 0) settings.crop.width = 1000000;
 	if (settings.crop.height < 0) settings.crop.height = 1000000;
-	QRect rect = QRect(QPoint(0, 0), loaderObject->page.viewportSize()).intersected(QRect(settings.crop.left, settings.crop.top, settings.crop.width, settings.crop.height));
+	QRect rect = QRect(QPoint(0, 0), loaderObject->page.viewportSize())
+					 .intersected(QRect(settings.crop.left, settings.crop.top, settings.crop.width, settings.crop.height));
 	if (rect.width() == 0 || rect.height() == 0) {
 		emit out.error("Will not output an empty image");
 		fail();
@@ -173,7 +181,6 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 		generator.setSize(rect.size());
 		generator.setViewBox(QRect(QPoint(0, 0), rect.size()));
 		generator.setViewBoxClip(true);
-
 		painter.begin(&generator);
 	}
 
@@ -201,7 +208,6 @@ void ImageConverterPrivate::pagesLoaded(bool ok) {
 	loadProgress(100);
 
 	currentPhase = 2;
-	clearResources();
 	emit out.phaseChanged();
 	conversionDone = true;
 	emit out.finished(true);

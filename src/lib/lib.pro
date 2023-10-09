@@ -16,7 +16,7 @@
 # along with wkhtmltopdf.  If not, see <http:#www.gnu.org/licenses/>.
 
 TEMPLATE = lib
-CONFIG += static
+CONFIG += dll
 
 include(../../common.pri)
 include(lib.pri)
@@ -32,10 +32,6 @@ QMAKE_EXTRA_TARGETS += headers
 INSTALLS += headers
 
 windows: CONFIG += skip_target_version_ext
-
-macx {
-    QMAKE_LFLAGS_SONAME = -Wl,-install_name,$$INSTALLBASE/lib/
-}
 
 TARGET=wkhtmltox
 INSTALLS += target

@@ -6280,7 +6280,7 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         QT_LIBS_FONTCONFIG=`$PKG_CONFIG --libs fontconfig --libs freetype2 --libs expat 2>/dev/null`
     else
         QT_CFLAGS_FONTCONFIG=
-        QT_LIBS_FONTCONFIG="-lfreetype -lfontconfig -lexpat"
+        QT_LIBS_FONTCONFIG="-lfreetype -lbrotlidec -lbrotlicommon -lfontconfig -lexpat"
     fi
     if compileTest x11/fontconfig "FontConfig" $X11TESTS_FLAGS $QT_CFLAGS_FONTCONFIG $QT_LIBS_FONTCONFIG; then
 	    CFG_FONTCONFIG=yes
@@ -6533,7 +6533,7 @@ if [ "$PLATFORM_QPA" = "yes" ]; then
             QT_LIBS_FONTCONFIG=`$PKG_CONFIG --libs fontconfig --libs freetype2 --libs expat 2>/dev/null`
         else
             QT_CFLAGS_FONTCONFIG=
-            QT_LIBS_FONTCONFIG="-lfreetype -lfontconfig -lexpat"
+            QT_LIBS_FONTCONFIG="-lfreetype -lbrotlidec -lbrotlicommon -lfontconfig -lexpat"
         fi
         if compileTest x11/fontconfig "FontConfig" $X11TESTS_FLAGS $QT_CFLAGS_FONTCONFIG $QT_LIBS_FONTCONFIG; then
                 QT_CONFIG="$QT_CONFIG fontconfig"

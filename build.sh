@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 cd packaging
-./build compile-docker bionic-amd64 ../. ../build
+./build compile-docker bookworm-amd64 ../. ../build

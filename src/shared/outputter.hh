@@ -44,7 +44,7 @@ class Outputter {
 	virtual void cswitch(const ArgHandler * h) = 0;
 	virtual void endSwitch() = 0;
 	void paragraph(const QString & t);
-	static Outputter * text(std::FILE * fd, bool doc = false, bool extended = false);
-	static Outputter * man(std::FILE * fd);
-	static Outputter * html(std::FILE * fd);
+	static Outputter * text(FILE * fd, bool doc = false, bool extended = false);
+	static Outputter * man(FILE * fd);
+	static Outputter * html(FILE * fd);
 };

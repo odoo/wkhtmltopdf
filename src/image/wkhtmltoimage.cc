@@ -16,21 +16,26 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "imagecommandlineparser.hh"
-#include "progressfeedback.hh"
 #include <QApplication>
 #include <QWebFrame>
 #include <imageconverter.hh>
 #include <imagesettings.hh>
 #include <utilities.hh>
 
+#include "imagecommandlineparser.hh"
+#include "progressfeedback.hh"
+
 #if defined(Q_OS_UNIX)
 #include <locale.h>
 #endif
 
 int main(int argc, char ** argv) {
+#if defined(Q_OS_UNIX)
 	setlocale(LC_ALL, "");
-
+#if QT_VERSION >= 0x050000
+	setenv("QT_QPA_PLATFORM", "offscreen", 0);
+#endif
+#endif
 	// This will store all our settings
 	wkhtmltopdf::settings::ImageGlobal settings;
 	// Create a command line parser to parse commandline arguments
@@ -39,8 +44,10 @@ int main(int argc, char ** argv) {
 	parser.parseArguments(argc, (const char **)argv);
 
 	bool use_graphics = true;
+#if defined(Q_OS_UNIX) || defined(Q_OS_MAC)
 	use_graphics = settings.useGraphics;
 	if (!use_graphics) QApplication::setGraphicsSystem("raster");
+#endif
 	QApplication a(argc, argv, use_graphics);
 	MyLooksStyle * style = new MyLooksStyle();
 	a.setStyle(style);

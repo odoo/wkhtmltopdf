@@ -472,6 +472,7 @@ qt-config:
     -no-libmng
     -no-libtiff
     -no-accessibility
+    -no-fontconfig
     -no-stl
     -no-qt3support
     -no-phonon

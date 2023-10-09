@@ -21,10 +21,9 @@
 #include <QNetworkProxy>
 #include <QPrinter>
 #include <QString>
-
-#include "loadsettings.hh"
-#include "logging.hh"
-#include "websettings.hh"
+#include <loadsettings.hh>
+#include <logging.hh>
+#include <websettings.hh>
 
 namespace wkhtmltopdf {
 namespace settings {
@@ -223,5 +222,4 @@ QString colorModeToStr(QPrinter::ColorMode o);
 } // namespace settings
 
 void dumpDefaultTOCStyleSheet(QTextStream & stream, settings::TableOfContent & s);
-
 } // namespace wkhtmltopdf

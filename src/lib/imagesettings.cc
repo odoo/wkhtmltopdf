@@ -19,7 +19,8 @@
 #include "imagesettings.hh"
 #include "reflect.hh"
 
-namespace wkhtmltopdf::settings {
+namespace wkhtmltopdf {
+namespace settings {
 
 template <>
 struct ReflectImpl<CropSettings> : public ReflectClass {
@@ -46,7 +47,6 @@ struct ReflectImpl<ImageGlobal> : public ReflectClass {
 		WKHTMLTOPDF_REFLECT(quality);
 		WKHTMLTOPDF_REFLECT(loadGlobal);
 		WKHTMLTOPDF_REFLECT(loadPage);
-		WKHTMLTOPDF_REFLECT(smartWidth);
 	}
 };
 
@@ -76,4 +76,5 @@ bool ImageGlobal::set(const char * name, const QString & value) {
 	return impl.set(name, value);
 }
 
-} // namespace wkhtmltopdf::settings
+} // namespace settings
+} // namespace wkhtmltopdf

@@ -16,9 +16,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "pdfcommandlineparser.hh"
-#include "outputter.hh"
 #include <qwebframe.h>
+
+#include "outputter.hh"
+#include "pdfcommandlineparser.hh"
 
 using namespace wkhtmltopdf::settings;
 /*!

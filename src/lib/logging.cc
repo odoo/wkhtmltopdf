@@ -16,10 +16,13 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#include "logging.hh"
 #include <QMap>
 #include <QString>
-namespace wkhtmltopdf::settings {
+
+#include "logging.hh"
+
+namespace wkhtmltopdf {
+namespace settings {
 
 // Centralized name-to-enum value mapping
 QMap<QString, LogLevel> logLevelMap() {
@@ -28,7 +31,6 @@ QMap<QString, LogLevel> logLevelMap() {
 	res["error"] = Error;
 	res["warn"] = Warn;
 	res["info"] = Info;
-	res["debug"] = Debug;
 	return res;
 }
 
@@ -54,4 +56,5 @@ QString logLevelToStr(const LogLevel & l, bool * ok) {
 	return QString();
 }
 
-} // namespace wkhtmltopdf::settings
+} // namespace settings
+} // namespace wkhtmltopdf

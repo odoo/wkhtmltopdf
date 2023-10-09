@@ -29,8 +29,6 @@
 #include <QWebPage>
 #include <qnetworkreply.h>
 
-#include <utility>
-
 #include "converter_p.hh"
 #include "multipageloader.hh"
 #include "outline.hh"
@@ -57,12 +55,16 @@ class PageObject {
 	double headerReserveHeight;
 	// height length to reserve for footer when printing page
 	double footerReserveHeight;
+	// keeps preloaded header to calculate header height
+	QWebPage * measuringHeader;
+	// keeps preloaded footer to calculate header height
+	QWebPage * measuringFooter;
 	// webprinter instance
 	QWebPrinter * web_printer;
 
 	int firstPageNumber;
-	QWebPage * header = nullptr;
-	QWebPage * footer = nullptr;
+	QList<QWebPage *> headers;
+	QList<QWebPage *> footers;
 	int pageCount;
 	TempFile tocFile;
 
@@ -74,16 +76,14 @@ class PageObject {
 			delete web_printer;
 		web_printer = 0;
 
-		delete std::exchange(footer, nullptr);
-		delete std::exchange(header, nullptr);
+		headers.clear();
+		footers.clear();
 		webPageToObject.remove(page);
 		page = 0;
 		tocFile.removeAll();
 	}
 
-	PageObject(const settings::PdfObject & set, const QString * d = NULL)
-		: settings(set), loaderObject(0), page(0),
-		  headerReserveHeight(0), footerReserveHeight(0), web_printer(0) {
+	PageObject(const settings::PdfObject & set, const QString * d = NULL) : settings(set), loaderObject(0), page(0), headerReserveHeight(0), footerReserveHeight(0), measuringHeader(0), measuringFooter(0), web_printer(0) {
 		if (d) data = *d;
 	};
 
@@ -128,6 +128,10 @@ class PdfConverterPrivate : public ConverterPrivate {
 	QHash<int, QVector<QPair<QWebElement, QString>>> pageExternalLinks;
 	QHash<int, QVector<QWebElement>> pageFormElements;
 	bool pageHasHeaderFooter;
+	bool headerHeightsCalcNeeded;
+
+	// loader for measuringHeader and measuringFooter
+	MultiPageLoader measuringHFLoader;
 
 	MultiPageLoader hfLoader;
 	MultiPageLoader tocLoader1;
@@ -162,6 +166,7 @@ class PdfConverterPrivate : public ConverterPrivate {
 	void loadTocs();
 	void loadHeaders();
   public slots:
+	void measuringHeadersLoaded(bool ok);
 	void pagesLoaded(bool ok);
 	void tocLoaded(bool ok);
 	void headersLoaded(bool ok);

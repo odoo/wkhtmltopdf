@@ -16,10 +16,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <loadsettings.hh>
+
 #include "arghandler.inl"
 #include "commandlineparserbase.hh"
-#include "loadsettings.hh"
-
 using namespace wkhtmltopdf::settings;
 
 struct LoadErrorHandlingTM : public SomeSetterTM<LoadPage::LoadErrorHandling> {
@@ -156,13 +156,11 @@ void CommandLineParserBase::addDocArgs() {
 
 void CommandLineParserBase::addGlobalLoadArgs(LoadGlobal & s) {
 	extended(true);
-
 	addarg("cookie-jar", 0, "Read and write cookies from and to the supplied cookie jar file", new QStrSetter(s.cookieJar, "path"));
 }
 
 void CommandLineParserBase::addWebArgs(Web & s) {
 	extended(true);
-
 	addarg("enable-plugins", 0, "Enable installed plugins (plugins will likely not work)", new ConstSetter<bool>(s.enablePlugins, true));
 	addarg("disable-plugins", 0, "Disable installed plugins", new ConstSetter<bool>(s.enablePlugins, false));
 
@@ -208,8 +206,8 @@ void CommandLineParserBase::addPageLoadArgs(LoadPage & s) {
 
 	addarg("cache-dir", 0, "Web cache directory", new QStrSetter(s.cacheDir, "path"));
 
-	addarg("debug-javascript", 0, "Show javascript console output", new ConstSetter<bool>(s.debugJavascript, true));
-	addarg("no-debug-javascript", 0, "Do not show javascript console output", new ConstSetter<bool>(s.debugJavascript, false));
+	addarg("debug-javascript", 0, "Show javascript debugging output", new ConstSetter<bool>(s.debugJavascript, true));
+	addarg("no-debug-javascript", 0, "Do not show javascript debugging output", new ConstSetter<bool>(s.debugJavascript, false));
 	addarg("stop-slow-scripts", 0, "Stop slow running javascripts", new ConstSetter<bool>(s.stopSlowScripts, true));
 	addarg("no-stop-slow-scripts", 0, "Do not Stop slow running javascripts", new ConstSetter<bool>(s.stopSlowScripts, false));
 	addarg("run-script", 0, "Run this additional javascript after the page is done loading (repeatable)", new StringListSetter(s.runScript, "js"));

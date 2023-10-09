@@ -18,8 +18,6 @@
 include(../../common.pri)
 
 TEMPLATE = app
-
-CONFIG += static
 TARGET = wkhtmltoimage
 DESTDIR = ../../bin
 DEPENDPATH += . ../shared
@@ -34,8 +32,6 @@ unix {
 }
 
 macx {
-    man.extra=DYLD_LIBRARY_PATH=../../bin/ ../../bin/wkhtmltoimage --manpage | gzip > $(INSTALL_ROOT)$$INSTALLBASE/share/man/man1/wkhtmltoimage.1.gz
-
     CONFIG -= app_bundle
 }
 

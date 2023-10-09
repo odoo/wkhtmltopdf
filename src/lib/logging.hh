@@ -20,6 +20,7 @@
 
 #include <QMap>
 #include <QString>
+
 namespace wkhtmltopdf {
 namespace settings {
 
@@ -27,8 +28,7 @@ enum LogLevel {
 	None,
 	Error,
 	Warn,
-	Info,
-	Debug
+	Info
 };
 
 LogLevel strToLogLevel(const char * s, bool * ok = 0);

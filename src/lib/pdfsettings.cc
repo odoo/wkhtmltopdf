@@ -16,13 +16,18 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
+
 #include <QMap>
 #include <stdexcept>
 
 #include "pdfsettings.hh"
 #include "reflect.hh"
 
-namespace wkhtmltopdf::settings {
+namespace wkhtmltopdf {
+namespace settings {
 
 template <>
 struct ReflectImpl<UnitReal> : public ReflectSimple {
@@ -429,4 +434,5 @@ bool PdfObject::set(const char * name, const QString & value) {
 	return impl.set(name, value);
 }
 
-} // namespace wkhtmltopdf::settings
+} // namespace settings
+} // namespace wkhtmltopdf

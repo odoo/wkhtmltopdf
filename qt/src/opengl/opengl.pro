@@ -108,7 +108,7 @@ x11 {
             embedded:CONFIG += opentype
             # pull in the proper freetype2 include directory
             include($$QT_SOURCE_TREE/config.tests/unix/freetype/freetype.pri)
-            LIBS_PRIVATE += -lfreetype
+            LIBS_PRIVATE += -lfreetype -lbrotlidec -lbrotlicommon
         } else {
             ### Note: how does this compile with a non-system freetype?
 	    # This probably does not compile

@@ -18,6 +18,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
+#if defined(_MSC_VER) && _MSC_VER >= 1600
+#define typeof decltype
+#endif
+
 #include <QStringList>
 #include <cstring>
 
@@ -28,7 +32,7 @@
 namespace wkhtmltopdf {
 namespace settings {
 
-#define WKHTMLTOPDF_REFLECT(name) ReflectClass::add(#name, new ReflectImpl<decltype(c.name)>(c.name));
+#define WKHTMLTOPDF_REFLECT(name) ReflectClass::add(#name, new ReflectImpl<typeof(c.name)>(c.name));
 
 class Reflect {
   public:

@@ -30,7 +30,10 @@
 #include <algorithm>
 #include <qapplication.h>
 #include <qfileinfo.h>
-#include <utility>
+#ifdef Q_OS_WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 #include "pdfconverter_p.hh"
 
@@ -40,7 +43,7 @@ using namespace wkhtmltopdf::settings;
 #define STRINGIZE_(x) #x
 #define STRINGIZE(x) STRINGIZE_(x)
 
-const qreal PdfConverter::millimeterToPointMultiplier = 3.779527559;
+const qreal PdfConverter::millimeterToPointMultiplier = 2.83464567;
 
 QMap<QWebPage *, PageObject *> PageObject::webPageToObject;
 
@@ -69,9 +72,8 @@ bool looksLikeHtmlAndNotAUrl(QString str) {
 	return s.count('<') > 0 || str.startsWith("data:", Qt::CaseInsensitive);
 }
 
-PdfConverterPrivate::PdfConverterPrivate(PdfGlobal & s, PdfConverter & o)
-	: settings(s), pageLoader(s.load, settings.dpi, true),
-	  out(o), printer(0), painter(0), hfLoader(s.load, settings.dpi), tocLoader1(s.load, settings.dpi), tocLoader2(s.load, settings.dpi), tocLoader(&tocLoader1), tocLoaderOld(&tocLoader2), outline(0), currentHeader(0), currentFooter(0) {
+PdfConverterPrivate::PdfConverterPrivate(PdfGlobal & s, PdfConverter & o) : settings(s), pageLoader(s.load, settings.dpi, true),
+																			out(o), printer(0), painter(0), measuringHFLoader(s.load, settings.dpi), hfLoader(s.load, settings.dpi), tocLoader1(s.load, settings.dpi), tocLoader2(s.load, settings.dpi), tocLoader(&tocLoader1), tocLoaderOld(&tocLoader2), outline(0), currentHeader(0), currentFooter(0) {
 
 	phaseDescriptions.push_back("Loading pages");
 	phaseDescriptions.push_back("Counting pages");
@@ -85,29 +87,26 @@ PdfConverterPrivate::PdfConverterPrivate(PdfGlobal & s, PdfConverter & o)
 	connect(&pageLoader, SIGNAL(loadFinished(bool)), this, SLOT(pagesLoaded(bool)));
 	connect(&pageLoader, SIGNAL(error(QString)), this, SLOT(forwardError(QString)));
 	connect(&pageLoader, SIGNAL(warning(QString)), this, SLOT(forwardWarning(QString)));
-	connect(&pageLoader, SIGNAL(info(QString)), this, SLOT(forwardInfo(QString)));
-	connect(&pageLoader, SIGNAL(debug(QString)), this, SLOT(forwardDebug(QString)));
+
+	connect(&measuringHFLoader, SIGNAL(loadProgress(int)), this, SLOT(loadProgress(int)));
+	connect(&measuringHFLoader, SIGNAL(loadFinished(bool)), this, SLOT(measuringHeadersLoaded(bool)));
+	connect(&measuringHFLoader, SIGNAL(error(QString)), this, SLOT(forwardError(QString)));
+	connect(&measuringHFLoader, SIGNAL(warning(QString)), this, SLOT(forwardWarning(QString)));
 
 	connect(&hfLoader, SIGNAL(loadProgress(int)), this, SLOT(loadProgress(int)));
 	connect(&hfLoader, SIGNAL(loadFinished(bool)), this, SLOT(headersLoaded(bool)));
 	connect(&hfLoader, SIGNAL(error(QString)), this, SLOT(forwardError(QString)));
 	connect(&hfLoader, SIGNAL(warning(QString)), this, SLOT(forwardWarning(QString)));
-	connect(&hfLoader, SIGNAL(info(QString)), this, SLOT(forwardInfo(QString)));
-	connect(&hfLoader, SIGNAL(debug(QString)), this, SLOT(forwardDebug(QString)));
 
 	connect(&tocLoader1, SIGNAL(loadProgress(int)), this, SLOT(loadProgress(int)));
 	connect(&tocLoader1, SIGNAL(loadFinished(bool)), this, SLOT(tocLoaded(bool)));
 	connect(&tocLoader1, SIGNAL(error(QString)), this, SLOT(forwardError(QString)));
 	connect(&tocLoader1, SIGNAL(warning(QString)), this, SLOT(forwardWarning(QString)));
-	connect(&tocLoader1, SIGNAL(info(QString)), this, SLOT(forwardInfo(QString)));
-	connect(&tocLoader1, SIGNAL(debug(QString)), this, SLOT(forwardDebug(QString)));
 
 	connect(&tocLoader2, SIGNAL(loadProgress(int)), this, SLOT(loadProgress(int)));
 	connect(&tocLoader2, SIGNAL(loadFinished(bool)), this, SLOT(tocLoaded(bool)));
 	connect(&tocLoader2, SIGNAL(error(QString)), this, SLOT(forwardError(QString)));
 	connect(&tocLoader2, SIGNAL(warning(QString)), this, SLOT(forwardWarning(QString)));
-	connect(&tocLoader2, SIGNAL(info(QString)), this, SLOT(forwardInfo(QString)));
-	connect(&tocLoader2, SIGNAL(debug(QString)), this, SLOT(forwardDebug(QString)));
 
 	if (!settings.viewportSize.isEmpty()) {
 		QStringList viewportSizeList = settings.viewportSize.split("x");
@@ -127,6 +126,12 @@ void PdfConverterPrivate::beginConvert() {
 	currentPhase = 0;
 	errorCode = 0;
 
+	if (objects.size() > 1) {
+		emit out.error("This version of wkhtmltopdf is built against an unpatched version of QT, and does not support more than one input document.");
+		fail();
+		return;
+	}
+
 	for (QList<PageObject>::iterator i = objects.begin(); i != objects.end(); ++i) {
 		PageObject & o = *i;
 		settings::PdfObject & s = o.settings;
@@ -137,6 +142,18 @@ void PdfConverterPrivate::beginConvert() {
 				fail();
 				return;
 			}
+
+			// we should auto calculate header if top margin is not specified
+			if (settings.margin.top.first == -1) {
+				headerHeightsCalcNeeded = true;
+				o.measuringHeader = &measuringHFLoader.addResource(
+														  MultiPageLoader::guessUrlFromString(s.header.htmlUrl), s.load)
+										 ->page;
+			} else {
+				// or just set static values
+				// add spacing to prevent moving header out of page
+				o.headerReserveHeight = settings.margin.top.first + s.header.spacing;
+			}
 		}
 
 		if (!s.footer.htmlUrl.isEmpty()) {
@@ -144,6 +161,18 @@ void PdfConverterPrivate::beginConvert() {
 				emit out.error("--footer-html should be a URL and not a string containing HTML code.");
 				fail();
 				return;
+			}
+
+			if (settings.margin.bottom.first == -1) {
+				// we should auto calculate footer if top margin is not specified
+				headerHeightsCalcNeeded = true;
+				o.measuringFooter = &measuringHFLoader.addResource(
+														  MultiPageLoader::guessUrlFromString(s.footer.htmlUrl), s.load)
+										 ->page;
+			} else {
+				// or just set static values
+				// add spacing to prevent moving footer out of page
+				o.footerReserveHeight = settings.margin.bottom.first + s.footer.spacing;
 			}
 		}
 
@@ -158,21 +187,26 @@ void PdfConverterPrivate::beginConvert() {
 	emit out.phaseChanged();
 	loadProgress(0);
 
-	// set defaults if top or bottom mergin is not specified
-	if (settings.margin.top.first == -1) {
-		settings.margin.top.first = 10;
-	}
-	if (settings.margin.bottom.first == -1) {
-		settings.margin.bottom.first = 10;
-	}
+	if (headerHeightsCalcNeeded) {
+		// preload header/footer to check their heights
+		measuringHFLoader.load();
+	} else {
+		// set defaults if top or bottom mergin is not specified
+		if (settings.margin.top.first == -1) {
+			settings.margin.top.first = 10;
+		}
+		if (settings.margin.bottom.first == -1) {
+			settings.margin.bottom.first = 10;
+		}
 
-	for (QList<PageObject>::iterator i = objects.begin(); i != objects.end(); ++i) {
-		PageObject & o = *i;
-		o.headerReserveHeight = settings.margin.top.first;
-		o.footerReserveHeight = settings.margin.bottom.first;
-	}
+		for (QList<PageObject>::iterator i = objects.begin(); i != objects.end(); ++i) {
+			PageObject & o = *i;
+			o.headerReserveHeight = settings.margin.top.first;
+			o.footerReserveHeight = settings.margin.bottom.first;
+		}
 
-	pageLoader.load();
+		pageLoader.load();
+	}
 }
 
 // calculates header/footer height
@@ -267,9 +301,11 @@ void PdfConverterPrivate::pagesLoaded(bool ok) {
 
 	lout = settings.out;
 	if (settings.out == "-") {
+#ifndef Q_OS_WIN32
 		if (QFile::exists("/dev/stdout"))
 			lout = "/dev/stdout";
 		else
+#endif
 			lout = tempOut.create(".pdf");
 	}
 	if (settings.out.isEmpty())
@@ -360,24 +396,26 @@ void PdfConverterPrivate::loadHeaders() {
 	emit out.phaseChanged();
 	bool hf = false;
 
+	int pageNumber = 1;
 	for (int d = 0; d < objects.size(); ++d) {
 		PageObject & obj = objects[d];
 		if (!obj.loaderObject || obj.loaderObject->skip) continue;
 
 		settings::PdfObject & ps = obj.settings;
-		if (!ps.header.htmlUrl.isEmpty() || !ps.footer.htmlUrl.isEmpty()) {
-			QHash<QString, QString> parms;
-			fillParms(parms, 1, obj);
-			parms["sitepage"] = QString::number(1);
-			parms["sitepages"] = QString::number(obj.pageCount);
-
-			hf = true;
-			if (!ps.header.htmlUrl.isEmpty())
-				obj.header = loadHeaderFooter(ps.header.htmlUrl, parms, ps);
-
-			if (!ps.footer.htmlUrl.isEmpty()) {
-				obj.footer = loadHeaderFooter(ps.footer.htmlUrl, parms, ps);
+		for (int op = 0; op < obj.pageCount; ++op) {
+			if (!ps.header.htmlUrl.isEmpty() || !ps.footer.htmlUrl.isEmpty()) {
+				QHash<QString, QString> parms;
+				fillParms(parms, pageNumber, obj);
+				parms["sitepage"] = QString::number(op + 1);
+				parms["sitepages"] = QString::number(obj.pageCount);
+				hf = true;
+				if (!ps.header.htmlUrl.isEmpty())
+					obj.headers.push_back(loadHeaderFooter(ps.header.htmlUrl, parms, ps));
+				if (!ps.footer.htmlUrl.isEmpty()) {
+					obj.footers.push_back(loadHeaderFooter(ps.footer.htmlUrl, parms, ps));
+				}
 			}
+			if (ps.pagesCount) ++pageNumber;
 		}
 	}
 	if (hf)
@@ -679,8 +717,8 @@ void PdfConverterPrivate::tocLoaded(bool ok) {
 	}
 }
 
-void PdfConverterPrivate::headersLoaded(bool ok) {
-	if (errorCode == 0) errorCode = hfLoader.httpErrorCode();
+void PdfConverterPrivate::measuringHeadersLoaded(bool ok) {
+	if (errorCode == 0) errorCode = measuringHFLoader.httpErrorCode();
 	if (!ok) {
 		fail();
 		return;
@@ -688,22 +726,26 @@ void PdfConverterPrivate::headersLoaded(bool ok) {
 
 	for (int d = 0; d < objects.size(); ++d) {
 		PageObject & obj = objects[d];
-
-		if (obj.header && settings.margin.top.first == -1) {
+		if (obj.measuringHeader) {
 			// add spacing to prevent moving header out of page
-			obj.headerReserveHeight = calculateHeaderHeight(obj, *obj.header) + obj.settings.header.spacing;
-		} else {
-			obj.headerReserveHeight = settings.margin.top.first + obj.settings.header.spacing;
+			obj.headerReserveHeight = calculateHeaderHeight(obj, *obj.measuringHeader) + obj.settings.header.spacing;
 		}
 
-		if (obj.header && settings.margin.bottom.first == -1) {
+		if (obj.measuringFooter) {
 			// add spacing to prevent moving footer out of page
-			obj.footerReserveHeight = calculateHeaderHeight(obj, *obj.header) + obj.settings.footer.spacing;
-		} else {
-			obj.footerReserveHeight = settings.margin.bottom.first + obj.settings.footer.spacing;
+			obj.footerReserveHeight = calculateHeaderHeight(obj, *obj.measuringFooter) + obj.settings.footer.spacing;
 		}
 	}
 
+	pageLoader.load();
+}
+
+void PdfConverterPrivate::headersLoaded(bool ok) {
+	if (errorCode == 0) errorCode = hfLoader.httpErrorCode();
+	if (!ok) {
+		fail();
+		return;
+	}
 	printDocument();
 }
 
@@ -878,10 +920,10 @@ void PdfConverterPrivate::printDocument() {
 			// const settings::PdfObject & ps = objects[d].settings;
 
 			for (int i = 0; i < pageCount; ++i) {
-				if (!objects[d].header)
-					handleHeader(objects[d].header, i);
-				if (!objects[d].footer)
-					handleFooter(objects[d].footer, i);
+				if (!objects[d].headers.empty())
+					handleHeader(objects[d].headers[i], i);
+				if (!objects[d].footers.empty())
+					handleFooter(objects[d].footers[i], i);
 			}
 		}
 		endPrintObject(objects[objects.size() - 1]);
@@ -894,11 +936,12 @@ void PdfConverterPrivate::printDocument() {
 	}
 
 	painter->end();
-
 	if (settings.out == "-" && lout != "/dev/stdout") {
 		QFile i(lout);
 		QFile o;
-
+#ifdef Q_OS_WIN32
+		_setmode(_fileno(stdout), _O_BINARY);
+#endif
 		if (!i.open(QIODevice::ReadOnly) ||
 			!o.open(stdout, QIODevice::WriteOnly) ||
 			!MultiPageLoader::copyFile(i, o)) {
@@ -955,14 +998,23 @@ void PdfConverterPrivate::clearResources() {
 	tocLoader1.clearResources();
 	tocLoader2.clearResources();
 
-	if (outline)
-		delete std::exchange(outline, nullptr);
+	if (outline) {
+		Outline * tmp = outline;
+		outline = 0;
+		delete tmp;
+	}
 
-	if (printer)
-		delete std::exchange(printer, nullptr);
+	if (printer) {
+		QPrinter * tmp = printer;
+		printer = 0;
+		delete tmp;
+	}
 
-	if (painter)
-		delete std::exchange(painter, nullptr);
+	if (painter) {
+		QPainter * tmp = painter;
+		painter = 0;
+		delete tmp;
+	}
 }
 
 Converter & PdfConverterPrivate::outer() {
@@ -989,6 +1041,7 @@ PdfConverter::~PdfConverter() {
 	PdfConverterPrivate * tmp = d;
 	d = 0;
 	tmp->deleteLater();
+	;
 }
 
 /*!
@@ -1010,18 +1063,6 @@ const QByteArray & PdfConverter::output() {
 const settings::PdfGlobal & PdfConverter::globalSettings() const {
 	return d->settings;
 }
-
-/*!
-  \fn PdfConverter::debug(const QString & message)
-  \brief Signal emitted when a debug message was generated
-  \param message The debug message
-*/
-
-/*!
-  \fn PdfConverter::info(const QString & message)
-  \brief Signal emitted when a info message was generated
-  \param message The info message
-*/
 
 /*!
   \fn PdfConverter::warning(const QString & message)

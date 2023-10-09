@@ -15,17 +15,21 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
+#ifdef _MSC_VER
+#define strcasecmp _stricmp
+#endif
+
 #include <QMap>
 #include <stdexcept>
 
 #include "loadsettings.hh"
 
-namespace wkhtmltopdf::settings {
+namespace wkhtmltopdf {
+namespace settings {
 
 QList<QString> LoadPage::mediaFilesExtensions = QList<QString>()
 												<< "css"
 												<< "js"
-												<< "svg"
 												<< "png"
 												<< "jpg"
 												<< "jpeg"
@@ -122,4 +126,25 @@ QString proxyToStr(const Proxy & p) {
 	return res;
 }
 
-} // namespace wkhtmltopdf::settings
+Proxy::Proxy() : type(QNetworkProxy::NoProxy),
+				 port(-1),
+				 host(),
+				 user(),
+				 password() {}
+
+LoadGlobal::LoadGlobal() : cookieJar("") {}
+
+LoadPage::LoadPage() : jsdelay(200),
+					   windowStatus(""),
+					   zoomFactor(1.0),
+					   repeatCustomHeaders(false),
+					   blockLocalFileAccess(true),
+					   stopSlowScripts(true),
+					   debugJavascript(false),
+					   loadErrorHandling(abort),
+					   mediaLoadErrorHandling(ignore),
+					   cacheDir(""),
+					   proxyHostNameLookup(false){};
+
+} // namespace settings
+} // namespace wkhtmltopdf

@@ -16,9 +16,10 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
+#include <QWebFrame>
+
 #include "imagecommandlineparser.hh"
 #include "outputter.hh"
-#include <QWebFrame>
 
 #define STRINGIZE_(x) #x
 #define STRINGIZE(x) STRINGIZE_(x)

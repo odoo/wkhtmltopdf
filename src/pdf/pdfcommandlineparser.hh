@@ -22,6 +22,7 @@
 
 #include "commandlineparserbase.hh"
 #include "pdfsettings.hh"
+
 class PdfCommandLineParser : public CommandLineParserBase {
   public:
 	const static int global = 1;

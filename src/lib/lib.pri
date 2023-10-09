@@ -23,7 +23,8 @@ PUBLIC_HEADERS += ../lib/loadsettings.hh ../lib/websettings.hh
 PUBLIC_HEADERS += ../lib/utilities.hh
 HEADERS += ../lib/multipageloader_p.hh  ../lib/converter_p.hh
 SOURCES += ../lib/loadsettings.cc ../lib/logging.cc ../lib/multipageloader.cc \
-		   ../lib/converter.cc ../lib/reflect.cc ../lib/utilities.cc
+	   ../lib/tempfile.cc ../lib/converter.cc ../lib/websettings.cc  \
+  	   ../lib/reflect.cc ../lib/utilities.cc
 
 #Pdf
 PUBLIC_HEADERS += ../lib/pdfconverter.hh ../lib/pdfsettings.hh

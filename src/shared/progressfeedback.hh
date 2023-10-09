@@ -20,6 +20,7 @@
 
 #include "converter.hh"
 #include "logging.hh"
+
 namespace wkhtmltopdf {
 
 class ProgressFeedback : public QObject {
@@ -28,10 +29,7 @@ class ProgressFeedback : public QObject {
 	settings::LogLevel logLevel;
 	Converter & converter;
 	int lw;
-	void finishLine(int start);
   public slots:
-	void debug(const QString & message);
-	void info(const QString & message);
 	void warning(const QString & message);
 	void error(const QString & message);
 	void phaseChanged();

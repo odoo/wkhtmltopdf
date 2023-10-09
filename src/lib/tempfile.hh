@@ -18,29 +18,15 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with wkhtmltopdf.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <QDir>
-#include <QFile>
 #include <QStringList>
-#include <QUuid>
 
 class TempFile {
   private:
 	QStringList paths;
 
   public:
-	TempFile() {}
-	~TempFile() {
-		removeAll();
-	}
-
-	QString create(const QString & ext) {
-		QString path = QDir::tempPath() + "/wktemp-" + QUuid::createUuid().toString().mid(1, 36) + ext;
-		paths.append(path);
-		return path;
-	}
-	void removeAll() {
-		foreach (const QString & path, paths)
-			QFile::remove(path);
-		paths.clear();
-	}
+	TempFile();
+	~TempFile();
+	QString create(const QString & ext);
+	void removeAll();
 };

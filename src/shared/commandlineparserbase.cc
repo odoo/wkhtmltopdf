@@ -43,10 +43,11 @@ bool ahsort(const ArgHandler * a, const ArgHandler * b) {
   \param extended Should we also output extended arguments
   \param doc Indicate to the outputter that it is writing documentation
 */
-void CommandLineParserBase::outputSwitches(Outputter * o, bool extended, bool) const {
+void CommandLineParserBase::outputSwitches(Outputter * o, bool extended, bool doc) const {
 	foreach (const QString & section, sections) {
 		QList<const ArgHandler *> display;
 		foreach (const ArgHandler * handler, sectionArgumentHandles[section]) {
+			if (!doc) continue;
 			if (!extended && handler->extended) continue;
 			display.push_back(handler);
 		}

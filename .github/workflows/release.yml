@@ -1,0 +1,31 @@
+name: Release
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  linux:
+    name: Qt 4.8 on Linux
+    runs-on: ubuntu-20.04
+    steps:
+      - name: checkout source
+        uses: actions/checkout@v2
+        with:
+          path: wkhtmltopdf
+          submodules: true
+
+      - name: checkout packaging
+        uses: actions/checkout@v2
+        with:
+          repository: wkhtmltopdf/packaging
+          path: packaging
+
+      - name: configure docker
+        run:  |
+          echo '{ "experimental": true }' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+
+      - name: build
+        run: ./build compile-docker bookworm-amd64 ../. ../build

@@ -1041,7 +1041,6 @@ PdfConverter::~PdfConverter() {
 	PdfConverterPrivate * tmp = d;
 	d = 0;
 	tmp->deleteLater();
-	;
 }
 
 /*!

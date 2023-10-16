@@ -78,11 +78,8 @@ class QuietArgBackwardsCompatReflect : public ReflectSimple {
 	}
 };
 
-template <typename X>
-class ReflectImpl {
-  private:
-	ReflectImpl();
-};
+template <typename>
+struct ReflectImpl;
 
 template <>
 struct ReflectImpl<LogLevel> : public ReflectSimple {

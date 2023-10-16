@@ -48,8 +48,9 @@ namespace wkhtmltopdf {
 
 LoaderObject::LoaderObject(QWebPage & p) : page(p), skip(false){};
 
-MyNetworkAccessManager::MyNetworkAccessManager(const settings::LoadPage & s) : disposed(false),
-																			   settings(s) {
+MyNetworkAccessManager::MyNetworkAccessManager(const settings::LoadPage & s)
+	: disposed(false),
+	  settings(s) {
 
 	if (!s.cacheDir.isEmpty()) {
 		QNetworkDiskCache * cache = new QNetworkDiskCache(this);
@@ -69,7 +70,6 @@ void MyNetworkAccessManager::allow(QString path) {
 }
 
 QNetworkReply * MyNetworkAccessManager::createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData) {
-
 	if (disposed) {
 		emit warning("Received createRequest signal on a disposed ResourceObject's NetworkAccessManager. "
 					 "This might be an indication of an iframe taking too long to load.");
@@ -134,9 +134,10 @@ QNetworkReply * MyNetworkAccessManager::createRequest(Operation op, const QNetwo
 	return QNetworkAccessManager::createRequest(op, r3, outgoingData);
 }
 
-MyNetworkProxyFactory::MyNetworkProxyFactory(QNetworkProxy proxy, QList<QString> bph) : bypassHosts(bph),
-																						originalProxy(QList<QNetworkProxy>() << proxy),
-																						noProxy(QList<QNetworkProxy>() << QNetworkProxy(QNetworkProxy::DefaultProxy)) {}
+MyNetworkProxyFactory::MyNetworkProxyFactory(QNetworkProxy proxy, QList<QString> bph)
+	: bypassHosts(bph),
+	  originalProxy(QList<QNetworkProxy>() << proxy),
+	  noProxy(QList<QNetworkProxy>() << QNetworkProxy(QNetworkProxy::DefaultProxy)) {}
 
 QList<QNetworkProxy> MyNetworkProxyFactory::queryProxy(const QNetworkProxyQuery & query) {
 	QString host = query.url().host();
@@ -546,19 +547,13 @@ void MultiPageLoaderPrivate::loadDone() {
  * \param dst The destination to copy to
  */
 bool MultiPageLoader::copyFile(QFile & src, QFile & dst) {
-	//      TODO enable again when
-	//      http://bugreports.qt.nokia.com/browse/QTBUG-6894
-	//      is fixed
-	//      QByteArray buf(1024*1024*5,0);
-	//      while ( qint64 r=src.read(buf.data(),buf.size())) {
-	//          if (r == -1) return false;
-	//          if (dst.write(buf.data(),r) != r) return false;
-	//      }
+	QByteArray buf(1024 * 1024 * 5, 0);
+	while (qint64 r = src.read(buf.data(), buf.size())) {
+		if (r == -1) return false;
+		if (dst.write(buf.data(), r) != r) return false;
+	}
 
-	if (dst.write(src.readAll()) == -1) return false;
-
-	src.close();
-	dst.close();
+	dst.flush();
 	return true;
 }
 

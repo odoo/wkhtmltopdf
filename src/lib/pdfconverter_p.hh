@@ -130,7 +130,6 @@ class PdfConverterPrivate : public ConverterPrivate {
 	bool pageHasHeaderFooter;
 	bool headerHeightsCalcNeeded;
 
-	// loader for measuringHeader and measuringFooter
 	MultiPageLoader measuringHFLoader;
 
 	MultiPageLoader hfLoader;

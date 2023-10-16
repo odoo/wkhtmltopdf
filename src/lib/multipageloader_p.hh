@@ -32,8 +32,11 @@
 
 namespace wkhtmltopdf {
 
-class MyNetworkProxyFactory : public QObject, public QNetworkProxyFactory {
+class MyNetworkProxyFactory
+	: public QObject,
+	  public QNetworkProxyFactory {
 	Q_OBJECT
+
   private:
 	QList<QString> bypassHosts;
 	QList<QNetworkProxy> originalProxy, noProxy;
@@ -43,8 +46,10 @@ class MyNetworkProxyFactory : public QObject, public QNetworkProxyFactory {
 	QList<QNetworkProxy> queryProxy(const QNetworkProxyQuery & query);
 };
 
-class MyNetworkAccessManager : public QNetworkAccessManager {
+class MyNetworkAccessManager
+	: public QNetworkAccessManager {
 	Q_OBJECT
+
   private:
 	bool disposed;
 	QSet<QString> allowed;
@@ -55,6 +60,7 @@ class MyNetworkAccessManager : public QNetworkAccessManager {
 	void allow(QString path);
 	MyNetworkAccessManager(const settings::LoadPage & s);
 	QNetworkReply * createRequest(Operation op, const QNetworkRequest & req, QIODevice * outgoingData = 0);
+
   signals:
 	void warning(const QString & text);
 	void error(const QString & text);
@@ -75,12 +81,14 @@ class MyQWebPage : public QWebPage {
 	virtual bool javaScriptConfirm(QWebFrame * frame, const QString & msg);
 	virtual bool javaScriptPrompt(QWebFrame * frame, const QString & msg, const QString & defaultValue, QString * result);
 	virtual void javaScriptConsoleMessage(const QString & message, int lineNumber, const QString & sourceID);
+
   public slots:
 	bool shouldInterruptJavaScript();
 };
 
 class ResourceObject : public QObject {
 	Q_OBJECT
+
   private:
 	MyNetworkAccessManager networkAccessManager;
 	QUrl url;
@@ -96,6 +104,7 @@ class ResourceObject : public QObject {
 	LoaderObject lo;
 	int httpErrorCode;
 	const settings::LoadPage settings;
+
   public slots:
 	void load();
 	void loadStarted();
@@ -125,6 +134,7 @@ class MyCookieJar : public QNetworkCookieJar {
 
 class MultiPageLoaderPrivate : public QObject {
 	Q_OBJECT
+
   public:
 	MyCookieJar * cookieJar;
 
@@ -148,6 +158,7 @@ class MultiPageLoaderPrivate : public QObject {
 	void load();
 	void clearResources();
 	void cancel();
+
   public slots:
 	void fail();
 	void loadDone();

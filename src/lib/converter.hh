@@ -26,8 +26,10 @@ namespace wkhtmltopdf {
 
 class ConverterPrivate;
 
-class Converter : public QObject {
+class Converter
+	: public QObject {
 	Q_OBJECT
+
   public:
 	virtual ~Converter(){};
 
@@ -36,6 +38,7 @@ class Converter : public QObject {
 	QString phaseDescription(int phase = -1);
 	QString progressString();
 	int httpErrorCode();
+
   signals:
 	void warning(const QString & message);
 	void error(const QString & message);
@@ -47,6 +50,7 @@ class Converter : public QObject {
 	void checkboxCheckedSvgChanged(const QString & path);
 	void radiobuttonSvgChanged(const QString & path);
 	void radiobuttonCheckedSvgChanged(const QString & path);
+
   public slots:
 	void beginConversion();
 	bool convert();

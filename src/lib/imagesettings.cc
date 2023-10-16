@@ -50,21 +50,17 @@ struct ReflectImpl<ImageGlobal> : public ReflectClass {
 	}
 };
 
-CropSettings::CropSettings() : left(-1),
-							   top(-1),
-							   width(-1),
-							   height(-1) {}
-
-ImageGlobal::ImageGlobal() : logLevel(Info),
-							 transparent(false),
-							 useGraphics(false),
-							 in(""),
-							 out(""),
-							 fmt(""),
-							 screenWidth(1024),
-							 screenHeight(0),
-							 quality(94),
-							 smartWidth(true) {}
+ImageGlobal::ImageGlobal()
+	: logLevel(Info),
+	  transparent(false),
+	  useGraphics(false),
+	  in(""),
+	  out(""),
+	  fmt(""),
+	  screenWidth(1024),
+	  screenHeight(0),
+	  quality(94),
+	  smartWidth(true) {}
 
 QString ImageGlobal::get(const char * name) {
 	ReflectImpl<ImageGlobal> impl(*this);

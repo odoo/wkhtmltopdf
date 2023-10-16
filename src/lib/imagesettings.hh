@@ -29,15 +29,14 @@ namespace settings {
 
 /*! \brief Settings for cropping image */
 struct CropSettings {
-	CropSettings();
 	//! Cropping left/x coord
-	int left;
+	int left = -1;
 	//! Cropping top/y coord
-	int top;
+	int top = -1;
 	//! Cropping width/w dime
-	int width;
+	int width = -1;
 	//! Cropping height/h dime
-	int height;
+	int height = -1;
 };
 
 /*! \brief Class holding all user settings.

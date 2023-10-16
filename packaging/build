@@ -273,6 +273,7 @@ def main():
     no_qemu = args.pop("no_qemu")
     func = args.pop("func", None)
     bdir = os.path.dirname(os.path.abspath(__file__))
+    message(f"Builddir: {bdir}")
 
     if func is None:
         parser.print_help()

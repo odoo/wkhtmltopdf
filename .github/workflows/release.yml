@@ -7,25 +7,19 @@ on:
 
 jobs:
   linux:
-    name: Qt 4.8 on Linux
-    runs-on: ubuntu-20.04
+    name: Build Debian Bookworm
+    runs-on: ubuntu-latest
     steps:
-      - name: checkout source
-        uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          path: wkhtmltopdf
-          submodules: true
+          fetch-depth: 0
 
-      - name: checkout packaging
-        uses: actions/checkout@v2
-        with:
-          repository: wkhtmltopdf/packaging
-          path: packaging
-
-      - name: configure docker
+      - name: Configure docker
         run:  |
           echo '{ "experimental": true }' | sudo tee /etc/docker/daemon.json
           sudo systemctl restart docker
 
-      - name: build
-        run: ./build compile-docker bookworm-amd64 ../. ../build
+      - name: Build
+        run: |
+          ./packaging/build compile-docker bookworm-amd64 .. ../build

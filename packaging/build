@@ -214,7 +214,87 @@ def compile_docker(config, target, src_dir, tgt_dir, debug=False):
         f"{qmake} {wkh2ppro}",
     )
 
-    dshell(appprefix, f"make install INSTALL_ROOT={tgt_dir}/wkhtmltox")
+    dshell(
+        appprefix,
+        f"make install INSTALL_ROOT={os.path.abspath(os.path.join(tgt_dir, 'wkhtmltox'))}",
+    )
+
+
+def package_docker(config, target, src_dir, iteration, clean=False, debug=False):
+    tgt_dir = os.path.join("../targets", target)
+    if clean:
+        shell("rm -fr %s" % tgt_dir)
+
+    compile_docker(config, target, src_dir, tgt_dir, debug=debug)
+
+    pkg_ver, pkg_iter = get_version(src_dir, iteration)
+    if debug:
+        pkg_iter += ".debug"
+    output = config["docker-targets"][target].get("output", "tar")
+    depend = config["docker-targets"][target].get("depend", "")
+
+    arch = config["docker-targets"][target].get("arch")
+    dimage = "-e XZ_OPT=-9 --user %d:%d %s" % (
+        os.getuid(),
+        os.getgid(),
+        config["fpm-image"],
+    )
+    fversion = '--epoch 1 --version "%s" --iteration "%s.%s"' % (
+        pkg_ver,
+        pkg_iter,
+        target.split("-")[0],
+    )
+    fparams = " ".join('--%s "%s"' % (k, v) for k, v in config["fpm-params"].items())
+    fdepend = " ".join('--depends "%s"' % p for p in depend.split() if p).strip()
+    fpm_args = "%s -a %s -f -s dir -C %s %s %s %s" % (
+        dimage,
+        arch,
+        os.path.abspath(os.path.join(tgt_dir, "wkhtmltox")),
+        fversion,
+        fparams,
+        fdepend,
+    )
+    archive = "wkhtmltox-%s-%s.%s" % (pkg_ver, pkg_iter, target)
+
+    if output == "tar":
+        shell("tar -cvf targets/%s.tar -C targets/%s wkhtmltox/" % (archive, target))
+        shell("xz -fv9 targets/%s.tar" % archive)
+    elif output == "7z":
+        shell("rm -f targets/%s.7z" % archive)
+        shell("cd targets/%s && 7z a ../%s.7z -mx9 wkhtmltox/" % (target, archive))
+    elif output == "deb":
+        fdeb = '-t deb --deb-compression xz --provides wkhtmltopdf --conflicts wkhtmltopdf --replaces wkhtmltopdf --deb-shlibs "libwkhtmltox 0 wkhtmltox (>= 0.12.0)"'
+        shell(
+            "docker run --rm -v%s:%s -w%s %s %s"
+            % (
+                os.path.abspath(tgt_dir),
+                os.path.abspath(tgt_dir),
+                os.path.abspath(tgt_dir),
+                fpm_args,
+                fdeb,
+            )
+        )
+    elif output in ("rpm", "rpm:bzip2"):
+        frpm = "-t rpm --rpm-compression %s --rpm-digest sha256" % (
+            "xz" if output == "rpm" else "bzip2"
+        )
+        shell(
+            "docker run --rm -v%s:/tgt -w/tgt %s %s"
+            % (os.path.abspath(tgt_dir), fpm_args, frpm)
+        )
+    elif output in ("pacman"):
+        fpacman = "-t pacman"
+        fpm_args = fpm_args.replace("/usr/local", "/usr")
+        shell(
+            "docker run --rm -v%s:/tgt -w/tgt %s %s"
+            % (os.path.abspath(tgt_dir), fpm_args, fpacman)
+        )
+    elif output == "lambda_zip":
+        shell("rm -f targets/%s.zip" % archive)
+        shell("cd targets/%s/wkhtmltox && zip -r ../../%s.zip *" % (target, archive))
+
+    if clean:
+        shell("rm -fr %s" % tgt_dir)
 
 
 def list_targets(config):
@@ -258,6 +338,22 @@ def main():
     )
     compile.set_defaults(func=compile_docker)
 
+    package = sub.add_parser(
+        "package-docker", help="compile and package via Docker image"
+    )
+    package.add_argument("target", help="target to use for compilation")
+    package.add_argument("src_dir", help="directory which has wkhtmltopdf source code")
+    package.add_argument(
+        "--clean", action="store_true", default=False, help="perform clean build"
+    )
+    package.add_argument(
+        "--debug", action="store_true", default=False, help="compile in debug mode"
+    )
+    package.add_argument(
+        "--iteration", default="1", help="iteration for release builds"
+    )
+    package.set_defaults(func=package_docker)
+
     shell = sub.add_parser("shell-docker", help="compile source via Docker image")
     shell.add_argument("target", help="target to use for compilation")
     shell.add_argument("src_dir", help="directory which has wkhtmltopdf source code")
@@ -273,7 +369,6 @@ def main():
     no_qemu = args.pop("no_qemu")
     func = args.pop("func", None)
     bdir = os.path.dirname(os.path.abspath(__file__))
-    message(f"Builddir: {bdir}")
 
     if func is None:
         parser.print_help()

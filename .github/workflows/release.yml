@@ -23,3 +23,7 @@ jobs:
       - name: Build
         run: |
           ./packaging/build compile-docker bookworm-amd64 .. ../build
+
+      - name: Package
+        run: |
+          ./packaging/build package-docker bookworm-amd64 ..

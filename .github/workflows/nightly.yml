@@ -2,8 +2,7 @@ name: Release
 
 on:
   push:
-    tags:
-      - '*'
+    branches: [ master ]
 
 jobs:
   linux:
@@ -33,6 +32,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: targets/**/*.deb
-          tag: ${{ github.ref }}
+          tag: "nightly"
           file_glob: true
           overwrite: true

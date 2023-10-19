@@ -102,13 +102,10 @@ def get_version(src_dir, iteration):
         today = datetime.datetime.now().strftime("%Y%m%d")
         return (rel_ver, "0.%s.%s" % (today, rel_tag))
 
-    commit_on = output("git log -1 --format=%cd --date=format:%Y%m%d")
-    prev_tag, offset, commit = describe.split("-")
-
-    return (rel_ver, "0.%s.%s.%s.%s" % (commit_on, offset, rel_tag, commit[1:]))
+    return (rel_ver, "%s" % (rel_tag))
 
 
-def shell_docker(config, target, src_dir, tgt_dir, debug=False) -> None:
+def shell_docker(config, target, src_dir, tgt_dir) -> None:
     if target not in config["docker-targets"]:
         message("Unknown target: %s" % target)
         sys.exit(1)
@@ -220,7 +217,9 @@ def compile_docker(config, target, src_dir, tgt_dir, debug=False):
     )
 
 
-def package_docker(config, target, src_dir, iteration, clean=False, debug=False):
+def package_docker(
+    config, target, src_dir, iteration, clean=False, debug=False, nightly=False
+):
     tgt_dir = os.path.join("../targets", target)
     if clean:
         shell("rm -fr %s" % tgt_dir)
@@ -230,6 +229,8 @@ def package_docker(config, target, src_dir, iteration, clean=False, debug=False)
     pkg_ver, pkg_iter = get_version(src_dir, iteration)
     if debug:
         pkg_iter += ".debug"
+    if nightly:
+        pkg_iter += ".nightly"
     output = config["docker-targets"][target].get("output", "tar")
     depend = config["docker-targets"][target].get("depend", "")
 
@@ -348,6 +349,9 @@ def main():
     )
     package.add_argument(
         "--debug", action="store_true", default=False, help="compile in debug mode"
+    )
+    package.add_argument(
+        "--nightly", action="store_true", default=False, help="compile nightly build"
     )
     package.add_argument(
         "--iteration", default="1", help="iteration for release builds"

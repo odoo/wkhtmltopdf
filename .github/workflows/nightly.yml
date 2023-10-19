@@ -22,11 +22,11 @@ jobs:
 
       - name: Package for Debian Bookworm
         run: |
-          ./packaging/build package-docker bookworm-amd64 ..
+          ./packaging/build package-docker bookworm-amd64 .. --nightly
 
       - name: Package for Ubuntu Jammy
         run: |
-          ./packaging/build package-docker jammy-amd64 ..
+          ./packaging/build package-docker jammy-amd64 .. --nightly
 
       - name: Upload Packages to GitHub
         uses: svenstaro/upload-release-action@v2
@@ -36,3 +36,4 @@ jobs:
           tag: "nightly"
           file_glob: true
           overwrite: true
+          promote: true

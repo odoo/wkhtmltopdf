@@ -1,0 +1,26 @@
+name: Check
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  linux:
+    name: Check latest commit
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Configure docker
+        run:  |
+          echo '{ "experimental": true }' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+
+      - name: Package for Debian Bookworm
+        run: |
+          ./packaging/build compile-docker bookworm-amd64 ../. ../build
+

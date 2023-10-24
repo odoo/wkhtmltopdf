@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
 cd packaging
-./build compile-docker bookworm-amd64 ../. ../build
+./build compile-docker fedora38-x86_64 ../. ../build

@@ -296,10 +296,10 @@ docker-targets:
       xorg-x11-fonts-Type1
       zlib
 
-  fedora37:
+  fedora38:
     source: docker/Dockerfile.centos
     args:
-      from: fedora:37
+      from: fedora:38
     output: rpm
     matrix: ['x86_64', 'aarch64', 'ppc64le']
     depend: >
@@ -477,6 +477,7 @@ qt-config:
     -no-phonon
     -no-phonon-backend
     -no-opengl
+    -no-audio-backend
     -no-declarative
     -no-script
     -no-scripttools
@@ -532,7 +533,6 @@ qt-config:
     -no-icu
     -no-openvg
     -no-xsync
-    -no-audio-backend
     -no-sse3
     -no-ssse3
     -no-sse4.1

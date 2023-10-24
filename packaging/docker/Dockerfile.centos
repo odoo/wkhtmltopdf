@@ -10,6 +10,7 @@ RUN yum install -y \
     freetype-devel \
     gcc \
     gcc-c++ \
+    libXdmcp-devel \
     libX11-devel \
     libXext-devel \
     libXrender-devel \

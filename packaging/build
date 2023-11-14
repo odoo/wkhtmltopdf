@@ -194,7 +194,7 @@ def compile_docker(config, target, src_dir, tgt_dir, debug=False):
         qtconfig += " " + (f"--prefix={qtprefix}")
         qtconfig += " " + ("-device-option CROSS_COMPILE=%s" % cross if cross else "")
 
-        dshell(qtprefix, f"{os.path.join(srcDir, 'qt/configure')} {qtconfig}")
+        dshell(qtprefix, f"{os.path.join(srcDir, 'qt/configure')} -verbose {qtconfig}")
         shell("touch %s/qt_configured" % tgt_dir)
 
     qmake = os.path.join(qtprefix, "bin/qmake")

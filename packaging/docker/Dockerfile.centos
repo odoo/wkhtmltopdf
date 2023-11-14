@@ -17,7 +17,7 @@ RUN yum install -y \
     libjpeg-devel \
     libpng-devel \
     make \
-    openssl-devel \
+    openssl1.1-devel \
     perl \
     zlib-devel \
     && yum clean all

@@ -1,0 +1,6 @@
+{
+    "$schema": "https://schemas.cute.engineering/stable/cutekit.manifest.project.v1",
+    "id": "odoo/wkhtmltopdf",
+    "type": "project",
+    "description": "A patched version of wkhtmltopdf for Odoo"
+}

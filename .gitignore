@@ -23,3 +23,7 @@ Makefile.*
 moc_*.*
 .qmake*
 targets/
+.cutekit/
+__pycache__/
+.vscode/
+.mypy_cache/

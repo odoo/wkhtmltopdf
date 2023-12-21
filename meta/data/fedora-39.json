@@ -1,0 +1,39 @@
+{
+    "setup": [
+        "sudo gem i fpm -f"
+    ],
+    "requires": [
+        "ca-certificates",
+        "fontconfig",
+        "freetype",
+        "glibc",
+        "libjpeg",
+        "libpng",
+        "libstdc++",
+        "libX11",
+        "libXext",
+        "libXrender",
+        "openssl",
+        "xorg-x11-fonts-75dpi",
+        "xorg-x11-fonts-Type1",
+        "zlib"
+    ],
+    "devRequires": [
+        "gzip",
+        "diffutils",
+        "fontconfig-devel",
+        "freetype-devel",
+        "gcc",
+        "gcc-c++",
+        "libX11-devel",
+        "libXext-devel",
+        "libXrender-devel",
+        "libjpeg-devel",
+        "libpng-devel",
+        "make",
+        "openssl-devel",
+        "perl",
+        "zlib-devel",
+        "ruby-devel"
+    ]
+}

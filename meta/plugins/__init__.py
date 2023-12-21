@@ -1,0 +1,113 @@
+import os
+import logging
+
+from pathlib import Path
+from cutekit import cli, shell, model, jexpr, vt100, ensure
+
+ensure((0, 7, 0))
+
+_logger = logging.getLogger(__name__)
+
+
+def loadData(name: str) -> jexpr.Json:
+    return jexpr.evalRead(Path(f"meta/data/{name}.json"))
+
+
+def useTarget(args: cli.Args) -> model.Target:
+    target = model.Target(str(args.consumeOpt("target", "host")))
+    target.props["host"] = True
+    _logger.debug(f"Using target '{target.id}'")
+    return target
+
+
+def usePrefix(args: cli.Args, target: model.Target) -> str:
+    default = os.path.join(target.builddir, "prefix")
+    prefix = str(args.consumeOpt("prefix", default))
+    prefix = os.path.abspath(prefix)
+    if not os.path.exists(prefix):
+        os.makedirs(prefix)
+    _logger.debug(f"Using prefix '{prefix}'")
+    return prefix
+
+
+QT = loadData("configure")
+
+
+@cli.command("w", "wk", "Build system for wkhtmltopdf")
+def _(args: cli.Args):
+    pass
+
+
+@cli.command("c", "wk/configure", "Configure wkhtmltopdf")
+def _(args: cli.Args):
+    model.Project.use(args)
+    target = useTarget(args)
+    prefix = usePrefix(args, target)
+
+    qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
+    if not shell.exec(
+        os.path.abspath("./qt/configure"), *QT, f"--prefix={prefix}", cwd=qtBuildir
+    ):
+        raise RuntimeError("Failed to configure Qt")
+
+    print(f"{vt100.GREEN + vt100.BOLD}Configured Yaii~ :3{vt100.RESET}")
+
+
+@cli.command("b", "wk/build", "Build wkhtmltopdf")
+def _(args: cli.Args):
+    model.Project.use(args)
+    target = useTarget(args)
+    prefix = usePrefix(args, target)
+
+    qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
+    if not shell.exec("make", "-j", str(shell.nproc()), cwd=qtBuildir):
+        raise RuntimeError("Failed to build Qt")
+
+    print(f"{vt100.GREEN + vt100.BOLD}Built Qt :3{vt100.RESET}")
+
+    if not shell.exec("make", "install", cwd=qtBuildir):
+        raise RuntimeError("Failed to install Qt")
+
+    print(f"{vt100.GREEN + vt100.BOLD}Installed Qt :3{vt100.RESET}")
+
+    wkBuildir = shell.mkdir(os.path.join(target.builddir, "wk"))
+    qmake = os.path.join(prefix, "bin/qmake")
+    wkpro = os.path.abspath("wkhtmltopdf.pro")
+
+    if not shell.exec(qmake, wkpro, cwd=wkBuildir):
+        raise RuntimeError("Failed to configure wkhtmltopdf")
+
+    print(f"{vt100.GREEN + vt100.BOLD}Configured wkhtmltopdf :3{vt100.RESET}")
+
+    if not shell.exec("make", "install", f"INSTALL_ROOT={prefix}", "-j", str(shell.nproc()), cwd=wkBuildir):
+        raise RuntimeError("Failed to install wkhtmltopdf")
+
+    print(f"{vt100.GREEN + vt100.BOLD}Installed wkhtmltopdf :3{vt100.RESET}")
+
+    print(
+        f"{vt100.GREEN + vt100.BOLD}Finyished buiwding t-to '{prefix}' :3{vt100.RESET}"
+    )
+
+
+@cli.command("c", "wk/package", "Package wkhtmltopdf")
+def _(args: cli.Args):
+    model.Project.use(args)
+
+    target = useTarget(args)
+    wkBuildir = shell.mkdir(os.path.join(target.builddir, "wk"))
+
+    shell.exec(
+        "fpm",
+        "-s",
+        "dir",
+        "-t",
+        "deb",
+        "-n",
+        "wkhtmltopdf",
+        "-v",
+        "0.12.6",
+        "--prefix",
+        "/usr/local/bin",
+        "wkhtmltopdf",
+        cwd=wkBuildir,
+    )

@@ -1,0 +1,35 @@
+{
+    "setup": [
+        "sudo gem i fpm -f"
+    ],
+    "requires": [
+        "ca-certificates",
+        "fontconfig",
+        "libc6",
+        "libfreetype6",
+        "libjpeg-turbo8",
+        "libpng16-16",
+        "libssl3",
+        "libstdc++6",
+        "libx11-6",
+        "libxcb1",
+        "libxext6",
+        "libxrender1",
+        "xfonts-75dpi",
+        "xfonts-base",
+        "zlib1g"
+    ],
+    "devRequires": [
+        "build-essential",
+        "libfontconfig1-dev",
+        "libfreetype6-dev",
+        "libpng-dev",
+        "libx11-dev",
+        "libxext-dev",
+        "libxrender-dev",
+        "libc6-dev",
+        "libexpat1-dev",
+        "zlib1g-dev",
+        "ruby-dev"
+    ]
+}

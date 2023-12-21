@@ -243,4 +243,4 @@ lessThan(QT_GCC_MAJOR_VERSION, 5) {
 }
 
 # explictly select C++98 for gcc >= 6 as default mode is C++14 from gcc 6.1
-*-g++*:greaterThan(QT_GCC_MAJOR_VERSION, 5): QMAKE_CXXFLAGS += -std=gnu++98
+# *-g++*:greaterThan(QT_GCC_MAJOR_VERSION, 5): QMAKE_CXXFLAGS += -std=gnu++11

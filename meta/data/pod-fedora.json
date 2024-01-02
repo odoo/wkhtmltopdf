@@ -1,7 +1,4 @@
 {
-    "setup": [
-        "sudo gem i fpm -f"
-    ],
     "requires": [
         "ca-certificates",
         "fontconfig",

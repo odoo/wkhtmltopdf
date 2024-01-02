@@ -1,0 +1,22 @@
+{
+    "requires": [
+        "openssl",
+        "zlib",
+        "fontconfig",
+        "freetype2",
+        "libjpeg",
+        "libpng",
+        "libxext",
+        "libxrender"
+    ],
+    "devRequires": [
+        "diffutils",
+        "fontconfig",
+        "freetype2",
+        "libx11",
+        "libxext",
+        "libxrender",
+        "libjpeg-turbo",
+        "libpng"
+    ]
+}

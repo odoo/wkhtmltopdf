@@ -2,15 +2,37 @@ import os
 import logging
 
 from pathlib import Path
-from cutekit import cli, shell, model, jexpr, vt100, ensure
+from cutekit import cli, shell, model, jexpr, vt100, ensure, pods
 
 ensure((0, 7, 0))
 
 _logger = logging.getLogger(__name__)
 
 
+_dataCache = {}
+
+
 def loadData(name: str) -> jexpr.Json:
-    return jexpr.evalRead(Path(f"meta/data/{name}.json"))
+    if name not in _dataCache:
+        _dataCache[name] = jexpr.read(Path(f"meta/data/{name}.json"))
+    return _dataCache[name]
+
+
+pods.IMAGES["ubuntu"].setup += [
+    f"apt -y install {' '.join(loadData('pod-ubuntu')['requires'] + loadData('pod-ubuntu')['devRequires'])}"
+]
+pods.IMAGES["debian"].setup += [
+    f"apt -y install {' '.join(loadData('pod-debian')['requires'] + loadData('pod-debian')['devRequires'])}"
+]
+pods.IMAGES["alpine"].setup += [
+    f"apk add {' '.join(loadData('pod-alpine')['requires'] + loadData('pod-alpine')['devRequires'])}"
+]
+pods.IMAGES["arch"].setup += [
+    f"pacman --noconfirm -S {' '.join(loadData('pod-arch')['requires'] + loadData('pod-arch')['devRequires'])}"
+]
+pods.IMAGES["fedora"].setup += [
+    f"dnf -y install {' '.join(loadData('pod-fedora')['requires'] + loadData('pod-fedora')['devRequires'])}"
+]
 
 
 def useTarget(args: cli.Args) -> model.Target:
@@ -79,7 +101,14 @@ def _(args: cli.Args):
 
     print(f"{vt100.GREEN + vt100.BOLD}Configured wkhtmltopdf :3{vt100.RESET}")
 
-    if not shell.exec("make", "install", f"INSTALL_ROOT={prefix}", "-j", str(shell.nproc()), cwd=wkBuildir):
+    if not shell.exec(
+        "make",
+        "install",
+        f"INSTALL_ROOT={prefix}",
+        "-j",
+        str(shell.nproc()),
+        cwd=wkBuildir,
+    ):
         raise RuntimeError("Failed to install wkhtmltopdf")
 
     print(f"{vt100.GREEN + vt100.BOLD}Installed wkhtmltopdf :3{vt100.RESET}")

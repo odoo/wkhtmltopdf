@@ -89,7 +89,7 @@ def _(args: cli.Args):
     )
 
 
-@cli.command("c", "wk/package", "Package wkhtmltopdf")
+@cli.command("p", "wk/package", "Package wkhtmltopdf")
 def _(args: cli.Args):
     model.Project.use(args)
 

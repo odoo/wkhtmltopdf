@@ -1,4 +1,28 @@
 {
-    "requires": [],
-    "devRequires": []
+    "requires": [
+        "libstdc++",
+        "libx11",
+        "libxrender",
+        "libxext",
+        "libssl3",
+        "ca-certificates",
+        "fontconfig",
+        "freetype",
+        "ttf-dejavu",
+        "ttf-droid",
+        "ttf-freefont",
+        "ttf-liberation"
+    ],
+    "devRequires": [
+        "g++",
+        "git",
+        "make",
+        "libxrender-dev",
+        "mesa-dev",
+        "msttcorefonts-installer",
+        "openssl-dev",
+        "patch",
+        "fontconfig-dev",
+        "freetype-dev"
+    ]
 }

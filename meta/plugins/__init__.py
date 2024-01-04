@@ -2,17 +2,18 @@ import os
 import logging
 
 from pathlib import Path
+from typing import Any
 from cutekit import cli, shell, model, jexpr, vt100, ensure, pods
 
 ensure((0, 7, 0))
 
 _logger = logging.getLogger(__name__)
 
-
-_dataCache = {}
+_dataCache: dict[str, Any] = {}
 
 
 def loadData(name: str) -> jexpr.Json:
+    global _dataCache
     if name not in _dataCache:
         _dataCache[name] = jexpr.read(Path(f"meta/data/{name}.json"))
     return _dataCache[name]

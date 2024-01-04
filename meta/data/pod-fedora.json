@@ -25,6 +25,7 @@
         "libX11-devel",
         "libXext-devel",
         "libXrender-devel",
+        "libxdmcp-devel",
         "libjpeg-devel",
         "libpng-devel",
         "make",

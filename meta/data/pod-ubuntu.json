@@ -18,15 +18,16 @@
     ],
     "devRequires": [
         "build-essential",
+        "libc6-dev",
+        "libexpat1-dev",
         "libfontconfig1-dev",
         "libfreetype6-dev",
         "libpng-dev",
+        "libssl-dev",
         "libx11-dev",
         "libxext-dev",
         "libxrender-dev",
-        "libc6-dev",
-        "libexpat1-dev",
-        "zlib1g-dev",
-        "ruby-dev"
+        "ruby-dev",
+        "zlib1g-dev"
     ]
 }

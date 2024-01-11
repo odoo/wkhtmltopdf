@@ -7,7 +7,6 @@ irix-cc*:QMAKE_CXXFLAGS += -no_prelink -ptused
 
 include(../qbase.pri)
 include(animation/animation.pri)
-include(arch/arch.pri)
 include(concurrent/concurrent.pri)
 include(global/global.pri)
 include(thread/thread.pri)

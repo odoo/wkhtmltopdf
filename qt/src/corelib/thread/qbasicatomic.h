@@ -43,6 +43,7 @@
 #define QBASICATOMIC_H
 
 #include <QtCore/qglobal.h>
+#include <atomic>
 
 QT_BEGIN_HEADER
 
@@ -53,16 +54,7 @@ QT_MODULE(Core)
 class Q_CORE_EXPORT QBasicAtomicInt
 {
 public:
-#ifdef QT_ARCH_PARISC
-    int _q_lock[4];
-#endif
-#if defined(QT_ARCH_WINDOWS) || defined(QT_ARCH_WINDOWSCE)
-    union { // needed for Q_BASIC_ATOMIC_INITIALIZER
-        volatile long _q_value;
-    };
-#else
-    volatile int _q_value;
-#endif
+    int _q_value;
 
     // Non-atomic API
     inline bool operator==(int value) const
@@ -87,66 +79,46 @@ public:
 
     inline QBasicAtomicInt &operator=(int value)
     {
-#ifdef QT_ARCH_PARISC
-        this->_q_lock[0] = this->_q_lock[1] = this->_q_lock[2] = this->_q_lock[3] = -1;
-#endif
         _q_value = value;
         return *this;
     }
 
-    // Atomic API, implemented in qatomic_XXX.h
+    static bool isReferenceCountingNative() { return true; }
+    static bool isReferenceCountingWaitFree() { return true; }
 
-    static bool isReferenceCountingNative();
-    static bool isReferenceCountingWaitFree();
+    bool ref() { return __atomic_add_fetch(&_q_value, 1, __ATOMIC_SEQ_CST) != 0; }
+    bool deref() { return __atomic_sub_fetch(&_q_value, 1, __ATOMIC_SEQ_CST) != 0; }
 
-    bool ref();
-    bool deref();
+    static bool isTestAndSetNative() { return true; }
+    static bool isTestAndSetWaitFree() { return true; }
 
-    static bool isTestAndSetNative();
-    static bool isTestAndSetWaitFree();
+    bool testAndSetRelaxed(int expectedValue, int newValue) { return __atomic_compare_exchange_n(&_q_value, &expectedValue, newValue, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST); }
+    bool testAndSetAcquire(int expectedValue, int newValue) { return __atomic_compare_exchange_n(&_q_value, &expectedValue, newValue, false, __ATOMIC_ACQUIRE, __ATOMIC_SEQ_CST); }
+    bool testAndSetRelease(int expectedValue, int newValue) { return __atomic_compare_exchange_n(&_q_value, &expectedValue, newValue, false, __ATOMIC_RELEASE, __ATOMIC_SEQ_CST); }
+    bool testAndSetOrdered(int expectedValue, int newValue) { return __atomic_compare_exchange_n(&_q_value, &expectedValue, newValue, false, __ATOMIC_ACQ_REL, __ATOMIC_SEQ_CST); }
 
-    bool testAndSetRelaxed(int expectedValue, int newValue);
-    bool testAndSetAcquire(int expectedValue, int newValue);
-    bool testAndSetRelease(int expectedValue, int newValue);
-    bool testAndSetOrdered(int expectedValue, int newValue);
+    static bool isFetchAndStoreNative() { return true; }
+    static bool isFetchAndStoreWaitFree() { return true; }
 
-    static bool isFetchAndStoreNative();
-    static bool isFetchAndStoreWaitFree();
+    int fetchAndStoreRelaxed(int newValue) { return __atomic_exchange_n(&_q_value, newValue, __ATOMIC_SEQ_CST); }
+    int fetchAndStoreAcquire(int newValue) { return __atomic_exchange_n(&_q_value, newValue, __ATOMIC_ACQUIRE); }
+    int fetchAndStoreRelease(int newValue) { return __atomic_exchange_n(&_q_value, newValue, __ATOMIC_RELEASE); }
+    int fetchAndStoreOrdered(int newValue) { return __atomic_exchange_n(&_q_value, newValue, __ATOMIC_ACQ_REL); }
 
-    int fetchAndStoreRelaxed(int newValue);
-    int fetchAndStoreAcquire(int newValue);
-    int fetchAndStoreRelease(int newValue);
-    int fetchAndStoreOrdered(int newValue);
+    static bool isFetchAndAddNative() { return true; }
+    static bool isFetchAndAddWaitFree() { return true; }
 
-    static bool isFetchAndAddNative();
-    static bool isFetchAndAddWaitFree();
-
-    int fetchAndAddRelaxed(int valueToAdd);
-    int fetchAndAddAcquire(int valueToAdd);
-    int fetchAndAddRelease(int valueToAdd);
-    int fetchAndAddOrdered(int valueToAdd);
+    int fetchAndAddRelaxed(int valueToAdd) { return __atomic_add_fetch(&_q_value, valueToAdd, __ATOMIC_SEQ_CST); }
+    int fetchAndAddAcquire(int valueToAdd) { return __atomic_add_fetch(&_q_value, valueToAdd, __ATOMIC_ACQUIRE); }
+    int fetchAndAddRelease(int valueToAdd) { return __atomic_add_fetch(&_q_value, valueToAdd, __ATOMIC_RELEASE); }
+    int fetchAndAddOrdered(int valueToAdd) { return __atomic_add_fetch(&_q_value, valueToAdd, __ATOMIC_ACQ_REL); }
 };
 
 template <typename T>
 class QBasicAtomicPointer
 {
 public:
-#ifdef QT_ARCH_PARISC
-    int _q_lock[4];
-#endif
-#if defined(QT_ARCH_WINDOWS) || defined(QT_ARCH_WINDOWSCE)
-    union {
-        T * volatile _q_value;
-#  if !defined(Q_OS_WINCE) && !defined(__i386__) && !defined(_M_IX86)
-        qint64
-#  else
-        long
-#  endif
-        volatile _q_value_integral;
-    };
-#else
-    T * volatile _q_value;
-#endif
+    T * _q_value;
 
     // Non-atomic API
     inline bool operator==(T *value) const
@@ -176,55 +148,38 @@ public:
 
     inline QBasicAtomicPointer<T> &operator=(T *value)
     {
-#ifdef QT_ARCH_PARISC
-        this->_q_lock[0] = this->_q_lock[1] = this->_q_lock[2] = this->_q_lock[3] = -1;
-#endif
         _q_value = value;
         return *this;
     }
 
-    // Atomic API, implemented in qatomic_XXX.h
+    static bool isTestAndSetNative() { return true; }
+    static bool isTestAndSetWaitFree() { return true; }
 
-    static bool isTestAndSetNative();
-    static bool isTestAndSetWaitFree();
+    bool testAndSetRelaxed(T *expectedValue, T *newValue) { return __atomic_compare_exchange_n(&_q_value, &expectedValue, newValue, false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST); }
+    bool testAndSetAcquire(T *expectedValue, T *newValue) { return __atomic_compare_exchange_n(&_q_value, &expectedValue, newValue, false, __ATOMIC_ACQUIRE, __ATOMIC_SEQ_CST); }
+    bool testAndSetRelease(T *expectedValue, T *newValue) { return __atomic_compare_exchange_n(&_q_value, &expectedValue, newValue, false, __ATOMIC_RELEASE, __ATOMIC_SEQ_CST); }
+    bool testAndSetOrdered(T *expectedValue, T *newValue) { return __atomic_compare_exchange_n(&_q_value, &expectedValue, newValue, false, __ATOMIC_ACQ_REL, __ATOMIC_SEQ_CST); }
 
-    bool testAndSetRelaxed(T *expectedValue, T *newValue);
-    bool testAndSetAcquire(T *expectedValue, T *newValue);
-    bool testAndSetRelease(T *expectedValue, T *newValue);
-    bool testAndSetOrdered(T *expectedValue, T *newValue);
+    static bool isFetchAndStoreNative() { return true; }
+    static bool isFetchAndStoreWaitFree() { return true; }
 
-    static bool isFetchAndStoreNative();
-    static bool isFetchAndStoreWaitFree();
+    T *fetchAndStoreRelaxed(T *newValue) { return __atomic_exchange_n(&_q_value, newValue, __ATOMIC_SEQ_CST); }
+    T *fetchAndStoreAcquire(T *newValue) { return __atomic_exchange_n(&_q_value, newValue, __ATOMIC_ACQUIRE); }
+    T *fetchAndStoreRelease(T *newValue) { return __atomic_exchange_n(&_q_value, newValue, __ATOMIC_RELEASE); }
+    T *fetchAndStoreOrdered(T *newValue) { return __atomic_exchange_n(&_q_value, newValue, __ATOMIC_ACQ_REL); }
 
-    T *fetchAndStoreRelaxed(T *newValue);
-    T *fetchAndStoreAcquire(T *newValue);
-    T *fetchAndStoreRelease(T *newValue);
-    T *fetchAndStoreOrdered(T *newValue);
+    static bool isFetchAndAddNative() { return true; }
+    static bool isFetchAndAddWaitFree() { return true; }
 
-    static bool isFetchAndAddNative();
-    static bool isFetchAndAddWaitFree();
-
-    T *fetchAndAddRelaxed(qptrdiff valueToAdd);
-    T *fetchAndAddAcquire(qptrdiff valueToAdd);
-    T *fetchAndAddRelease(qptrdiff valueToAdd);
-    T *fetchAndAddOrdered(qptrdiff valueToAdd);
+    T *fetchAndAddRelaxed(qptrdiff valueToAdd) { return __atomic_add_fetch(&_q_value, valueToAdd, __ATOMIC_SEQ_CST); }
+    T *fetchAndAddAcquire(qptrdiff valueToAdd) { return __atomic_add_fetch(&_q_value, valueToAdd, __ATOMIC_ACQUIRE); }
+    T *fetchAndAddRelease(qptrdiff valueToAdd) { return __atomic_add_fetch(&_q_value, valueToAdd, __ATOMIC_RELEASE); }
+    T *fetchAndAddOrdered(qptrdiff valueToAdd) { return __atomic_add_fetch(&_q_value, valueToAdd, __ATOMIC_ACQ_REL); }
 };
 
-#ifdef QT_ARCH_PARISC
-#  define Q_BASIC_ATOMIC_INITIALIZER(a) {{-1,-1,-1,-1},(a)}
-#elif defined(QT_ARCH_WINDOWS) || defined(QT_ARCH_WINDOWSCE)
-#  define Q_BASIC_ATOMIC_INITIALIZER(a) { {(a)} }
-#else
-#  define Q_BASIC_ATOMIC_INITIALIZER(a) { (a) }
-#endif
+#define Q_BASIC_ATOMIC_INITIALIZER(a) { (a) }
 
 QT_END_NAMESPACE
 QT_END_HEADER
-
-#if defined(QT_MOC) || defined(QT_BUILD_QMAKE) || defined(QT_RCC) || defined(QT_UIC) || defined(QT_BOOTSTRAPPED)
-#  include <QtCore/qatomic_bootstrap.h>
-#else
-#  include <QtCore/qatomic_arch.h>
-#endif
 
 #endif // QBASIC_ATOMIC

@@ -25,9 +25,11 @@
 #include <QtCore/qurl.h>
 #include <QtCore/qvariant.h>
 #include <QtGui/qicon.h>
-#include <QtScript/qscriptengine.h>
 #include <QtNetwork/qnetworkaccessmanager.h>
 #include "qwebkitglobal.h"
+#include <QtCore/qvalueownership.h>
+
+
 
 QT_BEGIN_NAMESPACE
 class QRect;

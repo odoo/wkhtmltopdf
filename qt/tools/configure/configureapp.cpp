@@ -3494,8 +3494,6 @@ void Configure::generateConfigfiles()
         if (dictionary["PHONON"] == "no")            qconfigList += "QT_NO_PHONON";
         if (dictionary["MULTIMEDIA"] == "no")        qconfigList += "QT_NO_MULTIMEDIA";
         if (dictionary["XMLPATTERNS"] == "no")       qconfigList += "QT_NO_XMLPATTERNS";
-        if (dictionary["SCRIPT"] == "no")            qconfigList += "QT_NO_SCRIPT";
-        if (dictionary["SCRIPTTOOLS"] == "no")       qconfigList += "QT_NO_SCRIPTTOOLS";
         if (dictionary["FREETYPE"] == "no")          qconfigList += "QT_NO_FREETYPE";
         if (dictionary["S60"] == "no")               qconfigList += "QT_NO_S60";
         if (dictionary["NATIVE_GESTURES"] == "no")   qconfigList += "QT_NO_NATIVE_GESTURES";

@@ -465,7 +465,6 @@ void HB_HeuristicSetGlyphAttributes(HB_ShaperItem *item)
 
     assert(item->num_glyphs <= length);
 
-//     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", item->num_glyphs);
     HB_GlyphAttributes *attributes = item->attributes;
     unsigned short *logClusters = item->log_clusters;
 

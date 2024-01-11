@@ -156,13 +156,6 @@ symbian {
     webkitbackup.sources = symbian/backup_registration.xml
     webkitbackup.path = /private/10202d56/import/packages/$$replace(TARGET.UID3, 0x,)
 
-    contains(QT_CONFIG, declarative) {
-         declarativeImport.sources = $$QT_BUILD_TREE/imports/QtWebKit/qmlwebkitplugin$${QT_LIBINFIX}.dll
-         declarativeImport.sources += declarative/qmldir
-         declarativeImport.path = c:$$QT_IMPORTS_BASE_DIR/QtWebKit
-         DEPLOYMENT += declarativeImport
-    }
-
     platformplugin.sources = $$OUTPUT_DIR/plugins/QtWebKit/platformplugin$${QT_LIBINFIX}.dll
     platformplugin.path = c:$$QT_PLUGINS_BASE_DIR/QtWebKit
 

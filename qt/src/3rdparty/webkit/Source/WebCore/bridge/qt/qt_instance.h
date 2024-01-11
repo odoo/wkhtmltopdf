@@ -22,10 +22,10 @@
 
 #include "BridgeJSC.h"
 #include "runtime_root.h"
-#include <QtScript/qscriptengine.h>
 #include <qhash.h>
 #include <qpointer.h>
 #include <qset.h>
+#include <qvalueownership.h>
 
 namespace JSC {
 
@@ -91,6 +91,6 @@ private:
 
 } // namespace Bindings
 
-} // namespace JSC
+} // namespace QScriptEnginenamespace JSC
 
 #endif

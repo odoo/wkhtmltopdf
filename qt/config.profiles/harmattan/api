@@ -22,14 +22,6 @@ state: stable
 scope: Nokia MeeGo
 headers: /usr/include/qt4/QtDBus/*
 
-interface: QtDeclarative
-type: library
-libs-pkg: libqt4-declarative
-dev-pkg: libqt4-dev
-state: stable
-scope: Nokia MeeGo
-headers: /usr/include/qt4/QtDeclarative/*
-
 interface: QtGui
 type: library
 libs-pkg: libqtgui4
@@ -69,14 +61,6 @@ dev-pkg: libqt4-dev libqt4-opengl-dev
 state: stable
 scope: Nokia MeeGo
 headers: /usr/include/qt4/QtOpenGL/*
-
-interface: QtScript
-type: library
-libs-pkg: libqt4-script
-dev-pkg: libqt4-dev
-state: stable
-scope: Nokia MeeGo
-headers: /usr/include/qt4/QtScript/*
 
 interface: QtSql
 type: library

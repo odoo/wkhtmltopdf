@@ -187,7 +187,7 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
 	   QMAKE_LFLAGS -= -bmaxdata:0x80000000
 	   QMAKE_LFLAGS += -bmaxdata:0xD0000000/dsa
        }
-   } else:isEqual(QTLIB, declarative):qlib = QtDeclarative
+   }
    else:isEqual(QTLIB, multimedia):qlib = QtMultimedia
    else:isEqual(QTLIB, meegographicssystemhelper):qlib = QtMeeGoGraphicsSystemHelper
    else:contains(_QT5_MODULES_TO_IGNORE_, $$QTLIB):qlib = # ignore Qt 5 libraries

@@ -750,8 +750,6 @@ CFG_CONFIGURE_EXIT_ON_ERROR=yes
 CFG_PROFILE=no
 CFG_EXCEPTIONS=unspecified
 CFG_GUI=auto # (yes|no|auto)
-CFG_SCRIPT=auto # (yes|no|auto)
-CFG_SCRIPTTOOLS=auto # (yes|no|auto)
 CFG_XMLPATTERNS=auto # (yes|no|auto)
 CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
@@ -804,10 +802,7 @@ CFG_PHONON_BACKEND=yes
 CFG_MULTIMEDIA=auto
 CFG_AUDIO_BACKEND=auto
 CFG_SVG=auto
-CFG_DECLARATIVE=auto
-CFG_DECLARATIVE_DEBUG=yes
 CFG_WEBKIT=auto # (yes|no|auto|debug)
-CFG_JAVASCRIPTCORE_JIT=auto
 CFG_STACK_PROTECTOR_STRONG=auto
 
 CFG_GFX_AVAILABLE="linuxfb transformed qvfb vnc multiscreen directfb"
@@ -1083,14 +1078,12 @@ if [ "$CFG_EMBEDDED" = "nacl" ]; then
         L_FLAGS="$L_FLAGS -I${CFG_NACL_PATH}/toolchain/mac_x86/sdk/nacl-sdk/lib"
     fi
 
-    echo "-no-multimedia -no-webkit -no-phonon -no-nultimedia -no-mediaservices -no-xmlpatterns -no-script -no-sql-sqlite -nomake tests"
     CFG_MULTIMEDIA=no
     CFG_WEBKIT=no
     CFG_PHONON=no
     CFG_MULTIMEDIA=no
     CFG_MEDIASERVICES=no
     CFG_XMLPATTERNS=no
-    CFG_SCRIPT=no
     CFG_SQLITE=no
     CFG_SQL_sqlite=no
     CFG_LIBTIFF=no
@@ -1160,7 +1153,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-xsync|-xinput|-egl|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-mitshm|-fontconfig|-xkb|-nis|-qdbus|-dbus|-dbus-linked|-glib|-gstreamer|-gtkstyle|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-cocoa|-carbon|-universal|-harfbuzz|-prefix-install|-silent|-armfpa|-optimized-qmake|-dwarf2|-reduce-relocations|-sse|-openssl|-openssl-linked|-ptmalloc|-xmlpatterns|-phonon|-phonon-backend|-multimedia|-audio-backend|-svg|-declarative|-declarative-debug|-javascript-jit|-script|-scripttools|-rpath|-force-pkg-config|-s60|-usedeffiles|-icu)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-xsync|-xinput|-egl|-reduce-exports|-pch|-separate-debug-info|-stl|-freetype|-xcursor|-xfixes|-xrandr|-xrender|-mitshm|-fontconfig|-xkb|-nis|-qdbus|-dbus|-dbus-linked|-glib|-gstreamer|-gtkstyle|-cups|-iconv|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release|-exceptions|-cocoa|-carbon|-universal|-harfbuzz|-prefix-install|-silent|-armfpa|-optimized-qmake|-dwarf2|-reduce-relocations|-sse|-openssl|-openssl-linked|-ptmalloc|-xmlpatterns|-phonon|-phonon-backend|-multimedia|-audio-backend|-svg|-rpath|-force-pkg-config|-s60|-usedeffiles|-icu)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -2229,28 +2222,6 @@ while [ "$#" -gt 0 ]; do
             fi
         fi
         ;;
-    script)
-        if [ "$VAL" = "yes" ] || [ "$VAL" = "auto" ]; then
-            CFG_SCRIPT="yes"
-        else
-            if [ "$VAL" = "no" ]; then
-                CFG_SCRIPT="no"
-            else
-                UNKNOWN_OPT=yes
-            fi
-        fi
-        ;;
-    scripttools)
-        if [ "$VAL" = "yes" ] || [ "$VAL" = "auto" ]; then
-            CFG_SCRIPTTOOLS="yes"
-        else
-            if [ "$VAL" = "no" ]; then
-                CFG_SCRIPTTOOLS="no"
-            else
-                UNKNOWN_OPT=yes
-            fi
-        fi
-        ;;
     svg)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "auto" ]; then
             CFG_SVG="yes"
@@ -2262,38 +2233,9 @@ while [ "$#" -gt 0 ]; do
             fi
         fi
         ;;
-    declarative)
-        if [ "$VAL" = "yes" ]; then
-            CFG_DECLARATIVE="yes"
-        else
-            if [ "$VAL" = "no" ]; then
-                CFG_DECLARATIVE="no"
-            else
-                UNKNOWN_OPT=yes
-            fi
-        fi
-	;;
-    declarative-debug)
-        if [ "$VAL" = "yes" ]; then
-            CFG_DECLARATIVE_DEBUG="yes"
-        else
-            if [ "$VAL" = "no" ]; then
-                CFG_DECLARATIVE_DEBUG="no"
-            else
-                UNKNOWN_OPT=yes
-            fi
-        fi
-        ;;
     webkit)
         [ "$VAL" = "auto" ] && VAL="yes"
         CFG_WEBKIT="$VAL"
-        ;;
-    javascript-jit)
-        if [ "$VAL" = "yes" ] || [ "$VAL" = "auto" ] || [ "$VAL" = "no" ]; then 
-            CFG_JAVASCRIPTCORE_JIT="$VAL"
-        else
-            UNKNOWN_OPT=yes
-        fi
         ;;
     confirm-license)
         if [ "$VAL" = "yes" ]; then
@@ -3877,9 +3819,6 @@ Usage:  $relconf [-h] [-prefix <dir>] [-prefix-install] [-bindir <dir>] [-libdir
         [-no-media-backend] [-media-backend] [-no-audio-backend] [-audio-backend] 
         [-no-openssl] [-openssl] [-openssl-linked]
         [-no-gtkstyle] [-gtkstyle] [-no-svg] [-svg] [-no-webkit] [-webkit] [-webkit-debug]
-        [-no-javascript-jit] [-javascript-jit]
-        [-no-script] [-script] [-no-scripttools] [-scripttools] 
-        [-no-declarative] [-declarative] [-no-declarative-debug] [-declarative-debug]
         [additional platform specific options (see below)]
 
 
@@ -4038,21 +3977,6 @@ fi
  +  -webkit ............ Build the WebKit module.
                          WebKit is built if a decent C++ compiler is used.
     -webkit-debug ...... Build the WebKit module with debug symbols.
-
-    -no-javascript-jit . Do not build the JavaScriptCore JIT compiler.
- +  -javascript-jit .... Build the JavaScriptCore JIT compiler.
-
-    -no-script ......... Do not build the QtScript module.
- +  -script ............ Build the QtScript module.
-
-    -no-scripttools .... Do not build the QtScriptTools module.
- +  -scripttools ....... Build the QtScriptTools module.
-
-    -no-declarative ..... Do not build the declarative module.
- +  -declarative ....... Build the declarative module.
-
-    -no-declarative-debug ..... Do not build the declarative debugging support.
- +  -declarative-debug ....... Build the declarative debugging support.
 
     -platform target ... The operating system and compiler you are building
                          on ($PLATFORM).
@@ -5365,9 +5289,6 @@ if [ "$XPLATFORM_INTEGRITY" = "yes" ]; then
     CFG_OPENSSL="no"
     CFG_GLIB="no"
     CFG_SHARED="no"
-    if [ "$CFG_SCRIPT" != "yes" ]; then
-      CFG_SCRIPT="no"
-    fi
     CFG_BUILD_PARTS="libs examples demos"
     CFG_GIF="no"
 fi
@@ -7085,30 +7006,6 @@ elif [ "$XPLATFORM_SYMBIAN_SBSV2" = "yes" ]; then
     CFG_ALSA=no
 fi
 
-if [ "$CFG_JAVASCRIPTCORE_JIT" = "yes" ] || [ "$CFG_JAVASCRIPTCORE_JIT" = "auto" ]; then 
-    if [ "$CFG_ARCH" = "arm" ]; then
-       compileTest unix/javascriptcore-jit "javascriptcore-jit"
-        if [ $? != "0" ]; then
-           CFG_JAVASCRIPTCORE_JIT=no
-        fi
-    else
-	case "$XPLATFORM" in
-	    symbian-gcce)
-		CFG_JAVASCRIPTCORE_JIT=no
-		;;
-	    linux-icc*)
-		CFG_JAVASCRIPTCORE_JIT=no
-		;;
-	esac
-    fi
-fi
-
-if [ "$CFG_JAVASCRIPTCORE_JIT" = "yes" ]; then
-    QMakeVar set JAVASCRIPTCORE_JIT yes
-elif [ "$CFG_JAVASCRIPTCORE_JIT" = "no" ]; then
-    QMakeVar set JAVASCRIPTCORE_JIT no
-fi
-
 if [ "$CFG_AUDIO_BACKEND" = "auto" ]; then
     if [ "$XPLATFORM_SYMBIAN" = "yes" ]; then
          if "$symbiantests/compile.test" "$XQMAKESPEC" "$QMAKE_CONFIG" $OPT_VERBOSE "$relpath" "$outpath" config.tests/symbian/audio "audio" $L_FLAGS $I_FLAGS $l_FLAGS ; then
@@ -7715,14 +7612,12 @@ fi
 #
 canBuildQtXmlPatterns="yes"
 canBuildWebKit="$HAVE_STL"
-canBuildQtScript="$HAVE_STL"
 canBuildQtConcurrent="yes"
 
-# WebKit and QtScript require stdint.h
+# WebKit require stdint.h
 compileTest unix/stdint "Stdint"
 if [ $? != "0" ]; then
     canBuildWebKit="no"
-    canBuildQtScript="no"
 fi
 
 case "$XPLATFORM" in
@@ -7909,68 +7804,6 @@ if [ "$CFG_WEBKIT" != "no" ]; then
 else
     rm -f "$outpath/mkspecs/modules/qt_webkit_version.pri"
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_WEBKIT"
-fi
-
-if [ "$CFG_SCRIPT" = "yes" -a "$canBuildQtScript" = "no" ]; then
-    echo "Error: QtScript was requested, but it can't be built on this platform."
-    exit 1
-fi
-
-if [ "$CFG_SCRIPT" = "auto" ]; then
-    CFG_SCRIPT="$canBuildQtScript"
-fi
-
-if [ "$CFG_SCRIPT" = "yes" ]; then
-    QT_CONFIG="$QT_CONFIG script"
-else
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SCRIPT"
-fi
-
-if [ "$CFG_SCRIPTTOOLS" = "yes" -a "$CFG_SCRIPT" = "no" ]; then
-    echo "QtScriptTools was requested, but it can't be built due to QtScript being disabled."
-    exit 1
-fi
-if [ "$CFG_SCRIPTTOOLS" = "auto" -a "$CFG_SCRIPT" != "no" ]; then
-    case "$XPLATFORM" in
-    symbian*)
-        CFG_SCRIPTTOOLS="no"
-        ;;
-    *)
-        CFG_SCRIPTTOOLS="yes"
-        ;;
-    esac
-elif [ "$CFG_SCRIPT" = "no" ]; then
-    CFG_SCRIPTTOOLS="no"
-fi
-
-if [ "$CFG_SCRIPTTOOLS" = "yes" ]; then
-    QT_CONFIG="$QT_CONFIG scripttools"
-else
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SCRIPTTOOLS"
-fi
-
-
-if [ "$CFG_DECLARATIVE" = "yes" ]; then
-    if [ "$CFG_SCRIPT" = "no" -o "$CFG_GUI" = "no" ]; then
-        echo "Error: QtDeclarative was requested, but it can't be built due to QtScript or QtGui being disabled."
-        exit 1
-    fi
-fi
-if [ "$CFG_DECLARATIVE" = "auto" ]; then
-    if [ "$CFG_SCRIPT" = "no" -o "$CFG_GUI" = "no" ]; then
-            CFG_DECLARATIVE=no
-    else
-            CFG_DECLARATIVE=yes
-    fi
-fi
-
-if [ "$CFG_DECLARATIVE" = "yes" ]; then
-    QT_CONFIG="$QT_CONFIG declarative"
-    if [ "$CFG_DECLARATIVE_DEBUG" = "no" ]; then
-        QCONFIG_FLAGS="$QCONFIG_FLAGS QDECLARATIVE_NO_DEBUG_PROTOCOL"
-    fi
-else
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_DECLARATIVE"
 fi
 
 if [ "$CFG_EXCEPTIONS" = "no" ]; then
@@ -8995,8 +8828,6 @@ echo "Qt 3 compatibility ..... $CFG_QT3SUPPORT"
 [ "$CFG_DBUS" = "linked" ] && echo "QtDBus module .......... yes (linked)"
 echo "QtConcurrent code ...... $CFG_CONCURRENT"
 echo "QtGui module ........... $CFG_GUI"
-echo "QtScript module ........ $CFG_SCRIPT"
-echo "QtScriptTools module ... $CFG_SCRIPTTOOLS"
 echo "QtXmlPatterns module ... $CFG_XMLPATTERNS"
 echo "Phonon module .......... $CFG_PHONON"
 echo "Multimedia module ...... $CFG_MULTIMEDIA"
@@ -9006,17 +8837,6 @@ case "$CFG_WEBKIT" in
     debug) echo "WebKit module .......... yes (debug)" ;;
     no)    echo "WebKit module .......... no" ;;
 esac
-if [ "$CFG_WEBKIT" != "no" ] || [ "$CFG_SCRIPT" != "no" ]; then
-    if [ "$CFG_JAVASCRIPTCORE_JIT" = "auto" ]; then
-        echo "JavaScriptCore JIT ..... To be decided by JavaScriptCore"
-    else
-        echo "JavaScriptCore JIT ..... $CFG_JAVASCRIPTCORE_JIT"
-    fi
-fi
-echo "Declarative module ..... $CFG_DECLARATIVE"
-if [ "$CFG_DECLARATIVE" = "yes" ]; then
-    echo "Declarative debugging ...$CFG_DECLARATIVE_DEBUG"
-fi
 echo "Support for S60 ........ $CFG_S60"
 echo "Symbian DEF files ...... $CFG_SYMBIAN_DEFFILES"
 echo "STL support ............ $CFG_STL"

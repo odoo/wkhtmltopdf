@@ -477,9 +477,7 @@ qt-config:
     -no-phonon
     -no-phonon-backend
     -no-opengl
-    -no-declarative
     -no-script
-    -no-scripttools
     -no-sql-db2
     -no-sql-ibase
     -no-sql-mysql
@@ -510,7 +508,6 @@ qt-config:
     -largefile
     -iconv
     -openssl-linked
-    -no-javascript-jit
     -no-rpath
     -no-dbus
     -no-nis

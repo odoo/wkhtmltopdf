@@ -2196,13 +2196,6 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
-    openssl-linked)
-        if [ "$VAL" = "yes" ]; then
-            CFG_OPENSSL="linked"
-        else
-            UNKNOWN_OPT=yes
-        fi
-        ;;
     ptmalloc)
         if [ "$VAL" = "yes" ]; then
             CFG_PTMALLOC="yes"
@@ -6914,27 +6907,9 @@ if [ "$CFG_GETIFADDRS" != "no" ]; then
 fi
 
 # detect OpenSSL
-if [ "$CFG_OPENSSL" != "no" ] && [ "$XPLATFORM_SYMBIAN_SBSV2" = "no" ]; then
-    if compileTest unix/openssl "OpenSSL"; then
-        if [ "$CFG_OPENSSL" = "auto" ]; then
-            CFG_OPENSSL=yes
-        fi
-    else
-        if ( [ "$CFG_OPENSSL" = "yes" ] || [ "$CFG_OPENSSL" = "linked" ] ) && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-            echo "OpenSSL support cannot be enabled due to functionality tests!"
-            echo " Turn on verbose messaging (-v) to $0 to see the final report."
-            echo " If you believe this message is in error you may use the continue"
-            echo " switch (-continue) to $0 to continue."
-            exit 101
-        else
-            CFG_OPENSSL=no
-        fi
-    fi
-else
-    if [ "$CFG_OPENSSL" = "auto" ] && [ "$XPLATFORM_SYMBIAN_SBSV2" = "yes" ]; then
-        #OpenSSl should be enabled for Symbian release
-        CFG_OPENSSL=yes
-    fi
+if [ "$CFG_OPENSSL" != "no" ]; then
+    QT_CFLAGS_OPENSSL=`$PKG_CONFIG --cflags openssl 2> /dev/null`
+    QT_LFLAGS_OPENSSL=`$PKG_CONFIG --libs openssl 2> /dev/null`
 fi
 
 # detect OpenVG support
@@ -7464,8 +7439,7 @@ fi
 [ "$CFG_DBUS" = "yes" ] && QT_CONFIG="$QT_CONFIG dbus"
 [ "$CFG_DBUS" = "linked" ] && QT_CONFIG="$QT_CONFIG dbus dbus-linked"
 [ "$CFG_NAS" = "system" ] && QT_CONFIG="$QT_CONFIG nas"
-[ "$CFG_OPENSSL" = "yes" ] && QT_CONFIG="$QT_CONFIG openssl"
-[ "$CFG_OPENSSL" = "linked" ] && QT_CONFIG="$QT_CONFIG openssl-linked"
+[ "$CFG_OPENSSL" = "yes" ] && QT_CONFIG="$QT_CONFIG openssl-linked"
 [ "$CFG_MAC_HARFBUZZ" = "yes" ] && QT_CONFIG="$QT_CONFIG harfbuzz"
 
 if [ "$PLATFORM_X11" = "yes" ]; then
@@ -8369,8 +8343,7 @@ if [ "$XPLATFORM_SYMBIAN" = "no" ]; then
     [ "$CFG_INOTIFY" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_INOTIFY"
     [ "$CFG_NAS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NAS"
     [ "$CFG_NIS" = "no" ]        && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_NIS"
-    [ "$CFG_OPENSSL" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_OPENSSL"
-    [ "$CFG_OPENSSL" = "linked" ]&& QCONFIG_FLAGS="$QCONFIG_FLAGS QT_LINKED_OPENSSL"
+    [ "$CFG_OPENSSL" = "yes" ]   && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_LINKED_OPENSSL"
 
     [ "$CFG_SM" = "no" ]         && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_SESSIONMANAGER"
     [ "$CFG_XCURSOR" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_XCURSOR"
@@ -8661,13 +8634,6 @@ fi
 
 if [ "$QT_EDITION" != "QT_EDITION_OPENSOURCE" ]; then
     echo "DEFINES *= QT_EDITION=QT_EDITION_DESKTOP" >> "$CACHEFILE.tmp"
-fi
-
-#dump in the OPENSSL_LIBS info
-if [ '!' -z "$OPENSSL_LIBS" ]; then
-    echo "OPENSSL_LIBS = $OPENSSL_LIBS" >> "$CACHEFILE.tmp"
-elif [ "$CFG_OPENSSL" = "linked" ]; then
-    echo "OPENSSL_LIBS = -lssl -lcrypto" >> "$CACHEFILE.tmp"
 fi
 
 #dump in the SDK info
@@ -8964,8 +8930,6 @@ fi
 
 OPENSSL_LINKAGE=""
 if [ "$CFG_OPENSSL" = "yes" ]; then
-    OPENSSL_LINKAGE="(run-time)"
-elif [ "$CFG_OPENSSL" = "linked" ]; then
     OPENSSL_LINKAGE="(linked)"
 fi
 echo "OpenSSL support ........ $CFG_OPENSSL $OPENSSL_LINKAGE"
@@ -8987,21 +8951,6 @@ if [ "$CFG_SHARED" = "no" ]; then
     echo "loaded plugins. Make sure to import all needed static plugins,"
     echo "or compile needed modules into the library."
     echo
-fi
-if [ "$CFG_OPENSSL" = "linked" ] && [ "$OPENSSL_LIBS" = "" ]; then
-    echo
-    echo "NOTE: When linking against OpenSSL, you can override the default"
-    echo "library names through OPENSSL_LIBS."
-    echo "For example:"
-    echo "    OPENSSL_LIBS='-L/opt/ssl/lib -lssl -lcrypto' ./configure -openssl-linked"
-    echo
-fi
-if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ] && [ "$CFG_DEBUG" = "yes" ] && [ "$CFG_DEBUG_RELEASE" = "no" ]; then
-    echo
-    echo "Error: debug-only framework builds are not supported. Configure with -no-framework"
-    echo "if you want a pure debug build."
-    echo
-    exit 1
 fi
 
 sepath=`echo "$relpath" | sed -e 's/\\./\\\\./g'`
@@ -9243,22 +9192,6 @@ EOF
     done
 done
 rm -f .projects .projects.3
-
-#-------------------------------------------------------------------------------
-# check for platforms that we don't yet know about
-#-------------------------------------------------------------------------------
-if [ "$CFG_ARCH" = "generic" ]; then
-cat <<EOF
-
-        NOTICE: Atomic operations are not yet supported for this
-        architecture.
-
-        Qt will use the 'generic' architecture instead, which uses a
-        single pthread_mutex_t to protect all atomic operations. This
-        implementation is the slow (but safe) fallback implementation
-        for architectures Qt does not yet support.
-EOF
-fi
 
 #-------------------------------------------------------------------------------
 # check if the user passed the -no-zlib option, which is no longer supported

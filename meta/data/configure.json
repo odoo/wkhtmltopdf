@@ -71,7 +71,7 @@
     "-nomake",
     "translations",
     "-opensource",
-    "-openssl-linked",
+    "-openssl",
     "-qt-libjpeg",
     "-qt-libpng",
     "-qt-zlib",

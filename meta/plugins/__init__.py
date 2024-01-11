@@ -1,5 +1,6 @@
 import os
 import logging
+import pprint
 
 from pathlib import Path
 from typing import Any
@@ -36,6 +37,7 @@ pods.IMAGES["fedora"].setup += [
 ]
 
 
+
 def useTarget(args: cli.Args) -> model.Target:
     target = model.Target(str(args.consumeOpt("target", "host")))
     target.props["host"] = True
@@ -69,7 +71,7 @@ def _(args: cli.Args):
 
     qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
     if not shell.exec(
-        os.path.abspath("./qt/configure"), *QT, f"--prefix={prefix}", cwd=qtBuildir
+        os.path.abspath("./qt/configure"), *QT, f"--prefix={prefix}", "-v", cwd=qtBuildir
     ):
         raise RuntimeError("Failed to configure Qt")
 

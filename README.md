@@ -12,6 +12,14 @@ entirely "headless" and do not require a display or display service.
 
 See https://wkhtmltopdf.org for updated documentation.
 
+# Building
+
+```bash
+$ ./boostrap.sh wk configure
+
+$ ./boostrap.sh wk build
+```
+
 # Changes
 
  - Disabled bearer networking because it caused file descriptor leaks

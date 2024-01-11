@@ -17,5 +17,5 @@ jobs:
 
       - name: Build on Ubuntu
         run: |
-          ./boostrap.sh wk configure
-          ./boostrap.sh wk build
+          ./bootstrap.sh wk configure
+          ./bootstrap.sh wk build

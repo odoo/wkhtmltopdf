@@ -6,6 +6,14 @@
 
 set -e
 
+function is_ubuntu() {
+    if [ -f /etc/os-release ]; then
+        grep -q "ubuntu" /etc/os-release
+        return $?
+    fi
+    return 1
+}
+
 if [ -z "$CUTEKIT_PYTHON" ]; then
     export CUTEKIT_PYTHON="python3.11"
 fi
@@ -69,6 +77,11 @@ if [ ! -f .cutekit/tools/ready ]; then
             $CUTEKIT_PYTHON -m pip install -r "$extern/meta/plugins/requirements.txt"
         fi
     done
+
+    if is_ubuntu; then
+        echo "Detected Ubuntu, installing dependencies automatically..."
+        sudo ./meta/scripts/setup-ubuntu.sh
+    fi
 
     touch .cutekit/tools/ready
     echo "Done!"

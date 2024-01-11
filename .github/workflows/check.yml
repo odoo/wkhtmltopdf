@@ -8,14 +8,22 @@ jobs:
   linux:
     name: Check latest commit
     runs-on: ubuntu-latest
-    permissions: write-all
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
-      - name: Build on Ubuntu
-        run: |
-          ./bootstrap.sh wk configure
-          ./bootstrap.sh wk build
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+            python-version: '3.11'
+
+      - name: Set up the build environment
+        run: ./bootstrap.sh tools setup
+
+      - name: Configure the build
+        run: ./bootstrap.sh wk configure
+
+      - name: Build the project
+        run: ./bootstrap.sh wk build

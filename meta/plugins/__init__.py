@@ -1,6 +1,5 @@
 import os
 import logging
-import pprint
 
 from pathlib import Path
 from typing import Any
@@ -37,7 +36,6 @@ pods.IMAGES["fedora"].setup += [
 ]
 
 
-
 def useTarget(args: cli.Args) -> model.Target:
     target = model.Target(str(args.consumeOpt("target", "host")))
     target.props["host"] = True
@@ -71,7 +69,11 @@ def _(args: cli.Args):
 
     qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
     if not shell.exec(
-        os.path.abspath("./qt/configure"), *QT, f"--prefix={prefix}", "-v", cwd=qtBuildir
+        os.path.abspath("./qt/configure"),
+        *QT,
+        f"--prefix={prefix}",
+        "-v",
+        cwd=qtBuildir,
     ):
         raise RuntimeError("Failed to configure Qt")
 
@@ -119,6 +121,10 @@ def _(args: cli.Args):
     print(
         f"{vt100.GREEN + vt100.BOLD}Finyished buiwding t-to '{prefix}' :3{vt100.RESET}"
     )
+
+
+def package():
+    pass
 
 
 @cli.command("p", "wk/package", "Package wkhtmltopdf")

@@ -15,9 +15,11 @@ See https://wkhtmltopdf.org for updated documentation.
 # Building
 
 ```bash
-$ ./boostrap.sh wk configure
+$ ./bootstrap.sh tools setup
 
-$ ./boostrap.sh wk build
+$ ./bootstrap.sh wk configure
+
+$ ./bootstrap.sh wk build
 ```
 
 # Changes

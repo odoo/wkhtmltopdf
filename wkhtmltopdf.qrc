@@ -1,6 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
   <qresource>
-    <file>AUTHORS</file>
-    <file>LICENSE</file>
+    <file>authors.txt</file>
+    <file>license.txt</file>
   </qresource>
 </RCC>

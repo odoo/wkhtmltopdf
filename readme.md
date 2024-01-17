@@ -20,6 +20,17 @@ Since this fork doesn't need to follow upstream QT and WebKit, we have made the 
  - Removed support for DSA since it is deprecated in OpenSSL and breaks the build on archlinux
  - Switched to build system to CuteKit instead of the hand-rolled one
 
+## Roadmap
+
+The long term goal is to make wkhtmltopdf as lean as possible and improve speed and stability. This will be done by:
+
+ - [ ] Slim down QT even further and keep the bare minimum for rendering and networking
+ - [ ] Remove the need for X11 and OpenGL
+ - [ ] Slim down WebKit and keep the bare minimum for parsing and rendering HTML
+ - [ ] Implement an area allocator to reduce memory fragmentation and improve cache locality when building the DOM and CSS Box Tree with the aim of improving performance and reducing memory usage
+ - [ ] Add support for more recent versions of CSS and HTML
+ - [ ] Remove support for JavaScript (?)
+
 ## Building
 
 ```bash

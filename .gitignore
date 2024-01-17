@@ -24,3 +24,4 @@ targets/
 __pycache__/
 .vscode/
 .mypy_cache/
+.python-version

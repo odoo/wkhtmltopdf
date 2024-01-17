@@ -1,5 +1,8 @@
 # WkHtmlToPDF
 
+> [!WARNING]
+> This not ready for production use yet, here be dragons!
+
 > [!IMPORTANT]
 > This is a fork of the original wkhtmltopdf project tailored for use with
 > Odoo. It is not intended for general use. If you are looking for the

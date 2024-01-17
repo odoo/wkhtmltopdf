@@ -40,7 +40,7 @@ if [ ! -f .cutekit/tools/ready ]; then
 
         read -p "Do you want to continue? [Y/n] " -n 1 -r
         echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        if [[ ! $REPLY =~ ^[Yy]$ ]] && [[ ! -z $REPLY ]]; then
             echo "Aborting."
             exit 1
         fi

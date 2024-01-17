@@ -10,9 +10,6 @@ release*/
 test/
 static-build/
 .obj/
-doc/
-docs/_site/
-docs/Gemfile.lock
 libdoc/
 man1/
 Makefile

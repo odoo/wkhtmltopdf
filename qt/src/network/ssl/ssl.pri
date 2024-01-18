@@ -7,7 +7,6 @@ symbian {
 } else {
 	include($$QT_SOURCE_TREE/config.tests/unix/openssl/openssl.pri)
 }
-
     HEADERS += ssl/qssl.h \
                ssl/qsslcertificate.h \
                ssl/qsslcertificate_p.h \
@@ -31,6 +30,6 @@ symbian {
                ssl/qsslsocket_openssl.cpp \
                ssl/qsslsocket_openssl_symbols.cpp
 
-    LIBS_PRIVATE += $$QT_LFLAGS_OPENSSL
+    QMAKE_LIBS += $$QT_LFLAGS_OPENSSL
     QMAKE_CXXFLAGS += $$QT_CXXFLAGS_OPENSSL
 }

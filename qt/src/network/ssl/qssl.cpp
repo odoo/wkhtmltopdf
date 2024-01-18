@@ -69,7 +69,6 @@ QT_BEGIN_NAMESPACE
     Describes the different key algorithms supported by QSslKey.
 
     \value Rsa The RSA algorithm.
-    \value Dsa The DSA algorithm.
 */
 
 /*!

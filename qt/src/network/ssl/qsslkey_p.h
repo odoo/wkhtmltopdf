@@ -57,7 +57,6 @@
 //
 
 #include <openssl/rsa.h>
-#include <openssl/dsa.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -66,7 +65,6 @@ class QSslKeyPrivate
 public:
     inline QSslKeyPrivate()
         : rsa(0)
-        , dsa(0)
     {
         clear();
     }
@@ -84,10 +82,9 @@ public:
     QByteArray derFromPem(const QByteArray &pem) const;
 
     bool isNull;
-    QSsl::KeyType type;
-    QSsl::KeyAlgorithm algorithm;
-    RSA *rsa;
-    DSA *dsa;
+	QSsl::KeyType type;
+	QSsl::KeyAlgorithm algorithm;
+	RSA *rsa;
 
     QAtomicInt ref;
 

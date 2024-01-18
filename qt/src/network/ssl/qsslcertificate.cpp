@@ -507,10 +507,6 @@ QSslKey QSslCertificate::publicKey() const
         key.d->rsa = q_EVP_PKEY_get1_RSA(pkey);
         key.d->algorithm = QSsl::Rsa;
         key.d->isNull = false;
-    } else if (key_id == EVP_PKEY_DSA) {
-        key.d->dsa = q_EVP_PKEY_get1_DSA(pkey);
-        key.d->algorithm = QSsl::Dsa;
-        key.d->isNull = false;
     } else if (key_id == EVP_PKEY_DH) {
         // DH unsupported
     } else {

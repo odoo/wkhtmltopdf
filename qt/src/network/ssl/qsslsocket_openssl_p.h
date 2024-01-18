@@ -77,7 +77,6 @@
 #include <openssl/x509.h>
 #include <openssl/x509v3.h>
 #include <openssl/x509_vfy.h>
-#include <openssl/dsa.h>
 #include <openssl/rsa.h>
 #include <openssl/crypto.h>
 #if OPENSSL_VERSION_NUMBER >= 0x0090806fL && !defined(OPENSSL_NO_TLSEXT)

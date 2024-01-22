@@ -127,25 +127,9 @@ def package():
     pass
 
 
-@cli.command("p", "wk/package", "Package wkhtmltopdf")
+@cli.command("p", "wk/profile", "Profile wkhtmltopdf")
 def _(args: cli.Args):
-    model.Project.use(args)
-
     target = useTarget(args)
-    wkBuildir = shell.mkdir(os.path.join(target.builddir, "wk"))
-
-    shell.exec(
-        "fpm",
-        "-s",
-        "dir",
-        "-t",
-        "deb",
-        "-n",
-        "wkhtmltopdf",
-        "-v",
-        "0.12.6",
-        "--prefix",
-        "/usr/local/bin",
-        "wkhtmltopdf",
-        cwd=wkBuildir,
-    )
+    prefix = usePrefix(args, target)
+    wkhtmltopdf = os.path.join(prefix, "bin/wkhtmltopdf")
+    shell.profile([wkhtmltopdf] + args.extra)

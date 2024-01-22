@@ -6,5 +6,5 @@ symbian{
     for(p, TRY_INCLUDEPATHS) {
         pp = $$join(p, "", "", "/openssl")
         exists($$pp):INCLUDEPATH *= $$pp
-    } 
+    }
 }

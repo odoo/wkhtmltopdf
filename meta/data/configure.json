@@ -1,5 +1,4 @@
 [
-    "-verbose",
     "-confirm-license",
     "-exceptions",
     "-fast",

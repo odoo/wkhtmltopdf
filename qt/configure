@@ -8653,6 +8653,15 @@ else
    echo "QMAKESPEC = $XPLATFORM" >> "$CACHEFILE.tmp"
 fi
 
+if [ -n "$QT_CFLAGS_OPENSSL" ]; then
+    echo "QT_CFLAGS_OPENSSL   = $QT_CFLAGS_OPENSSL" >> "$CACHEFILE.tmp"
+fi
+
+if [ -n "$QT_LFLAGS_OPENSSL" ]; then
+    echo "QT_LFLAGS_OPENSSL   = $QT_LFLAGS_OPENSSL" >> "$CACHEFILE.tmp"
+fi
+
+
 # cmdline args
 cat "$QMAKE_VARS_FILE" >> "$CACHEFILE.tmp"
 rm -f "$QMAKE_VARS_FILE" 2>/dev/null
@@ -8957,6 +8966,7 @@ sepath=`echo "$relpath" | sed -e 's/\\./\\\\./g'`
 PROCS=1
 EXEC=""
 
+echo "Qt Configuration:" $QT_CONFIG
 
 #-------------------------------------------------------------------------------
 # build makefiles based on the configuration

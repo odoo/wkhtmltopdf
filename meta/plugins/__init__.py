@@ -130,6 +130,8 @@ def package():
 @cli.command("p", "wk/profile", "Profile wkhtmltopdf")
 def _(args: cli.Args):
     target = useTarget(args)
-    prefix = usePrefix(args, target)
+    prefix = os.path.relpath(usePrefix(args, target))
+    what = args.consumeOpt("what", "cpu")
+    rate = args.consumeOpt("rate", 1000)
     wkhtmltopdf = os.path.join(prefix, "bin/wkhtmltopdf")
-    shell.profile([wkhtmltopdf] + args.extra)
+    shell.profile([wkhtmltopdf] + args.extra, rate=rate, what=what)

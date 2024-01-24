@@ -544,17 +544,13 @@ Color Frame::getDocumentBackgroundColor() const
 
 void Frame::setPrinting(bool printing, const FloatSize& pageSize, float maximumShrinkRatio, AdjustViewSizeOrNot shouldAdjustViewSize)
 {
+    printf("setPrinting\n");
     m_doc->setPrinting(printing);
     view()->adjustMediaTypeForPrinting(printing);
 
     m_doc->styleSelectorChanged(RecalcStyleImmediately);
     if (printing)
         view()->forceLayoutForPagination(pageSize, maximumShrinkRatio, shouldAdjustViewSize);
-    else {
-        view()->forceLayout();
-        if (shouldAdjustViewSize == AdjustViewSize)
-            view()->adjustViewSize();
-    }
 
     // Subframes of the one we're printing don't lay out to the page size.
     for (Frame* child = tree()->firstChild(); child; child = child->tree()->nextSibling())

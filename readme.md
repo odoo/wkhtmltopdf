@@ -17,11 +17,13 @@ See https://wkhtmltopdf.org for updated documentation.
 
 Since this fork doesn't need to follow upstream QT and WebKit, we have made the following opinionated changes:
 
+ - Greatly reduced the amount of style recomputations and layout passes which improves performances by 50% in most cases
  - Disabled bearer networking because it caused file descriptor leaks
  - Merge everything into a single repository, including the patched QT
  - In general, everything that is not needed by wkhtmltopdf has been removed from QT
  - Removed support for DSA since it is deprecated in OpenSSL and breaks the build on archlinux
  - Switched to build system to CuteKit instead of the hand-rolled one
+ - Greatly improved tooling and build system with support for CPU and memory profiling
 
 ## Roadmap
 

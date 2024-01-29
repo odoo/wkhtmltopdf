@@ -1,4 +1,7 @@
 {
+    "id": "arch",
+    "package": "pacman",
+    "extension": "pkg.tar.xz",
     "requires": [
         "openssl",
         "zlib",
@@ -17,6 +20,7 @@
         "libxext",
         "libxrender",
         "libjpeg-turbo",
-        "libpng"
+        "libpng",
+        "ruby"
     ]
 }

@@ -1,4 +1,7 @@
 {
+    "id": "fedora",
+    "package": "rpm",
+    "extension": "rpm",
     "requires": [
         "ca-certificates",
         "fontconfig",
@@ -25,7 +28,7 @@
         "libX11-devel",
         "libXext-devel",
         "libXrender-devel",
-        "libxdmcp-devel",
+        "libXdmcp-devel ",
         "libjpeg-devel",
         "libpng-devel",
         "make",

@@ -1,4 +1,7 @@
 {
+    "id": "ubuntu",
+    "package": "deb",
+    "extension": "deb",
     "requires": [
         "ca-certificates",
         "fontconfig",

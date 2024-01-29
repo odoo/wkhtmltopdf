@@ -1,9 +1,10 @@
 import os
 import logging
+import platform
 
 from pathlib import Path
 from typing import Any
-from cutekit import cli, shell, model, jexpr, vt100, ensure, pods
+from cutekit import cli, shell, model, jexpr, vt100, ensure, pods, const
 
 ensure((0, 7, 0))
 
@@ -20,19 +21,24 @@ def loadData(name: str) -> jexpr.Json:
 
 
 pods.IMAGES["ubuntu"].setup += [
-    f"apt -y install {' '.join(loadData('pod-ubuntu')['requires'] + loadData('pod-ubuntu')['devRequires'])}"
+    f"apt -y install {' '.join(loadData('pod-ubuntu')['requires'] + loadData('pod-ubuntu')['devRequires'])}",
+    "gem install fpm",
 ]
 pods.IMAGES["debian"].setup += [
-    f"apt -y install {' '.join(loadData('pod-debian')['requires'] + loadData('pod-debian')['devRequires'])}"
+    f"apt -y install {' '.join(loadData('pod-debian')['requires'] + loadData('pod-debian')['devRequires'])}",
+    "gem install fpm",
 ]
 pods.IMAGES["alpine"].setup += [
-    f"apk add {' '.join(loadData('pod-alpine')['requires'] + loadData('pod-alpine')['devRequires'])}"
+    f"apk add {' '.join(loadData('pod-alpine')['requires'] + loadData('pod-alpine')['devRequires'])}",
+    "gem install fpm",
 ]
 pods.IMAGES["arch"].setup += [
-    f"pacman --noconfirm -S {' '.join(loadData('pod-arch')['requires'] + loadData('pod-arch')['devRequires'])}"
+    f"pacman --noconfirm -S {' '.join(loadData('pod-arch')['requires'] + loadData('pod-arch')['devRequires'])}",
+    "gem install fpm",
 ]
 pods.IMAGES["fedora"].setup += [
-    f"dnf -y install {' '.join(loadData('pod-fedora')['requires'] + loadData('pod-fedora')['devRequires'])}"
+    f"dnf -y install {' '.join(loadData('pod-fedora')['requires'] + loadData('pod-fedora')['devRequires'])}",
+    "gem install fpm",
 ]
 
 
@@ -56,17 +62,7 @@ def usePrefix(args: cli.Args, target: model.Target) -> str:
 QT = loadData("configure")
 
 
-@cli.command("w", "wk", "Build system for wkhtmltopdf")
-def _(args: cli.Args):
-    pass
-
-
-@cli.command("c", "wk/configure", "Configure wkhtmltopdf")
-def _(args: cli.Args):
-    model.Project.use(args)
-    target = useTarget(args)
-    prefix = usePrefix(args, target)
-
+def wkConfigure(target: model.Target, prefix: str) -> None:
     qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
     if not shell.exec(
         os.path.abspath("./qt/configure"),
@@ -80,12 +76,7 @@ def _(args: cli.Args):
     print(f"{vt100.GREEN + vt100.BOLD}Configured Yaii~ :3{vt100.RESET}")
 
 
-@cli.command("b", "wk/build", "Build wkhtmltopdf")
-def _(args: cli.Args):
-    model.Project.use(args)
-    target = useTarget(args)
-    prefix = usePrefix(args, target)
-
+def wkBuild(target: model.Target, prefix: str) -> None:
     qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
     if not shell.exec("make", "-j", str(shell.nproc()), cwd=qtBuildir):
         raise RuntimeError("Failed to build Qt")
@@ -123,8 +114,27 @@ def _(args: cli.Args):
     )
 
 
-def package():
+@cli.command("w", "wk", "Build system for wkhtmltopdf")
+def _(args: cli.Args):
     pass
+
+
+@cli.command("c", "wk/configure", "Configure wkhtmltopdf")
+def _(args: cli.Args):
+    model.Project.use(args)
+    target = useTarget(args)
+    prefix = usePrefix(args, target)
+
+    wkConfigure(target, prefix)
+
+
+@cli.command("b", "wk/build", "Build wkhtmltopdf")
+def _(args: cli.Args):
+    model.Project.use(args)
+    target = useTarget(args)
+    prefix = usePrefix(args, target)
+
+    wkBuild(target, prefix)
 
 
 @cli.command("p", "wk/profile", "Profile wkhtmltopdf")
@@ -135,3 +145,60 @@ def _(args: cli.Args):
     rate = args.consumeOpt("rate", 1000)
     wkhtmltopdf = os.path.join(prefix, "bin/wkhtmltopdf")
     shell.profile([wkhtmltopdf] + args.extra, rate=rate, what=what)
+
+
+@cli.command("d", "wk/dist", "Distribute wkhtmltopdf")
+def _(args: cli.Args):
+    # This command will configure, build, install and
+    # package wkhtmltopdf for distribution.
+
+    model.Project.use(args)
+    target = useTarget(args)
+    prefix = "/opt/odoo-wkhtmltopdf"
+    distro = args.consumeOpt("distro", None)
+    if distro is None:
+        import sys
+
+        print(sys.argv)
+        raise RuntimeError("No distro specified")
+
+    version = args.consumeOpt("version", None)
+    if version is None:
+        with open("VERSION") as f:
+            version = f.read().strip()
+    flavor = args.consumeOpt("flavor", "dev")
+
+    wkConfigure(target, prefix)
+    wkBuild(target, prefix)
+    # Use FPM to package wkhtmltopdf
+    dist = Path(const.PROJECT_CK_DIR) / "dist"
+    dist.mkdir(exist_ok=True)
+
+    distro = loadData("pod-" + distro)
+    arch = platform.machine()
+    output = f"odoo-wkhtmltopdf-{distro['id']}-{arch}-{version}-{flavor}.{distro['extension']}"
+
+    shell.exec(
+        "fpm",
+        "--license",
+        "LGPLv3",
+        "--vendor",
+        "Odoo S.A.",
+        "--url",
+        "https://github.com/odoo/wkhtmltopdf",
+        "--maintainer",
+        "Nicolas V. <nivb@odoo.com>",
+        "-s",
+        "dir",
+        "-t",
+        distro["package"],
+        "-n",
+        "odoo-wkhtmltopdf",
+        "-v",
+        f"{version}-{flavor}",
+        "-C",
+        prefix,
+        "-p",
+        str(dist / output),
+        "/opt/odoo-wkhtmltopdf",
+    )

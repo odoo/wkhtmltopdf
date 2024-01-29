@@ -1,4 +1,7 @@
 {
+    "id": "alpine",
+    "package": "apk",
+    "extension": "apk",
     "requires": [
         "libstdc++",
         "libx11",

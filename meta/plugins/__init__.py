@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import platform
 
@@ -177,6 +178,14 @@ def _(args: cli.Args):
     distro = loadData("pod-" + distro)
     arch = platform.machine()
     output = f"odoo-wkhtmltopdf-{distro['id']}-{arch}-{version}-{flavor}.{distro['extension']}"
+
+    # Make sure fpm is in the PATH
+    try:
+        GEM_HOME = shell.popen("gem", "env", "user_gemhome")
+        print(f"Using GEM_HOME={GEM_HOME}")
+        os.environ["PATH"] = f'{GEM_HOME}/bin:{os.environ["PATH"]}'
+    except:
+        pass # Some distros don't have bin installed in user gemhome
 
     shell.exec(
         "fpm",

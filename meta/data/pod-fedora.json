@@ -35,6 +35,7 @@
         "openssl-devel",
         "perl",
         "zlib-devel",
-        "ruby-devel"
+        "ruby-devel",
+        "rpmdevtools"
     ]
 }

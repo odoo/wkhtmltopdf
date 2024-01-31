@@ -16,5 +16,5 @@
 # along with wkhtmltopdf.  If not, see <http:#www.gnu.org/licenses/>.
 TEMPLATE = subdirs
 
-CONFIG += ordered
+CONFIG += ordered nostrip
 SUBDIRS = src/lib src/pdf src/image

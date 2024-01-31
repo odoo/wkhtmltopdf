@@ -25,6 +25,7 @@ RESOURCES    = $$PWD/wkhtmltopdf.qrc
 
 win32:      CONFIG += console
 win32-g++*: QMAKE_LFLAGS += -static -static-libgcc -static-libstdc++
+CONFIG += nostrip
 
 QT += webkit network xmlpatterns svg
 greaterThan(QT_MAJOR_VERSION, 4) {

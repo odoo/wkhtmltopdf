@@ -26,6 +26,11 @@
         "openssl-dev",
         "patch",
         "fontconfig-dev",
-        "freetype-dev"
+        "freetype-dev",
+
+        "ruby",
+        "ruby-dev",
+        "ruby-etc",
+        "alpine-sdk"
     ]
 }

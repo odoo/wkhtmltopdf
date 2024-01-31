@@ -1,4 +1,4 @@
-name: Release
+name: Publish Release
 
 on:
   push:
@@ -21,19 +21,19 @@ jobs:
           echo '{ "experimental": true }' | sudo tee /etc/docker/daemon.json
           sudo systemctl restart docker
 
-      - name: Package for Debian Bookworm
-        run: |
-          ./packaging/build package-docker bookworm-amd64 ..
+      - name: Set up the build environment
+        run: ./bootstrap.sh tools setup
 
-      - name: Package for Ubuntu Jammy
+      - name: Build & package for all supported distros
         run: |
-          ./packaging/build package-docker jammy-amd64 ..
+          meta/scripts/build-all.sh --flavore=stable
 
       - name: Upload Packages to GitHub
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: targets/**/*.deb
+          file: .cutekit/dist/*
           tag: ${{ github.ref }}
           file_glob: true
           overwrite: true
+          prerelease: false

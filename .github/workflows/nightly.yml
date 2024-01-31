@@ -1,4 +1,4 @@
-name: Nightly
+name: Publish Nightly
 
 on:
   schedule:
@@ -38,20 +38,19 @@ jobs:
           echo '{ "experimental": true }' | sudo tee /etc/docker/daemon.json
           sudo systemctl restart docker
 
-      - name: Package for Debian Bookworm
-        run: |
-          ./packaging/build package-docker bookworm-amd64 .. --nightly
+      - name: Set up the build environment
+        run: ./bootstrap.sh tools setup
 
-      - name: Package for Ubuntu Jammy
+      - name: Build & package for all supported distros
         run: |
-          ./packaging/build package-docker jammy-amd64 .. --nightly
+          meta/scripts/build-all.sh --flavore=nightly
 
       - name: Upload Packages to GitHub
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: targets/**/*.deb
+          file: .cutekit/dist/*
           tag: "nightly"
           file_glob: true
           overwrite: true
-          promote: true
+          prerelease: true

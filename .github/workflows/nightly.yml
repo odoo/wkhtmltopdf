@@ -11,7 +11,7 @@ jobs:
     outputs:
       should_run: ${{ steps.should_run.outputs.should_run }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: print latest_commit
         run: echo ${{ github.sha }}
 
@@ -24,14 +24,19 @@ jobs:
   linux:
     needs: check_date
     if: ${{ needs.check_date.outputs.should_run != 'false' }}
-    name: Build Debian Bookworm
+    name: Build for x86_64 Linux
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+            python-version: '3.11'
 
       - name: Configure docker
         run:  |

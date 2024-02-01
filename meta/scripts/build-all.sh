@@ -13,9 +13,9 @@ DISTROS="\
 for DISTRO in $DISTROS; do
     echo "Building for $DISTRO"
     BUILDER=$DISTRO-builder
-    ck pod create --name=$BUILDER --image=$DISTRO || true
-    ck --pod=$BUILDER wk dist --distro=$DISTRO $@
+    ./bootstrap.sh pod create --name=$BUILDER --image=$DISTRO || true
+    ./bootstrap.sh --pod=$BUILDER wk dist --distro=$DISTRO $@
 done
 
-ck pod kill --all
+./bootstrap.sh ck pod kill --all
 docker system prune -fa

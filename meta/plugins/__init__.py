@@ -154,7 +154,7 @@ def _(args: cli.Args):
 
     model.Project.use(args)
     target = useTarget(args)
-    prefix = "/"
+    prefix = "/usr/"
     distro = args.consumeOpt("distro", None)
     if distro is None:
         import sys
@@ -208,5 +208,5 @@ def _(args: cli.Args):
         prefix,
         "-p",
         str(dist / output),
-        "/bin/wkhtmltopdf",
+        "/usr/bin/wkhtmltopdf",
     )

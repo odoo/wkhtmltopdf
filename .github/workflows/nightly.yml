@@ -52,7 +52,7 @@ jobs:
 
       - name: Build & package for ${{ matrix.distro }}
         run: |
-          meta/scripts/build-distro.sh ${{ matrix.distro }} --flavore=nightly
+          meta/scripts/build-distro.sh ${{ matrix.distro }} --flavor=nightly
 
       - name: Upload Packages to GitHub
         uses: svenstaro/upload-release-action@v2

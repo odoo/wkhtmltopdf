@@ -31,7 +31,7 @@ jobs:
 
       - name: Build & package for all supported distros
         run: |
-          meta/scripts/build-all.sh --flavore=stable
+          meta/scripts/build-all.sh --flavor=stable
 
       - name: Upload Packages to GitHub
         uses: svenstaro/upload-release-action@v2

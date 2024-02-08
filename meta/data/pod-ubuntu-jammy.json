@@ -1,5 +1,5 @@
 {
-    "id": "debian",
+    "id": "ubuntu-jammy",
     "package": "deb",
     "extension": "deb",
     "requires": [
@@ -7,7 +7,7 @@
         "fontconfig",
         "libc6",
         "libfreetype6",
-        "libjpeg62-turbo",
+        "libjpeg-turbo8",
         "libpng16-16",
         "libssl3",
         "libstdc++6",
@@ -30,7 +30,6 @@
         "libx11-dev",
         "libxext-dev",
         "libxrender-dev",
-        "libjpeg-dev",
         "ruby-dev",
         "zlib1g-dev"
     ]

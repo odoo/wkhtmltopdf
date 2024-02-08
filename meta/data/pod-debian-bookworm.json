@@ -1,5 +1,5 @@
 {
-    "id": "ubuntu",
+    "id": "debian-bookworm",
     "package": "deb",
     "extension": "deb",
     "requires": [
@@ -7,7 +7,7 @@
         "fontconfig",
         "libc6",
         "libfreetype6",
-        "libjpeg-turbo8",
+        "libjpeg62-turbo",
         "libpng16-16",
         "libssl3",
         "libstdc++6",
@@ -30,6 +30,7 @@
         "libx11-dev",
         "libxext-dev",
         "libxrender-dev",
+        "libjpeg-dev",
         "ruby-dev",
         "zlib1g-dev"
     ]

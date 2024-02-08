@@ -22,10 +22,13 @@ jobs:
         if: ${{ github.event_name == 'schedule' }}
         run: test -z $(git rev-list  --after="24 hours"  ${{ github.sha }}) && echo "::set-output name=should_run::false"
 
-  linux:
+  build-distro:
+    strategy:
+      matrix:
+        distro: [alpine-3.18, arch, debian-bookworm, fedora-39, ubuntu-jammy]
     needs: check_date
     if: ${{ needs.check_date.outputs.should_run != 'false' }}
-    name: Build for x86_64 Linux
+    name: Build for ${{ matrix.distro }}
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
@@ -47,9 +50,9 @@ jobs:
       - name: Set up the build environment
         run: ./bootstrap.sh tools setup
 
-      - name: Build & package for all supported distros
+      - name: Build & package for ${{ matrix.distro }}
         run: |
-          meta/scripts/build-all.sh --flavore=nightly
+          meta/scripts/build-distro.sh ${{ matrix.distro }} --flavore=nightly
 
       - name: Upload Packages to GitHub
         uses: svenstaro/upload-release-action@v2

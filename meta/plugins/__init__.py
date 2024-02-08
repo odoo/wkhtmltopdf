@@ -20,25 +20,24 @@ def loadData(name: str) -> jexpr.Json:
         _dataCache[name] = jexpr.read(Path(f"meta/data/{name}.json"))
     return _dataCache[name]
 
-
-pods.IMAGES["ubuntu"].setup += [
-    f"apt -y install {' '.join(loadData('pod-ubuntu')['requires'] + loadData('pod-ubuntu')['devRequires'])}",
+pods.IMAGES["ubuntu-jammy"].setup += [
+    f"apt -y install {' '.join(loadData('pod-ubuntu-jammy')['requires'] + loadData('pod-ubuntu-jammy')['devRequires'])}",
     "gem install fpm",
 ]
-pods.IMAGES["debian"].setup += [
-    f"apt -y install {' '.join(loadData('pod-debian')['requires'] + loadData('pod-debian')['devRequires'])}",
+pods.IMAGES["debian-bookworm"].setup += [
+    f"apt -y install {' '.join(loadData('pod-debian-bookworm')['requires'] + loadData('pod-debian-bookworm')['devRequires'])}",
     "gem install fpm",
 ]
-pods.IMAGES["alpine"].setup += [
-    f"apk add {' '.join(loadData('pod-alpine')['requires'] + loadData('pod-alpine')['devRequires'])}",
+pods.IMAGES["alpine-3.18"].setup += [
+    f"apk add {' '.join(loadData('pod-alpine-3.18')['requires'] + loadData('pod-alpine-3.18')['devRequires'])}",
     "gem install fpm",
 ]
 pods.IMAGES["arch"].setup += [
     f"pacman --noconfirm -S {' '.join(loadData('pod-arch')['requires'] + loadData('pod-arch')['devRequires'])}",
     "gem install fpm",
 ]
-pods.IMAGES["fedora"].setup += [
-    f"dnf -y install {' '.join(loadData('pod-fedora')['requires'] + loadData('pod-fedora')['devRequires'])}",
+pods.IMAGES["fedora-39"].setup += [
+    f"dnf -y install {' '.join(loadData('pod-fedora-39')['requires'] + loadData('pod-fedora-39')['devRequires'])}",
     "gem install fpm",
 ]
 
@@ -155,7 +154,7 @@ def _(args: cli.Args):
 
     model.Project.use(args)
     target = useTarget(args)
-    prefix = "/opt/odoo-wkhtmltopdf"
+    prefix = "/usr/"
     distro = args.consumeOpt("distro", None)
     if distro is None:
         import sys
@@ -209,5 +208,5 @@ def _(args: cli.Args):
         prefix,
         "-p",
         str(dist / output),
-        "/opt/odoo-wkhtmltopdf",
+        "/usr/bin/wkhtmltopdf",
     )

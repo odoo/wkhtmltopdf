@@ -2,20 +2,24 @@
 
 set -e
 
+if [ -z "$CUTEKIT" ]; then
+    export CUTEKIT="./bootstrap.sh"
+fi
+
 # for each target build the project
 DISTROS="\
-    alpine \
+    alpine-3.18 \
     arch \
-    debian \
-    fedora \
-    ubuntu"
+    debian-bookworm \
+    fedora-39 \
+    ubuntu-jammy"
 
 for DISTRO in $DISTROS; do
     echo "Building for $DISTRO"
     BUILDER=$DISTRO-builder
-    ./bootstrap.sh pod create --name=$BUILDER --image=$DISTRO || true
-    ./bootstrap.sh --pod=$BUILDER wk dist --distro=$DISTRO $@
+    $CUTEKIT pod create --name=$BUILDER --image=$DISTRO || true
+    $CUTEKIT --pod=$BUILDER wk dist --distro=$DISTRO $@
 done
 
-./bootstrap.sh ck pod kill --all
+$CUTEKIT pod kill --all
 docker system prune -fa

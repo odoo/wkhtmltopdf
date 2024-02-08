@@ -1,5 +1,5 @@
 {
-    "id": "fedora",
+    "id": "fedora-39",
     "package": "rpm",
     "extension": "rpm",
     "requires": [

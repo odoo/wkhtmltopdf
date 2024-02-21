@@ -1,0 +1,66 @@
+
+        <!DOCTYPE html>
+        <html style="height: 0;">
+            <head>
+                <link type="text/css" rel="stylesheet" href="web.report_assets_pdf.min.css"/>
+                <link type="text/css" rel="stylesheet" href="web.report_assets_common.min.css"/>
+                
+                <meta charset="utf-8"/>
+                <script>
+                    function subst() {
+                        var vars = {};
+                        var x = document.location.search.substring(1).split('&');
+                        for (var i in x) {
+                            var z = x[i].split('=', 2);
+                            vars[z[0]] = unescape(z[1]);
+                        }
+                        var x = ['sitepage', 'sitepages', 'section', 'subsection', 'subsubsection'];
+                        var z = {'sitepage': 'page', 'sitepages': 'topage'};
+                        for (var i in x) {
+                            var y = document.getElementsByClassName(z[x[i]] || x[i])
+                            for (var j=0; j<y.length; ++j)
+                                y[j].textContent = vars[x[i]];
+                        }
+
+                        var index = vars['webpage'].split('.', 4)[3];
+                        var header = document.getElementById('minimal_layout_report_headers');
+                        if(header){
+                            var companyHeader = header.children[index];
+                            header.textContent = '';
+                            header.appendChild(companyHeader);
+                        }
+                        var footer = document.getElementById('minimal_layout_report_footers');
+                        if(footer){
+                            var companyFooter = footer.children[index];
+                            footer.textContent = '';
+                            footer.appendChild(companyFooter);
+                        }
+                    }
+                </script>
+            </head>
+            <body class="container" style="overflow:hidden" onload="subst()" dir="ltr">
+                
+
+
+        <div class="header">
+            <div class="row o_footer_font_size">
+                <div class="col-3">
+                    <span>2024-02-21 13:20</span>
+                </div>
+                <div class="col-2 offset-2 text-center">
+                    <span>YourCompany</span>
+                </div>
+                <div class="col-2 offset-3 text-end">
+                    <ul class="list-inline">
+                        <li class="list-inline-item"><span class="page"></span></li>
+                        <li class="list-inline-item">/</li>
+                        <li class="list-inline-item"><span class="topage"></span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="article">
+          
+        </div>
+            </body>
+        </html>

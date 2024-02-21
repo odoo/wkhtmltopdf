@@ -21,11 +21,7 @@
 #include <QFile>
 #include <QObject>
 #include <QUrl>
-#if QT_VERSION >= 0x050000
-#include <QtWebKitWidgets>
-#else
 #include <QWebPage>
-#endif
 
 #include "loadsettings.hh"
 

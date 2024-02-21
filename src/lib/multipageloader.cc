@@ -24,14 +24,9 @@
 #include <QNetworkDiskCache>
 #include <QTimer>
 #include <QUuid>
-#if (QT_VERSION >= 0x050000 && !defined QT_NO_SSL) || !defined QT_NO_OPENSSL
 #include <QSslCertificate>
 #include <QSslConfiguration>
 #include <QSslKey>
-#endif
-#if QT_VERSION >= 0x050000
-#include <QUrlQuery>
-#endif
 
 #include "multipageloader_p.hh"
 
@@ -107,8 +102,7 @@ QNetworkReply * MyNetworkAccessManager::createRequest(Operation op, const QNetwo
 			r3.setRawHeader(j.first.toLatin1(), j.second.toLatin1());
 	}
 
-#if (QT_VERSION >= 0x050000 && !defined QT_NO_SSL) || !defined QT_NO_OPENSSL
-	if (!settings.clientSslKeyPath.isEmpty() && !settings.clientSslKeyPassword.isEmpty() && !settings.clientSslCrtPath.isEmpty()) {
+		if (!settings.clientSslKeyPath.isEmpty() && !settings.clientSslKeyPassword.isEmpty() && !settings.clientSslCrtPath.isEmpty()) {
 		QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
 
 		QFile keyFile(settings.clientSslKeyPath);
@@ -129,7 +123,6 @@ QNetworkReply * MyNetworkAccessManager::createRequest(Operation op, const QNetwo
 			}
 		}
 	}
-#endif
 
 	return QNetworkAccessManager::createRequest(op, r3, outgoingData);
 }
@@ -470,17 +463,10 @@ void ResourceObject::load() {
 			postData.append("--\n");
 		}
 	} else {
-#if QT_VERSION >= 0x050000
-		QUrlQuery q;
-		foreach (const settings::PostItem & pi, settings.post)
-			q.addQueryItem(pi.name, pi.value);
-		postData = q.query(QUrl::FullyEncoded).toLocal8Bit();
-#else
 		QUrl u;
 		foreach (const settings::PostItem & pi, settings.post)
 			u.addQueryItem(pi.name, pi.value);
 		postData = u.encodedQuery();
-#endif
 	}
 
 	multiPageLoader.cookieJar->clearExtraCookies();

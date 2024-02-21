@@ -32,9 +32,6 @@
 int main(int argc, char ** argv) {
 #if defined(Q_OS_UNIX)
 	setlocale(LC_ALL, "");
-#if QT_VERSION >= 0x050000
-	setenv("QT_QPA_PLATFORM", "offscreen", 0);
-#endif
 #endif
 	// This will store all our settings
 	wkhtmltopdf::settings::ImageGlobal settings;

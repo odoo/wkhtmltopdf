@@ -1,5 +1,5 @@
 // Copyright 2010-2020 wkhtmltopdf authors
-// Copyright 2023 Odoo S.A.
+// Copyright 2023-2024 Odoo S.A.
 //
 // This file is part of wkhtmltopdf.
 //

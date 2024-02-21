@@ -42,16 +42,16 @@ pods.IMAGES["fedora-39"].setup += [
 ]
 
 
-def useTarget(args: cli.Args) -> model.Target:
-    target = model.Target(str(args.consumeOpt("target", "host")))
+def useTarget(args: model.TargetArgs) -> model.Target:
+    target = model.Target(args.target)
     target.props["host"] = True
     _logger.debug(f"Using target '{target.id}'")
     return target
 
 
-def usePrefix(args: cli.Args, target: model.Target) -> str:
+def usePrefix(target: model.Target, prefix : str) -> str:
     default = os.path.join(target.builddir, "prefix")
-    prefix = str(args.consumeOpt("prefix", default))
+    prefix = prefix or default
     prefix = os.path.abspath(prefix)
     if not os.path.exists(prefix):
         os.makedirs(prefix)
@@ -75,6 +75,9 @@ def wkConfigure(target: model.Target, prefix: str) -> None:
 
     print(f"{vt100.GREEN + vt100.BOLD}Configured Yaii~ :3{vt100.RESET}")
 
+
+class WkBuildArgs(model.TargetArgs):
+    prefix : str = cli.arg(None, "prefix", "Where to install the build")
 
 def wkBuild(target: model.Target, prefix: str) -> None:
     qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
@@ -115,58 +118,57 @@ def wkBuild(target: model.Target, prefix: str) -> None:
 
 
 @cli.command("w", "wk", "Build system for wkhtmltopdf")
-def _(args: cli.Args):
+def _():
     pass
 
 
-@cli.command("c", "wk/configure", "Configure wkhtmltopdf")
-def _(args: cli.Args):
-    model.Project.use(args)
-    target = useTarget(args)
-    prefix = usePrefix(args, target)
 
+@cli.command("c", "wk/configure", "Configure wkhtmltopdf")
+def _(args : WkBuildArgs):
+    model.Project.use()
+    target = useTarget(args)
+    prefix = usePrefix(target, args.prefix)
     wkConfigure(target, prefix)
 
 
 @cli.command("b", "wk/build", "Build wkhtmltopdf")
-def _(args: cli.Args):
-    model.Project.use(args)
+def _(args: WkBuildArgs):
+    model.Project.use()
     target = useTarget(args)
-    prefix = usePrefix(args, target)
-
+    prefix = usePrefix(target, args.prefix)
     wkBuild(target, prefix)
+
+class WkProfileArgs(WkBuildArgs, shell.ProfileArgs):
+    args: list[str] = cli.extra("args", "The arguments to pass to wkhtmltopdf")
 
 
 @cli.command("p", "wk/profile", "Profile wkhtmltopdf")
-def _(args: cli.Args):
+def _(args : WkProfileArgs):
     target = useTarget(args)
-    prefix = os.path.relpath(usePrefix(args, target))
-    what = args.consumeOpt("what", "cpu")
-    rate = args.consumeOpt("rate", 1000)
+    prefix = os.path.relpath(usePrefix(target, args.prefix))
     wkhtmltopdf = os.path.join(prefix, "bin/wkhtmltopdf")
-    shell.profile([wkhtmltopdf] + args.extra, rate=rate, what=what)
+    shell.profile([wkhtmltopdf] + args.args, rate=args.rate, what=args.what)
 
+
+class WkDistArgs(WkBuildArgs):
+    distro: str = cli.arg(None, "distro", "The distro to package for")
+    version: str = cli.arg(None, "version", "The version to package")
+    flavor: str = cli.arg(None, "flavor", "The flavor to package")
 
 @cli.command("d", "wk/dist", "Distribute wkhtmltopdf")
-def _(args: cli.Args):
+def _(args: WkDistArgs):
     # This command will configure, build, install and
     # package wkhtmltopdf for distribution.
+    model.Project.use()
 
-    model.Project.use(args)
     target = useTarget(args)
     prefix = "/usr/"
-    distro = args.consumeOpt("distro", None)
-    if distro is None:
-        import sys
-
-        print(sys.argv)
+    if not args.distro:
         raise RuntimeError("No distro specified")
 
-    version = args.consumeOpt("version", None)
-    if version is None:
+    if not args.version:
         with open("VERSION") as f:
-            version = f.read().strip()
-    flavor = args.consumeOpt("flavor", "dev")
+            args.version = f.read().strip()
 
     wkConfigure(target, prefix)
     wkBuild(target, prefix)
@@ -174,9 +176,9 @@ def _(args: cli.Args):
     dist = Path(const.PROJECT_CK_DIR) / "dist"
     dist.mkdir(exist_ok=True)
 
-    distro = loadData("pod-" + distro)
+    distro = loadData("pod-" + args.distro)
     arch = platform.machine()
-    output = f"odoo-wkhtmltopdf-{distro['id']}-{arch}-{version}-{flavor}.{distro['extension']}"
+    output = f"odoo-wkhtmltopdf-{distro['id']}-{arch}-{args.version}-{args.flavor}.{distro['extension']}"
 
     # Make sure fpm is in the PATH
     try:
@@ -203,7 +205,7 @@ def _(args: cli.Args):
         "-n",
         "odoo-wkhtmltopdf",
         "-v",
-        f"{version}-{flavor}",
+        f"{args.version}-{args.flavor}",
         "-C",
         prefix,
         "-p",

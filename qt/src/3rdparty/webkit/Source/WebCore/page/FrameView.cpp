@@ -816,7 +816,7 @@ void FrameView::layout(bool allowSubtree)
         m_size.setWidth(layoutWidth());
         return;
     }
-
+    
     // we shouldn't enter layout() while painting
     ASSERT(!isPainting());
     if (isPainting())
@@ -832,8 +832,6 @@ void FrameView::layout(bool allowSubtree)
     ASSERT(m_frame->view() == this);
 
     Document* document = m_frame->document();
-    if (!document->printing())
-        return;
 
     m_layoutSchedulingEnabled = false;
 

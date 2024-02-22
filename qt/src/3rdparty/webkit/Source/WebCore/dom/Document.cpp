@@ -2119,7 +2119,18 @@ void Document::implicitClose()
 
     frame()->loader()->checkCallImplicitClose();
     RenderObject* renderObject = renderer();
-
+    
+    // We used to force a synchronous display and flush here.  This really isn't
+    // necessary and can in fact be actively harmful if pages are loading at a rate of > 60fps
+    // (if your platform is syncing flushes and limiting them to 60fps).
+    m_overMinimumLayoutThreshold = true;
+    if (!ownerElement() || (ownerElement()->renderer() && !ownerElement()->renderer()->needsLayout())) {
+        updateStyleIfNeeded();
+        
+        // Always do a layout after loading if needed.
+        if (view() && renderObject && (!renderObject->firstChild() || renderObject->needsLayout()))
+            view()->layout();
+    }
 
 #if PLATFORM(MAC) || PLATFORM(CHROMIUM)
     if (f && renderObject && this == topDocument() && AXObjectCache::accessibilityEnabled()) {

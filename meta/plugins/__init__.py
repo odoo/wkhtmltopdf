@@ -1,5 +1,4 @@
 import os
-import sys
 import logging
 import platform
 
@@ -14,7 +13,7 @@ _logger = logging.getLogger(__name__)
 _dataCache: dict[str, Any] = {}
 
 
-def loadData(name: str) -> jexpr.Json:
+def loadData(name: str) -> jexpr.Jexpr:
     global _dataCache
     if name not in _dataCache:
         _dataCache[name] = jexpr.read(Path(f"meta/data/{name}.json"))

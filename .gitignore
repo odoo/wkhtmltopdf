@@ -25,3 +25,4 @@ __pycache__/
 .vscode/
 .mypy_cache/
 .python-version
+workspace.code-workspace

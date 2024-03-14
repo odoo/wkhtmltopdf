@@ -126,12 +126,6 @@ void PdfConverterPrivate::beginConvert() {
 	currentPhase = 0;
 	errorCode = 0;
 
-	if (objects.size() > 1) {
-		emit out.error("This version of wkhtmltopdf is built against an unpatched version of QT, and does not support more than one input document.");
-		fail();
-		return;
-	}
-
 	for (QList<PageObject>::iterator i = objects.begin(); i != objects.end(); ++i) {
 		PageObject & o = *i;
 		settings::PdfObject & s = o.settings;

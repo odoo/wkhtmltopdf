@@ -61,8 +61,12 @@ def usePrefix(target: model.Target, prefix : str) -> str:
 QT = loadData("configure")
 
 
-def wkConfigure(target: model.Target, prefix: str) -> None:
+def wkConfigure(target: model.Target, prefix: str, ccache: bool) -> None:
     qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
+
+    os.environ["CC"] = "ccache gcc" if ccache else "gcc"
+    os.environ["CXX"] = "ccache g++" if ccache else "g++"
+
     if not shell.exec(
         os.path.abspath("./qt/configure"),
         *QT,
@@ -77,9 +81,14 @@ def wkConfigure(target: model.Target, prefix: str) -> None:
 
 class WkBuildArgs(model.TargetArgs):
     prefix : str = cli.arg(None, "prefix", "Where to install the build")
+    ccache : bool = cli.arg(None, "ccache", "Use ccache to speed up the build")
 
-def wkBuild(target: model.Target, prefix: str) -> None:
+def wkBuild(target: model.Target, prefix: str, ccache: bool) -> None:
     qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
+
+    os.environ["CC"] = "ccache gcc" if ccache else "gcc"
+    os.environ["CXX"] = "ccache g++" if ccache else "g++"
+
     if not shell.exec("make", "-j", str(shell.nproc()), cwd=qtBuildir):
         raise RuntimeError("Failed to build Qt")
 
@@ -127,7 +136,7 @@ def _(args : WkBuildArgs):
     model.Project.use()
     target = useTarget(args)
     prefix = usePrefix(target, args.prefix)
-    wkConfigure(target, prefix)
+    wkConfigure(target, prefix, args.ccache)
 
 
 @cli.command("b", "wk/build", "Build wkhtmltopdf")
@@ -135,7 +144,7 @@ def _(args: WkBuildArgs):
     model.Project.use()
     target = useTarget(args)
     prefix = usePrefix(target, args.prefix)
-    wkBuild(target, prefix)
+    wkBuild(target, prefix, args.ccache)
 
 class WkProfileArgs(WkBuildArgs, shell.ProfileArgs):
     args: list[str] = cli.extra("args", "The arguments to pass to wkhtmltopdf")

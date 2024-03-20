@@ -61,7 +61,7 @@ def usePrefix(target: model.Target, prefix : str) -> str:
 QT = loadData("configure")
 
 
-def wkConfigure(target: model.Target, prefix: str, ccache: bool) -> None:
+def wkConfigure(target: model.Target, prefix: str, ccache: bool = False) -> None:
     qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
 
     os.environ["CC"] = "ccache gcc" if ccache else "gcc"

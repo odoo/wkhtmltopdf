@@ -83,7 +83,7 @@ class WkBuildArgs(model.TargetArgs):
     prefix : str = cli.arg(None, "prefix", "Where to install the build")
     ccache : bool = cli.arg(None, "ccache", "Use ccache to speed up the build")
 
-def wkBuild(target: model.Target, prefix: str, ccache: bool) -> None:
+def wkBuild(target: model.Target, prefix: str, ccache: bool = False) -> None:
     qtBuildir = shell.mkdir(os.path.join(target.builddir, "qt"))
 
     os.environ["CC"] = "ccache gcc" if ccache else "gcc"

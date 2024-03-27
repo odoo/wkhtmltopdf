@@ -1,5 +1,7 @@
 # WkHtmlToPDF
 
+[![Check](https://github.com/odoo/wkhtmltopdf/actions/workflows/check.yml/badge.svg)](https://github.com/odoo/wkhtmltopdf/actions/workflows/check.yml) [![Publish Nightly](https://github.com/odoo/wkhtmltopdf/actions/workflows/nightly.yml/badge.svg)](https://github.com/odoo/wkhtmltopdf/actions/workflows/nightly.yml)
+
 > [!WARNING]
 > This not ready for production use yet, here be dragons!
 
